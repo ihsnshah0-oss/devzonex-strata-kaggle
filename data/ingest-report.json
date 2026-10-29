@@ -1,11 +1,10 @@
-warning: historical page: historical: RemoteProtocolError: Server disconnected without sending a response.
-error: screener: screener: RemoteProtocolError: Server disconnected without sending a response.
-error: indices: indices: RemoteProtocolError: Server disconnected without sending a response.
-error: indices/KSE100: indices/KSE100: RemoteProtocolError: Server disconnected without sending a response.
-error: indices/KMI30: indices/KMI30: RemoteProtocolError: Server disconnected without sending a response.
-error: membership: no KSE100 constituents could be parsed
-error: membership: no KMI30 constituents could be parsed
-done: 0 rows, 15 requests, 6 error(s) in 27.3s
+screener: 569 listed symbols
+indices: 18 levels stored
+indices/KSE100: 78 constituents
+indices/KMI30: 23 constituents
+company pages: 81
+capture saved: captures/latest (87 files)
+done: 4587 rows, 87 requests, 0 error(s) in 58.3s
 {
   "run_id": 1,
   "mode": "live",
@@ -15,55 +14,43 @@ done: 0 rows, 15 requests, 6 error(s) in 27.3s
     "KMI30"
   ],
   "trade_date": "2026-10-29",
-  "requests": 15,
+  "requests": 87,
   "rows": {
-    "symbols": 0,
-    "memberships": 0,
-    "market_bars": 0,
-    "index_bars": 0,
-    "index_levels": 0,
-    "snapshots": 0,
-    "financials": 0
+    "symbols": 569,
+    "memberships": 101,
+    "market_bars": 81,
+    "index_bars": 18,
+    "index_levels": 18,
+    "snapshots": 650,
+    "financials": 3150
   },
-  "rows_written": 0,
-  "errors": [
-    "screener: screener: RemoteProtocolError: Server disconnected without sending a response.",
-    "indices: indices: RemoteProtocolError: Server disconnected without sending a response.",
-    "indices/KSE100: indices/KSE100: RemoteProtocolError: Server disconnected without sending a response.",
-    "indices/KMI30: indices/KMI30: RemoteProtocolError: Server disconnected without sending a response.",
-    "membership: no KSE100 constituents could be parsed",
-    "membership: no KMI30 constituents could be parsed"
-  ],
-  "warnings": [
-    "historical page: historical: RemoteProtocolError: Server disconnected without sending a response."
-  ],
+  "rows_written": 4587,
+  "errors": [],
+  "warnings": [],
   "constituents": {
-    "KSE100": 0,
-    "KMI30": 0
+    "KSE100": 78,
+    "KMI30": 23
   },
   "notes": {
-    "trade_date_source": "computed-last-weekday",
+    "trade_date_source": "historical-data-latest",
     "constituents": {
-      "KSE100": 0,
-      "KMI30": 0
+      "KSE100": 78,
+      "KMI30": 23
     },
-    "errors": 6,
-    "warnings": 1,
+    "errors": 0,
+    "warnings": 0,
     "withdrawn_routes": [
       "/symbols",
       "/market-watch",
       "/timeseries/eod/{symbol}"
-    ]
+    ],
+    "capture": {
+      "directory": "captures/latest",
+      "files": 87
+    }
   },
-  "started_at": "2026-10-29T20:44:23+00:00",
-  "finished_at": "2026-10-29T20:44:50+00:00",
-  "duration_s": 27.31
+  "started_at": "2026-10-29T20:50:25+00:00",
+  "finished_at": "2026-10-29T20:51:24+00:00",
+  "duration_s": 58.25
 }
-run 1: 0 rows, 15 requests, 6 error(s) for trade date 2026-10-29
-  screener: screener: RemoteProtocolError: Server disconnected without sending a response.
-  indices: indices: RemoteProtocolError: Server disconnected without sending a response.
-  indices/KSE100: indices/KSE100: RemoteProtocolError: Server disconnected without sending a response.
-  indices/KMI30: indices/KMI30: RemoteProtocolError: Server disconnected without sending a response.
-  membership: no KSE100 constituents could be parsed
-  membership: no KMI30 constituents could be parsed
-  warning: historical page: historical: RemoteProtocolError: Server disconnected without sending a response.
+run 1: 4587 rows, 87 requests, 0 error(s) for trade date 2026-10-29
