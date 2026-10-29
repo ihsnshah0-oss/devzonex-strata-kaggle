@@ -105,10 +105,20 @@ jobs:
           git add -f data/psx.db.gz data/ingest-report.json data/ingest.log
           if git diff --cached --quiet; then
             echo "nothing to commit"
-          else
-            git commit -m "PSX ingest $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
-            git push origin "HEAD:$BRANCH"
+            exit 0
           fi
+          git commit -m "PSX ingest $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          # two workflows can push at once: rebase onto the remote head and retry
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase -X theirs origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          echo "could not push the database after 5 attempts" >&2
+          exit 1
 
       - name: Upload database artifact
         if: always()

@@ -38,7 +38,14 @@ jobs:
           git config user.name "psx-ingest-bot"
           git config user.email "psx-ingest-bot@users.noreply.github.com"
           git add -f data/probe.json data/probe.log data/api-calls.txt
-          if git diff --cached --quiet; then echo "nothing to commit"; else
-            git commit -m "PSX portal probe $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
-            git push origin "HEAD:$BRANCH"
-          fi
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "PSX portal probe $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase -X theirs origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+              echo "pushed on attempt $attempt"; exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          echo "could not push the probe report" >&2
+          exit 1
