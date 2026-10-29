@@ -1,18 +1,52 @@
 wrote data/probe.json
-GET /                              200
-GET /indices                       200
-GET /historical                    200
-GET /screener                      200
-GET /companies                     404
-GET /market-watch                  404
-GET /symbols                       404
-GET /static/script.js              200
-api probes: 46 tried, 8 answered 200
-  200 GET /company/OGDC [browser]
-  200 GET /company/OGDC [ajax]
-  200 GET /historical [browser]
-  200 GET /historical [ajax]
-  200 GET /indices [browser]
-  200 GET /indices [ajax]
-  200 GET /indices/ [browser]
-  200 GET /indices/ [ajax]
+/                    200 96487
+/indices             200 56763
+/historical          200 49901
+/screener            200 703174
+/downloads           200 48103
+/daily-downloads     200 48103
+routes: 44 tried, 6 answered 200
+   200 GET /historical [browser]
+   200 GET /historical [browser-no-origin]
+   200 GET /historical [json-accept]
+   200 GET /company/OGDC [browser]
+   200 GET /company/OGDC [browser-no-origin]
+   200 GET /company/OGDC [json-accept]
+   404 GET /symbols [browser]
+   404 POST /symbols [browser]
+   404 GET /symbols [browser-no-origin]
+   404 POST /symbols [browser-no-origin]
+   403 GET /symbols [json-accept]
+   403 POST /symbols [json-accept]
+   404 GET /market-watch [browser]
+   404 POST /market-watch [browser]
+   404 GET /market-watch [browser-no-origin]
+   404 POST /market-watch [browser-no-origin]
+   403 GET /market-watch [json-accept]
+   403 POST /market-watch [json-accept]
+   404 GET /timeseries/eod/OGDC [browser]
+   404 POST /timeseries/eod/OGDC [browser]
+   404 GET /timeseries/eod/OGDC [browser-no-origin]
+   404 POST /timeseries/eod/OGDC [browser-no-origin]
+   403 GET /timeseries/eod/OGDC [json-accept]
+   403 POST /timeseries/eod/OGDC [json-accept]
+   404 GET /timeseries/int/OGDC [browser]
+   404 POST /timeseries/int/OGDC [browser]
+   404 GET /timeseries/int/OGDC [browser-no-origin]
+   404 POST /timeseries/int/OGDC [browser-no-origin]
+   403 GET /timeseries/int/OGDC [json-accept]
+   403 POST /timeseries/int/OGDC [json-accept]
+   404 POST /historical [browser]
+   404 POST /historical [browser-no-origin]
+   403 POST /historical [json-accept]
+   404 POST /company/OGDC [browser]
+   404 POST /company/OGDC [browser-no-origin]
+   404 POST /company/OGDC [json-accept]
+   404 GET /data/timeseries/eod/OGDC [browser]
+   404 POST /data/timeseries/eod/OGDC [browser]
+   404 GET /data/timeseries/eod/OGDC [browser-no-origin]
+   404 POST /data/timeseries/eod/OGDC [browser-no-origin]
+   404 GET /data/timeseries/eod/OGDC [json-accept]
+   404 POST /data/timeseries/eod/OGDC [json-accept]
+   404 POST /historical ['month', 'symbol', 'year']
+   404 POST /historical ['month', 'symbol', 'type', 'year']
