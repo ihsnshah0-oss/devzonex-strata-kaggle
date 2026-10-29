@@ -1,0 +1,338 @@
+{
+  "probed_at": "2026-10-29T20:21:48+00:00",
+  "base": "https://dps.psx.com.pk",
+  "checks": {
+    "GET / [browser]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 96487,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET / [ajax]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 96487,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /symbols [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47731,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /symbols [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /symbols/ [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47732,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /symbols/ [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /market-watch [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47736,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /market-watch [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /market-watch/ [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47737,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /market-watch/ [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /indices [browser]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 56763,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /indices [ajax]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 56763,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /timeseries/eod/OGDC [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47743,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /timeseries/eod/OGDC [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /timeseries/eod/OGDC/ [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47744,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /timeseries/eod/OGDC/ [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /timeseries/int/OGDC [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47743,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /timeseries/int/OGDC [ajax]": {
+      "status": 403,
+      "headers": {
+        "server": "nginx/1.20.2"
+      },
+      "bytes": 0,
+      "snippet": ""
+    },
+    "GET /company/OGDC [browser]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 75567,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oil &amp; Gas Development Company Limited (OGDC) stock including price, charts, company profile, annou"
+    },
+    "GET /company/OGDC [ajax]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 75567,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oil &amp; Gas Development Company Limited (OGDC) stock including price, charts, company profile, annou"
+    },
+    "GET /company/OGDC/ [browser]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 75568,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oil &amp; Gas Development Company Limited (OGDC) stock including price, charts, company profile, annou"
+    },
+    "GET /company/OGDC/ [ajax]": {
+      "status": 200,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 75568,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oil &amp; Gas Development Company Limited (OGDC) stock including price, charts, company profile, annou"
+    },
+    "GET /historical/OGDC [browser]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47739,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /historical/OGDC [ajax]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47739,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "POST /historical": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47734,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    },
+    "GET /symbols [no browser headers]": {
+      "status": 404,
+      "headers": {
+        "server": "nginx/1.20.2",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "bytes": 47731,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+    }
+  },
+  "discovered_urls": [
+    "https://docs.google.com/forms/d/e/1FAIpQLSeVlP90e0N_PI2sOzJKp0e8nM8DVn0bGDtqN2EdS3Y_NmVjGw/viewform",
+    "https://dps.psx.com.pk/",
+    "https://dps.psx.com.pk/#indices",
+    "https://dps.psx.com.pk/#listings",
+    "https://dps.psx.com.pk/#marketDebtPerformers",
+    "https://dps.psx.com.pk/#marketPerformers",
+    "https://dps.psx.com.pk/#markets",
+    "https://dps.psx.com.pk/#watchlist",
+    "https://dps.psx.com.pk/analysis-reports",
+    "https://dps.psx.com.pk/announcements/cdc",
+    "https://dps.psx.com.pk/announcements/companies",
+    "https://dps.psx.com.pk/announcements/nccpl",
+    "https://dps.psx.com.pk/announcements/psx",
+    "https://dps.psx.com.pk/announcements/secp",
+    "https://dps.psx.com.pk/calendar",
+    "https://dps.psx.com.pk/circuit-breakers",
+    "https://dps.psx.com.pk/corporate-briefing",
+    "https://dps.psx.com.pk/debt-market",
+    "https://dps.psx.com.pk/downloads",
+    "https://dps.psx.com.pk/eligible-scrips",
+    "https://dps.psx.com.pk/gis-auction-results",
+    "https://dps.psx.com.pk/graphical-view",
+    "https://dps.psx.com.pk/historical",
+    "https://dps.psx.com.pk/indices",
+    "https://dps.psx.com.pk/indices-div-discount",
+    "https://dps.psx.com.pk/listings",
+    "https://dps.psx.com.pk/monthly-reports",
+    "https://dps.psx.com.pk/nd-verification",
+    "https://dps.psx.com.pk/payouts",
+    "https://dps.psx.com.pk/portfolio",
+    "https://dps.psx.com.pk/progress-report",
+    "https://dps.psx.com.pk/screener",
+    "https://dps.psx.com.pk/sector-summary",
+    "https://dps.psx.com.pk/shariah",
+    "https://dps.psx.com.pk/shariah/trading-panel#REG",
+    "https://dps.psx.com.pk/sitemap",
+    "https://dps.psx.com.pk/static/images/advise.png",
+    "https://dps.psx.com.pk/static/images/data-portal-text.png",
+    "https://dps.psx.com.pk/static/images/disclaimer/trading-scam-alert.jpg",
+    "https://dps.psx.com.pk/static/images/favicon.png",
+    "https://dps.psx.com.pk/static/images/fb.png",
+    "https://dps.psx.com.pk/static/images/feedback.png",
+    "https://dps.psx.com.pk/static/images/linkedin.png",
+    "https://dps.psx.com.pk/static/images/logo-200.png",
+    "https://dps.psx.com.pk/static/images/logo-white-bg.png",
+    "https://dps.psx.com.pk/static/images/logo.png",
+    "https://dps.psx.com.pk/static/images/network-logo.png",
+    "https://dps.psx.com.pk/static/images/rss.png",
+    "https://dps.psx.com.pk/static/images/secp-service-desk.jpg",
+    "https://dps.psx.com.pk/static/images/twitter.png",
+    "https://dps.psx.com.pk/static/images/youtube.png",
+    "https://dps.psx.com.pk/static/script.js?v=1.80",
+    "https://dps.psx.com.pk/static/styles.css?v=1.80",
+    "https://dps.psx.com.pk/sukuk",
+    "https://dps.psx.com.pk/trading-panel",
+    "https://dps.psx.com.pk/trading-panel#BNB",
+    "https://dps.psx.com.pk/trading-panel#CSF",
+    "https://dps.psx.com.pk/trading-panel#DFC",
+    "https://dps.psx.com.pk/trading-panel#GEM-CSF",
+    "https://dps.psx.com.pk/trading-panel#GEM-DFC",
+    "https://dps.psx.com.pk/trading-panel#GEM-ODL",
+    "https://dps.psx.com.pk/trading-panel#GEM-REG",
+    "https://dps.psx.com.pk/trading-panel#GEM-SQR",
+    "https://dps.psx.com.pk/trading-panel#MTS",
+    "https://dps.psx.com.pk/trading-panel#NDM",
+    "https://dps.psx.com.pk/trading-panel#ODL",
+    "https://dps.psx.com.pk/trading-panel#REG",
+    "https://dps.psx.com.pk/trading-panel#SIF",
+    "https://dps.psx.com.pk/trading-panel#SQR",
+    "https://financials.psx.com.pk/",
+    "https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700",
+    "https://knowledgecenter.psx.com.pk/",
+    "https://linkedin.com/company/pakistanstockexchangelimited/",
+    "https://psx.com.pk",
+    "https://sdms.secp.gov.pk/",
+    "https://twitter.com/pakstockexgltd",
+    "https://www.capitalstake.com/assets/images/logo-360.png",
+    "https://www.facebook.com/Pakistanstockexchangelimited/",
+    "https://www.google.com/recaptcha/api.js",
+    "https://www.psx.com.pk/",
+    "https://www.psx.com.pk/psx/news/",
+    "https://www.pucars.com/",
+    "https://www.youtube.com/channel/UC1ilKViIpulidQm5UL6mGTQ",
+    "mailto:marketdatarequest@psx.com.pk"
+  ],
+  "notes": [],
+  "script_urls": [
+    "https://www.google.com/recaptcha/api.js"
+  ],
+  "keyword_snippets": [
+    "lete\"><div class=\"dropdown\"><select class=\"dropdown__select\" name=\"sector\"><option value=\"symbols\">Symbols</option><option value=\"website\">Website</option></select></div><input cla",
+    "put class=\"searchbar__input\" id=\"mainMobileSearchbar\" type=\"text\" placeholder=\"Search for symbols or company\"><div class=\"searchbar__icon\"><i class=\"icon-search\"></i></div></div></",
+    "nput id=\"watchlistSearch\" autocomplete=\"new-password\" type=\"text\" placeholder=\"Search for symbols or company\"></div></div></div><div class=\"watchlist__container\"><div class=\"loader",
+    "ript src=\"/static/script.js?v=1.80\"></script><script src=\"https://www.google.com/recaptcha/api.js\"></script><script>window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"};\n</script></head><",
+    "__subMenuItem\" href=\"/screener\">Stock Screener</a><a class=\"top__nav__subMenuItem\" href=\"/historical\">Historical Data</a><a class=\"top__nav__subMenuItem\" href=\"/eligible-scrips\">El",
+    "ry\">Sector Summary</a></li><li> <a href=\"/screener\">Stock Screener</a></li><li> <a href=\"/historical\">Historical Data</a></li><li> <a href=\"/eligible-scrips\">Eligible Scrips</a></l",
+    "searchbar__input\" id=\"mainMobileSearchbar\" type=\"text\" placeholder=\"Search for symbols or company\"><div class=\"searchbar__icon\"><i class=\"icon-search\"></i></div></div></div></div><",
+    "tchlistSearch\" autocomplete=\"new-password\" type=\"text\" placeholder=\"Search for symbols or company\"></div></div></div><div class=\"watchlist__container\"><div class=\"loader\"><div clas",
+    "fy Name of Company or Symbol</div><div class=\"form__field__text\"><input type=\"text\" name=\"company\" autocomplete=\"new-password\"></div></div><div class=\"form__field\"><div class=\"form",
+    "index, report, opinion, advice or other Content. PSX & CS neither endorse nor sponsor any company identified on the website.</p><p>Accordingly, anything to the contrary herein set ",
+    " programs, tools, applications and/or code available on or through the PSX Web-site and accompanying links, photographs, images, video, audio and graphics contained on the PSX Web-",
+    "fer any of the Content to any third person (including, without limitation, others in your company or organization) except if we give you prior written permission;</li><li> You will",
+    "\" target=\"_blank\"><img src=\"/static/images/twitter.png\"></a><a href=\"https://linkedin.com/company/pakistanstockexchangelimited/\" target=\"_blank\"><img src=\"/static/images/linkedin.p"
+  ]
+}

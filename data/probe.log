@@ -1,0 +1,27 @@
+wrote data/probe.json
+GET / [browser]                            200
+GET / [ajax]                               200
+GET /symbols [browser]                     404
+GET /symbols [ajax]                        403
+GET /symbols/ [browser]                    404
+GET /symbols/ [ajax]                       403
+GET /market-watch [browser]                404
+GET /market-watch [ajax]                   403
+GET /market-watch/ [browser]               404
+GET /market-watch/ [ajax]                  403
+GET /indices [browser]                     200
+GET /indices [ajax]                        200
+GET /timeseries/eod/OGDC [browser]         404
+GET /timeseries/eod/OGDC [ajax]            403
+GET /timeseries/eod/OGDC/ [browser]        404
+GET /timeseries/eod/OGDC/ [ajax]           403
+GET /timeseries/int/OGDC [browser]         404
+GET /timeseries/int/OGDC [ajax]            403
+GET /company/OGDC [browser]                200
+GET /company/OGDC [ajax]                   200
+GET /company/OGDC/ [browser]               200
+GET /company/OGDC/ [ajax]                  200
+GET /historical/OGDC [browser]             404
+GET /historical/OGDC [ajax]                404
+POST /historical                           404
+GET /symbols [no browser headers]          404
