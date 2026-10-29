@@ -1,28 +1,8 @@
 wrote data/probe.json
-200  GET /screener  (703174 bytes)
-200  GET /indices  (56763 bytes)
-200  GET /indices/KSE100  (74749 bytes)
-200  GET /indices/KMI30  (23023 bytes)
-200  GET /company/OGDC  (75567 bytes)
-404  GET /company/OGDC/payouts  (47744 bytes)
-404  POST /payouts ['symbol', 'year']  (47731 bytes)
-200  GET /sitemap  (50784 bytes)
-404  GET /timeseries/eod/OGDC  (47743 bytes)
-404  GET /symbols  (47731 bytes)
-404  GET /market-watch  (47736 bytes)
-404  GET /historical/OGDC  (47739 bytes)
-404  GET /historical-data/OGDC  (47744 bytes)
-404  GET /data/historical/OGDC  (47744 bytes)
-200  GET /historical?symbol=OGDC&month=09&year=2026  (49940 bytes)
-404  GET /market-summary  (47738 bytes)
-200  GET /daily-downloads  (48103 bytes)
-200  GET /announcements/companies  (49544 bytes)
-client httpx-http1.1 /: 200 
-client curl-http1.1 /timeseries/eod/{symbol}: 404 nginx/1.20.2
-client curl-http2 /timeseries/eod/{symbol}: 404 nginx/1.20.2
-client curl-http1.1 /screener: 200 nginx/1.20.2
-client curl-http2 /screener: 200 nginx/1.20.2
-client curl-http1.1 /indices/KSE100: 200 nginx/1.20.2
-client curl-http2 /indices/KSE100: 200 nginx/1.20.2
-client httpx-http2 /timeseries/eod/{symbol}: 404 
-client httpx-http2 /screener: 200 
+/                      200 96487 tables=0 cols=0
+/screener              200 703174 tables=1 cols=11
+/indices               200 56763 tables=2 cols=7
+/indices/KSE100        200 74749 tables=1 cols=11
+/indices/KMI30         200 23023 tables=1 cols=11
+/company/OGDC          200 75567 tables=7 cols=24
+/historical            200 49901 tables=0 cols=0

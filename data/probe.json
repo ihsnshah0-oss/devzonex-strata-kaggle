@@ -1,585 +1,203 @@
 {
-  "probed_at": "2026-10-29T20:36:27+00:00",
+  "probed_at": "2026-10-29T20:38:30+00:00",
   "base": "https://dps.psx.com.pk",
-  "clients": {
-    "httpx-http1.1 /": {
+  "pages": {
+    "/": {
       "status": 200,
-      "headers": {
-        "server": "nginx/1.20.2",
-        "date": "Thu, 29 Oct 2026 20:36:29 GMT",
-        "content-type": "text/html; charset=utf-8",
-        "transfer-encoding": "chunked",
-        "connection": "keep-alive",
-        "keep-alive": "timeout=20",
-        "x-frame-options": "SAMEORIGIN, SAMEORIGIN",
-        "strict-transport-security": "max-age=15552000; includeSubdomains",
-        "x-permitted-cross-domain-policies": "none",
-        "referrer-policy": "strict-origin-when-cross-origin, same-origin",
-        "feature-policy": "fullscreen 'none'; microphone 'none'",
-        "x-content-type-options": "nosniff, nosniff",
-        "content-security-policy": "object-src 'self'; script-src 'self' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:;img-src 'self' https://www.capitalstake.com https://www.google-analytics.com https://www.google.com.pk/ads; frame-ancestors 'self';",
-        "cache-control": "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0",
-        "x-xss-protection": "1; mode=block",
-        "x-dis-request-id": "006c421e96ff724775d79d449ccaa3d5",
-        "content-encoding": "gzip"
+      "bytes": 96487,
+      "snippets": {
+        "thead": null,
+        "first_row": null,
+        "stats_block": "<div class=\"stats_label\">High</div><div class=\"stats_value\">167,483.48</div></div><div class=\"stats_item\"><div class=\"stats_label\">Low</div><div class=\"stats_value\">165,907.29</div></div><div class=\"stats_item\"><div class=\"stats_label\">Volume</div><div class=\"stats_value\">366,121,541</div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">1-Year Change</div><div class=\"stats_value change__text--pos\"><i class=\"icon-up-dir\"></i>  5.51%</div></div><div class=\"stats_item\"><div class=\"stats_label\">YTD Change</div><div class=\"stats_value change__text--neg\"><i class=\"icon-down-dir\"></i>  -3.94%</div></div><div class=\"stats_item\"><div class=\"stats_label\">Previous Close</div><div class=\"stats_value\">165,736.75</div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">DAY RANGE</div><div class=\"stats_value\">165,907.29 \u2014 167,483.48<div class=\"numRange\" data-low=\"165907.29\" data-high=\"167483.48\" data-current=\"167193.43\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">52-WEEK RANGE</div><div class=\"stats_value\">144,119.44 \u2014 191,032.73<div class=\"numRange\" data-low=\"144119.4395\" data-high=\"191032.7344\" data-current=\"167193.43\"></div></div></div>",
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "cookies": {}
+      "columns": [],
+      "epoch_values": [],
+      "tables": 0
     },
-    "curl-http1.1 /timeseries/eod/{symbol}": {
-      "status": 404,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "curl-http2 /timeseries/eod/{symbol}": {
-      "status": 404,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "curl-http1.1 /screener": {
+    "/screener": {
       "status": 200,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "curl-http2 /screener": {
-      "status": 200,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "curl-http1.1 /indices/KSE100": {
-      "status": 200,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "curl-http2 /indices/KSE100": {
-      "status": 200,
-      "server": "nginx/1.20.2",
-      "stderr": null
-    },
-    "httpx-http2 /timeseries/eod/{symbol}": {
-      "status": 404,
-      "http_version": "HTTP/1.1",
-      "bytes": 47743
-    },
-    "httpx-http2 /screener": {
-      "status": 200,
-      "http_version": "HTTP/1.1",
-      "bytes": 703174
-    }
-  },
-  "targets": {
-    "GET /screener": {
-      "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 703174,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 8,
-        "financial": 12,
-        "KSE100": 207,
-        "KMI30": 33,
-        "data-search": 0,
-        "table": 1
+      "snippets": {
+        "thead": "<thead class=\"tbl__head\"><tr><th data-name=\"symbol\">SYMBOL</th><th data-name=\"sector\">SECTOR</th><th data-name=\"listed\">LISTED IN</th><th class=\"right\" data-name=\"marketCap\">MARKET CAP.</th><th class=\"right\" data-name=\"close\">PRICE</th><th class=\"right\" data-name=\"percentChange\">CHANGE (%)</th><th class=\"right\" data-name=\"changeYear\">1-YEAR CH. (%) *</th><th class=\"right\" data-name=\"peRatio\">PE RATIO (TTM)</th><th class=\"right\" data-name=\"dividendYield\">DIVIDEND YIELD (%)</th><th class=\"right\" data-name=\"freeFloat\">FREE FLOAT</th><th class=\"right\" data-name=\"volume30Avg\">30D VOLUME AVG.</th></tr></thead>",
+        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"786\"><a class=\"tbl__symbol\" href=\"/company/786\" data-title=\"786 Investments Limited\"><strong>786</strong></a></td><td>0813</td><td>ALLSHR</td><td class=\"right\" data-order=\"399489665.01000005\" data-filter=\"399489665.01000005\">399.5M</td><td class=\"right\" data-order=\"20.01\" data-filter=\"20.01\">20.01</td><td class=\"right change__text--pos\" data-order=\"0.251\" data-filter=\"0.251\"><i class=\"icon-up-dir\"></i> 0.25%</td><td class=\"right change__text--pos\" data-order=\"54.04157043879908\" data-filter=\"54.04157043879908\"><i class=\"icon-up-dir\"></i> 54.04%</td><td class=\"right\" data-order=\"90.95454545454542\" data-filter=\"90.95454545454542\">90.95</td><td class=\"right\" data-order=\"0\" data-filter=\"0\">0.00</td><td class=\"right\" data-order=\"6987575\" data-filter=\"6987575\">7.0M</td><td class=\"right\" data-order=\"96066.93\" data-filter=\"96066.93\">96,067</td></tr>",
+        "stats_block": null,
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "tables": [
-        {
-          "table": 0,
-          "rows": 755,
-          "headers": [
-            "SYMBOL",
-            "SECTOR",
-            "LISTED IN",
-            "MARKET CAP.",
-            "PRICE",
-            "CHANGE (%)",
-            "1-YEAR CH. (%) *",
-            "PE RATIO (TTM)",
-            "DIVIDEND YIELD (%)",
-            "FREE FLOAT",
-            "30D VOLUME AVG."
-          ],
-          "sample_rows": [
-            [
-              "786",
-              "0813",
-              "ALLSHR",
-              "399.5M",
-              "20.01",
-              "0.25%",
-              "54.04%",
-              "90.95",
-              "0.00",
-              "7.0M",
-              "96,067"
-            ],
-            [
-              "786R",
-              "0813",
-              "",
-              "12.3M",
-              "2.47",
-              "-6.44%",
-              "0.00%",
-              "0.00",
-              "0.00",
-              "499.1K",
-              "185,889"
-            ]
-          ]
-        }
-      ]
+      "columns": [
+        "SYMBOL",
+        "SECTOR",
+        "LISTED IN",
+        "MARKET CAP.",
+        "PRICE",
+        "CHANGE (%)",
+        "1-YEAR CH. (%) *",
+        "PE RATIO (TTM)",
+        "DIVIDEND YIELD (%)",
+        "FREE FLOAT",
+        "30D VOLUME AVG."
+      ],
+      "epoch_values": [
+        "1604647000",
+        "1611891981",
+        "16345378225",
+        "1642500000",
+        "1651500000",
+        "169334324577",
+        "1698796400",
+        "1728000000",
+        "1731600000",
+        "173679480000"
+      ],
+      "tables": 1
     },
-    "GET /indices": {
+    "/indices": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 56763,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 7,
-        "KMI30": 3,
-        "data-search": 0,
-        "table": 2
+      "snippets": {
+        "thead": "<thead class=\"tbl__head\"><tr><th>Index</th><th class=\"right\">High</th><th class=\"right\">Low</th><th class=\"right\">Current</th><th class=\"right\">Change</th><th class=\"right\">% Change</th></tr></thead>",
+        "first_row": "<tbody class=\"tbl__body\"><tr><td><a class=\"link\" href=\"javascript:;\" data-code=\"KSE100\"><b>KSE100</b></a></td><td class=\"right\" data-order=\"167483.48\">167,483.48</td><td class=\"right\" data-order=\"165907.29\">165,907.29</td><td class=\"right\" data-order=\"167193.43\">167,193.43</td><td class=\"right change__text--pos\" data-order=\"1456.679999999993\"><i class=\"icon-up-dir\"></i> 1456.68</td><td class=\"right change__text--pos\" data-order=\"0.8789118888840243\"><i class=\"icon-up-dir\"></i> 0.88%</td></tr>",
+        "stats_block": null,
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "tables": [
-        {
-          "table": 0,
-          "rows": 19,
-          "headers": [
-            "Index",
-            "High",
-            "Low",
-            "Current",
-            "Change",
-            "% Change"
-          ],
-          "sample_rows": [
-            [
-              "KSE100",
-              "167,483.48",
-              "165,907.29",
-              "167,193.43",
-              "1456.68",
-              "0.88%"
-            ],
-            [
-              "KSE100PR",
-              "50,022.66",
-              "49,551.89",
-              "49,936.03",
-              "435.07",
-              "0.88%"
-            ]
-          ]
-        },
-        {
-          "table": 1,
-          "rows": 1,
-          "headers": [
-            "Sector Indices"
-          ],
-          "sample_rows": []
-        }
-      ]
+      "columns": [
+        "Index",
+        "High",
+        "Low",
+        "Current",
+        "Change",
+        "% Change",
+        "Sector Indices"
+      ],
+      "epoch_values": [],
+      "tables": 2
     },
-    "GET /indices/KSE100": {
+    "/indices/KSE100": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 74749,
-      "snippet": "<h2 style=\"margin-top:0;\">KSE 100 INDEX Constituents</h2><div class=\"tbl__wrapper\"><table class=\"tbl\" data-page-length=\"25\"><thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"r",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 0,
-        "financial": 0,
-        "KSE100": 0,
-        "KMI30": 0,
-        "data-search": 0,
-        "table": 1
+      "snippets": {
+        "thead": "<thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right\">CHANGE (%)</th><th class=\"right\">IDX WTG (%)</th><th class=\"right\">IDX POINT </th><th class=\"right\">VOLUME</th><th class=\"right\">FREEFLOAT (M)</th><th class=\"right\">MARKET CAP (M)</th></tr></thead>",
+        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"ABL\"><a class=\"tbl__symbol\" href=\"/company/ABL\" data-title=\"Allied Bank Limited\" target=\"_blank\"><strong>ABL</strong></a></td><td>Allied Bank Limited</td><td class=\"right\" data-order=\"170.11\">170.11</td><td class=\"right\" data-order=\"170.5\">170.50</td><td class=\"right change__text--pos\" data-order=\"0.39\"><i class=\"icon-up-dir\"></i> 0.39</td><td class=\"right change__text--pos\" data-order=\"0.22899999999999998\"><i class=\"icon-up-dir\"></i> 0.23%</td><td class=\"right\">0.42%</td><td class=\"right change__text--pos\" data-order=\"1.5924\">1.59</td><td class=\"right\" data-order=\"18465\">18,465</td><td class=\"right\" data-order=\"114507383\">115</td><td class=\"right\" data-order=\"19523508801.5\">19,524</td></tr>",
+        "stats_block": null,
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "tables": [
-        {
-          "table": 0,
-          "rows": 101,
-          "headers": [
-            "SYMBOL",
-            "NAME",
-            "LDCP",
-            "CURRENT",
-            "CHANGE",
-            "CHANGE (%)",
-            "IDX WTG (%)",
-            "IDX POINT",
-            "VOLUME",
-            "FREEFLOAT (M)",
-            "MARKET CAP (M)"
-          ],
-          "sample_rows": [
-            [
-              "ABL",
-              "Allied Bank Limited",
-              "170.11",
-              "170.50",
-              "0.39",
-              "0.23%",
-              "0.42%",
-              "1.59",
-              "18,465",
-              "115",
-              "19,524"
-            ],
-            [
-              "ABOT",
-              "Abbott Laboratories (Pakistan) Limited",
-              "960.74",
-              "971.75",
-              "11.01",
-              "1.15%",
-              "0.44%",
-              "8.32",
-              "15,744",
-              "21",
-              "20,585"
-            ]
-          ]
-        }
-      ]
+      "columns": [
+        "SYMBOL",
+        "NAME",
+        "LDCP",
+        "CURRENT",
+        "CHANGE",
+        "CHANGE (%)",
+        "IDX WTG (%)",
+        "IDX POINT",
+        "VOLUME",
+        "FREEFLOAT (M)",
+        "MARKET CAP (M)"
+      ],
+      "epoch_values": [
+        "16458655773",
+        "1651500000",
+        "16878274560",
+        "174485895000",
+        "18081015074",
+        "19956300000"
+      ],
+      "tables": 1
     },
-    "GET /indices/KMI30": {
+    "/indices/KMI30": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 23023,
-      "snippet": "<h2 style=\"margin-top:0;\">KMI INDEX Constituents</h2><div class=\"tbl__wrapper\"><table class=\"tbl\" data-page-length=\"25\"><thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 0,
-        "financial": 0,
-        "KSE100": 0,
-        "KMI30": 0,
-        "data-search": 0,
-        "table": 1
+      "snippets": {
+        "thead": "<thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right\">CHANGE (%)</th><th class=\"right\">IDX WTG (%)</th><th class=\"right\">IDX POINT </th><th class=\"right\">VOLUME</th><th class=\"right\">FREEFLOAT (M)</th><th class=\"right\">MARKET CAP (M)</th></tr></thead>",
+        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"AIRLINK\"><a class=\"tbl__symbol\" href=\"/company/AIRLINK\" data-title=\"Air Link Communication Limited\" target=\"_blank\"><strong>AIRLINK</strong></a></td><td>Air Link Communication Limited</td><td class=\"right\" data-order=\"115.96\">115.96</td><td class=\"right\" data-order=\"115.11\">115.11</td><td class=\"right change__text--neg\" data-order=\"-0.85\"><i class=\"icon-down-dir\"></i> -0.85</td><td class=\"right change__text--neg\" data-order=\"-0.733\"><i class=\"icon-down-dir\"></i> -0.73%</td><td class=\"right\">0.58%</td><td class=\"right change__text--neg\" data-order=\"-10.2908\">-10.29</td><td class=\"right\" data-order=\"452239\">452,239</td><td class=\"right\" data-order=\"125403390\">125</td><td class=\"right\" data-order=\"14435184222.9\">14,435</td></tr>",
+        "stats_block": null,
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "tables": [
-        {
-          "table": 0,
-          "rows": 31,
-          "headers": [
-            "SYMBOL",
-            "NAME",
-            "LDCP",
-            "CURRENT",
-            "CHANGE",
-            "CHANGE (%)",
-            "IDX WTG (%)",
-            "IDX POINT",
-            "VOLUME",
-            "FREEFLOAT (M)",
-            "MARKET CAP (M)"
-          ],
-          "sample_rows": [
-            [
-              "AIRLINK",
-              "Air Link Communication Limited",
-              "115.96",
-              "115.11",
-              "-0.85",
-              "-0.73%",
-              "0.58%",
-              "-10.29",
-              "452,239",
-              "125",
-              "14,435"
-            ],
-            [
-              "ATRL",
-              "Attock Refinery Limited",
-              "1,096.84",
-              "1,120.44",
-              "23.60",
-              "2.15%",
-              "2.04%",
-              "102.76",
-              "374,288",
-              "45",
-              "50,532"
-            ]
-          ]
-        }
-      ]
+      "columns": [
+        "SYMBOL",
+        "NAME",
+        "LDCP",
+        "CURRENT",
+        "CHANGE",
+        "CHANGE (%)",
+        "IDX WTG (%)",
+        "IDX POINT",
+        "VOLUME",
+        "FREEFLOAT (M)",
+        "MARKET CAP (M)"
+      ],
+      "epoch_values": [
+        "17578353740",
+        "18143107952"
+      ],
+      "tables": 1
     },
-    "GET /company/OGDC": {
+    "/company/OGDC": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 75567,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oi",
-      "content_probe": {
-        "stats_label": 78,
-        "payout": 11,
-        "financial": 24,
-        "KSE100": 2,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 7
+      "snippets": {
+        "thead": "<thead class=\"tbl__head\"><tr><th style=\"width:140px;\">Date</th><th>Title</th><th style=\"width:140px;\">Document</th></tr></thead>",
+        "first_row": "<tbody class=\"tbl__body\"><tr><td><strong>Ahmed Hayat Lak</strong></td><td>CEO</td></tr>",
+        "stats_block": "<div class=\"stats_label\">Open</div><div class=\"stats_value\">306.00</div></div><div class=\"stats_item\"><div class=\"stats_label\">High</div><div class=\"stats_value\">307.99</div></div><div class=\"stats_item\"><div class=\"stats_label\">Low</div><div class=\"stats_value\">303.00</div></div><div class=\"stats_item\"><div class=\"stats_label\">Volume</div><div class=\"stats_value\">2,584,565</div></div></div><div class=\"stats company__quote__rangeStats\"><div class=\"stats_item\"><div class=\"stats_label\">CIRCUIT BREAKER</div><div class=\"stats_value\">273.31 \u2014 334.05<div class=\"numRange\" data-low=\"273.31\" data-high=\"334.05\" data-current=\"306.21\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">DAY RANGE</div><div class=\"stats_value\">303.00 \u2014 307.99<div class=\"numRange\" data-low=\"303\" data-high=\"307.99\" data-current=\"306.21\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">52-WEEK RANGE ^</div><div class=\"stats_value\">238.20 \u2014 352.00<div class=\"numRange\" data-low=\"238.2\" data-high=\"352\" data-current=\"306.21\"></div></div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">Ask Price</div><div class=\"stats_value\">0.00</div></div><div class=\"stats_item\"><div class=\"stat",
+        "latest_date": null,
+        "date_picker": null,
+        "page_header": null
       },
-      "tables": [
-        {
-          "table": 0,
-          "rows": 3,
-          "headers": [],
-          "sample_rows": [
-            [
-              "Zafar Masud",
-              "Chairperson"
-            ],
-            [
-              "Wasim Ahmad",
-              "Company Secretary"
-            ]
-          ]
-        },
-        {
-          "table": 1,
-          "rows": 6,
-          "headers": [
-            "Date",
-            "Title",
-            "Document"
-          ],
-          "sample_rows": [
-            [
-              "Sep 25, 2026",
-              "Transmission of Annual Report for the Year Ended June 30, 2026",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ],
-            [
-              "Sep 4, 2026",
-              "FINANCIAL RESULTS FOR THE YEAR ENDED JUNE 30, 2026",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ]
-          ]
-        },
-        {
-          "table": 2,
-          "rows": 6,
-          "headers": [
-            "Date",
-            "Title",
-            "Document"
-          ],
-          "sample_rows": [
-            [
-              "Oct 29, 2026",
-              "Board Meeting Rescheduled (Change in Time)",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ],
-            [
-              "Oct 23, 2026",
-              "NOTICE OF BOARD MEETING",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ]
-          ]
-        }
-      ]
+      "columns": [
+        "Date",
+        "Title",
+        "Document",
+        "Date",
+        "Title",
+        "Document",
+        "Date",
+        "Title",
+        "Document",
+        "",
+        "2026",
+        "2025",
+        "2024",
+        "2023",
+        "",
+        "Q3 2026",
+        "Q2 2026",
+        "Q1 2026",
+        "Q3 2025",
+        "",
+        "2026",
+        "2025",
+        "2024",
+        "2023"
+      ],
+      "epoch_values": [],
+      "tables": 7
     },
-    "GET /company/OGDC/payouts": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47744,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 5,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "POST /payouts ['symbol', 'year']": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 5,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /sitemap": {
+    "/historical": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 50784,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 11,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
+      "bytes": 49901,
+      "snippets": {
+        "thead": null,
+        "first_row": null,
+        "stats_block": null,
+        "latest_date": "<input type=\"text\" name=\"date\" autocomplete=\"new-password\" id=\"historicalDatePicker\" data-latest=\"1793273641000\">",
+        "date_picker": "id=\"historicalDatePicker\" data-latest=\"1793273641000\"></div></div><div class=\"form__field\"><button class=\"form__button\" id=\"historicalSearchBtn\">SEARCH</button></div><div class=\"form__field\"></div><div class=\"form__field\"></div></div></div><div class=\"form__ruler form__ruler--vertical\"></div><div class=\"form\"><div class=\"form__fields form__fields--widthAuto\"><div class=\"form__field\"><div class=\"form__field__label\">SEARCH ",
+        "page_header": null
       },
-      "tables": []
-    },
-    "GET /timeseries/eod/OGDC": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /symbols": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /market-watch": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /historical/OGDC": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47739,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /historical-data/OGDC": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47744,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /data/historical/OGDC": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47744,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /historical?symbol=OGDC&month=09&year=2026": {
-      "status": 200,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 49940,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      },
-      "tables": []
-    },
-    "GET /market-summary": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47738,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      }
-    },
-    "GET /daily-downloads": {
-      "status": 200,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 48103,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      },
-      "tables": []
-    },
-    "GET /announcements/companies": {
-      "status": 200,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 49544,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
-      "content_probe": {
-        "stats_label": 0,
-        "payout": 4,
-        "financial": 9,
-        "KSE100": 3,
-        "KMI30": 1,
-        "data-search": 0,
-        "table": 0
-      },
-      "tables": []
+      "columns": [],
+      "epoch_values": [
+        "1793273641000"
+      ],
+      "tables": 0
     }
   }
 }
