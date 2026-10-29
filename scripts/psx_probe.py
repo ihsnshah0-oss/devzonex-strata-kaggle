@@ -1,15 +1,13 @@
-"""Probe the PSX Data Portal and report how to reach its data.
+"""Probe the PSX Data Portal for reachable data routes (fingerprint + route matrix).
 
-The portal is the only permitted source, so when a documented route 404s the
-answer is to **re-discover the route**, never to switch providers. This script
-reads the portal's own JavaScript (exactly what a browser runs), lists every
-AJAX call site it contains, and tries the interesting routes with several
-method/header/prefix combinations.
+Why this exists: the portal exposes JSON under ``/timeseries/{type}/{symbol}`` and
+HTML fragments under ``/indices/{code}``, ``/performers``, ``/daily-downloads``,
+etc. From a datacentre IP some of those answer 404/403 while ordinary pages work,
+which usually means the WAF is fingerprinting the client. This script compares
+clients (curl HTTP/1.1, curl HTTP/2, httpx HTTP/1.1, httpx HTTP/2), prints the
+exact status/headers, and reports what each reachable route contains.
 
-Outputs:
-    data/probe.json   — compact machine-readable report (committed)
-    data/api-calls.txt — every AJAX call site found in the portal's JS (committed)
-    captures/probe/   — raw responses (artifact only)
+It writes ``data/probe.json`` (committed) plus raw bodies in ``captures/probe/``.
 """
 
 from __future__ import annotations
@@ -17,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,80 +24,69 @@ from urllib.parse import urljoin
 import httpx
 
 BASE = "https://dps.psx.com.pk"
-SAMPLE = "OGDC"
+SYMBOL = "OGDC"
 
-BROWSER = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+
+HEADERS = {
+    "User-Agent": UA,
+    "Accept": "*/*",
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": f"{BASE}/",
-    "Origin": BASE,
-    "Upgrade-Insecure-Requests": "1",
 }
 
-#: A modern Chrome sends Sec-Fetch-* and sec-ch-ua on XHR; several WAFs only
-#: let same-origin JSON through when they are present and consistent.
-SEC_FETCH = {
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"Windows"',
-}
-
-VARIANTS = {
-    "browser": BROWSER,
-    "plain": {k: v for k, v in BROWSER.items() if k not in {"Origin", "Referer"}},
-    "json": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01"},
-    "json-xrw": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01",
-                 "X-Requested-With": "XMLHttpRequest"},
-    "doc-nav": {**BROWSER, "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate",
-                "Sec-Fetch-Site": "same-origin"},
-    "referer-company": {**BROWSER, **SEC_FETCH, "Accept": "application/json",
-                        "Referer": f"{BASE}/company/{SAMPLE}"},
-    "jquery-json": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01",
-                    "X-Requested-With": "XMLHttpRequest", "Referer": f"{BASE}/",
-                    "Cache-Control": "no-cache", "Pragma": "no-cache"},
-}
-
-PAGES = ["/", "/indices", "/screener", "/historical", "/downloads"]
-
-#: paths to try, with {symbol} substituted; prefix variants cover the portal's
-#: own "/shariah" | "/sukuk" prefixes and a possible "/dps" mount point.
-ROUTES = [
-    "/timeseries/eod/{symbol}",
-    "/timeseries/eod/{symbol}.json",
-    "/timeseries/eod/{symbol}?",
-    "/timeseries/eod/{symbol}?v=1.80",
-    "/timeseries/eod/{symbol}/1",
-    "/timeseries?type=eod&symbol={symbol}",
-    "/timeseries/eod",
-    "/timeseries/int/{symbol}",
-    "/symbols",
-    "/symbols.json",
-    "/symbols?",
-    "/market-watch",
-    "/market-watch?",
-    "/market-watch?type=stocks",
-    "/api/v1/symbols",
-    "/company/{symbol}",
+#: routes worth testing, with the HTTP method the portal itself uses
+TARGETS = [
+    ("GET", "/timeseries/eod/{symbol}", None),
+    ("GET", "/timeseries/int/{symbol}", None),
+    ("GET", "/symbols", None),
+    ("GET", "/market-watch", None),
+    ("GET", "/indices/{symbol_index}", None),
+    ("GET", "/indices/KSE100", None),
+    ("GET", "/indices/KMI30", None),
+    ("GET", "/performers", None),
+    ("GET", "/listings-table/all", None),
+    ("GET", "/trading-board/{symbol}", None),
+    ("POST", "/daily-downloads", {"date": "2026-10-29"}),
+    ("POST", "/daily-downloads", {"date": "29/10/2026"}),
+    ("POST", "/historical-downloads", {}),
+    ("GET", "/other-downloads", None),
+    ("GET", "/data/top-10-symbols", None),
 ]
 
-AJAX_RE = re.compile(r"\$\.(?:ajax|get|post|getJSON)\s*\(|\bfetch\s*\(|XMLHttpRequest")
+
+def curl(url: str, method: str, data: dict[str, str] | None, http2: bool) -> dict[str, object]:
+    """Ask curl for the status line and headers."""
+    command = [
+        "curl", "-sS", "-D", "-", "-o", "/dev/null", "--max-time", "30",
+        "--compressed", "-X", method, "-A", UA,
+        "-H", f"Referer: {BASE}/", "-H", "Accept: */*",
+    ]
+    command.append("--http2" if http2 else "--http1.1")
+    for key, value in (data or {}).items():
+        command += ["--data-urlencode", f"{key}={value}"]
+    command.append(url)
+    try:
+        completed = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    except Exception as exc:
+        return {"error": f"{type(exc).__name__}: {exc}"}
+    head = completed.stdout.split("\r\n\r\n")[0]
+    status = None
+    match = re.search(r"HTTP/[\d.]+\s+(\d{3})", head)
+    if match:
+        status = int(match.group(1))
+    server = re.search(r"(?im)^server:\s*(.+)$", head)
+    return {
+        "status": status,
+        "server": server.group(1).strip() if server else None,
+        "stderr": completed.stderr.strip()[:200] or None,
+    }
 
 
-def _save(raw: Path | None, name: str, body: str) -> None:
-    if raw is None:
-        return
-    raw.mkdir(parents=True, exist_ok=True)
-    (raw / re.sub(r"[^A-Za-z0-9_.-]+", "_", name)[:140]).write_text(body, encoding="utf-8")
-
-
-def _shape(html: str, limit: int = 4) -> list[dict[str, object]]:
+def _shape(html: str, limit: int = 3) -> list[dict[str, object]]:
     out = []
     for index, table in enumerate(re.findall(r"<table\b.*?</table>", html, re.IGNORECASE | re.DOTALL)):
         headers = [
@@ -108,39 +96,11 @@ def _shape(html: str, limit: int = 4) -> list[dict[str, object]]:
         rows = re.findall(r"<tr\b.*?</tr>", table, re.IGNORECASE | re.DOTALL)
         sample = [
             [" ".join(re.sub(r"<[^>]+>", " ", cell).split()) for cell in re.findall(
-                r"<t[dh]\b.*?</t[dh]>", row, re.IGNORECASE | re.DOTALL)][:12]
+                r"<t[dh]\b.*?</t[dh]>", row, re.IGNORECASE | re.DOTALL)][:14]
             for row in rows[1:3]
         ]
-        out.append(
-            {
-                "table": index,
-                "rows": len(rows),
-                "headers": headers[:18],
-                "sample_rows": sample,
-                "kse100_mentions": len(re.findall(r"KSE100", table)),
-                "kmi30_mentions": len(re.findall(r"KMI30", table)),
-            }
-        )
+        out.append({"table": index, "rows": len(rows), "headers": headers[:18], "sample_rows": sample})
         if index + 1 >= limit:
-            break
-    return out
-
-
-def _ajax_calls(script: str) -> list[str]:
-    """Every AJAX call site, with enough context to see the URL and the verb."""
-    calls = []
-    for match in AJAX_RE.finditer(script):
-        chunk = " ".join(script[match.start() : match.start() + 420].split())
-        calls.append(chunk)
-    return calls
-
-
-def _functions_named(script: str, needle: str, window: int = 700) -> list[str]:
-    out = []
-    for match in re.finditer(re.escape(needle), script):
-        start = max(0, match.start() - 120)
-        out.append(" ".join(script[start : start + window].split()))
-        if len(out) >= 3:
             break
     return out
 
@@ -148,118 +108,91 @@ def _functions_named(script: str, needle: str, window: int = 700) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default="data/probe.json")
-    parser.add_argument("--calls", default="data/api-calls.txt")
     parser.add_argument("--raw", default="captures/probe")
     parser.add_argument("--timeout", type=float, default=30.0)
     args = parser.parse_args()
 
     raw = Path(args.raw) if args.raw else None
+    if raw is not None:
+        raw.mkdir(parents=True, exist_ok=True)
+
     report: dict[str, object] = {
         "probed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "base": BASE,
-        "pages": {},
-        "routes": {},
-        "js": {},
+        "clients": {},
+        "targets": {},
     }
-    pages: dict[str, object] = report["pages"]  # type: ignore[assignment]
-    routes: dict[str, object] = report["routes"]  # type: ignore[assignment]
+    clients: dict[str, object] = report["clients"]  # type: ignore[assignment]
+    targets: dict[str, object] = report["targets"]  # type: ignore[assignment]
 
-    with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=BROWSER) as client:
-        for path in PAGES:
+    with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=HEADERS) as h1:
+        home = h1.get(f"{BASE}/")
+        clients["httpx-http1.1 /"] = {
+            "status": home.status_code,
+            "headers": dict(home.headers),
+            "cookies": dict(h1.cookies),
+        }
+
+    for path_spec, data in (("/timeseries/eod/{symbol}", None), ("/symbols", None), ("/indices/KSE100", None)):
+        url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
+        for label, http2 in (("curl-http1.1", False), ("curl-http2", True)):
+            clients[f"{label} {path_spec}"] = curl(url, "GET", data, http2)
+
+    # httpx over HTTP/2, if the h2 extra is installed
+    try:
+        with httpx.Client(http2=True, timeout=args.timeout, follow_redirects=True, headers=HEADERS) as h2:
+            for path_spec in ("/timeseries/eod/{symbol}", "/symbols"):
+                url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
+                try:
+                    response = h2.get(url)
+                    clients[f"httpx-http2 {path_spec}"] = {
+                        "status": response.status_code,
+                        "http_version": response.http_version,
+                        "bytes": len(response.text),
+                    }
+                except Exception as exc:
+                    clients[f"httpx-http2 {path_spec}"] = {"error": f"{type(exc).__name__}: {exc}"}
+    except Exception as exc:
+        clients["httpx-http2"] = {"error": f"{type(exc).__name__}: {exc}"}
+
+    with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=HEADERS) as client:
+        for method, path_spec, data in TARGETS:
+            path = path_spec.replace("{symbol}", SYMBOL).replace("{symbol_index}", "KSE100")
             url = urljoin(BASE + "/", path.lstrip("/"))
+            key = f"{method} {path}" + (f" {sorted(data)}" if data else "")
             try:
-                response = client.get(url, headers=BROWSER)
+                if method == "GET":
+                    response = client.get(url)
+                else:
+                    response = client.post(url, data=data or {})
             except Exception as exc:
-                pages[path] = {"error": f"{type(exc).__name__}: {exc}"}
+                targets[key] = {"error": f"{type(exc).__name__}: {exc}"}
                 continue
-            entry: dict[str, object] = {"status": response.status_code, "bytes": len(response.text)}
+            entry: dict[str, object] = {
+                "status": response.status_code,
+                "content_type": response.headers.get("content-type", ""),
+                "bytes": len(response.text),
+                "snippet": " ".join(response.text[:300].split()),
+            }
             if response.status_code == 200:
                 entry["tables"] = _shape(response.text)
-                _save(raw, f"page{path.replace('/', '_') or '_'}.html", response.text)
-            pages[path] = entry
-
-        # POST endpoints the pages use: downloads (data files) and history
-        for path, payload in (
-            ("/daily-downloads", {"date": "2026-10-29"}),
-            ("/daily-downloads", {}),
-            ("/historical-downloads", {}),
-            ("/historical", {"symbol": SAMPLE, "month": "09", "year": "2026"}),
-        ):
-            key = f"POST {path} {sorted(payload)}"
-            try:
-                response = client.post(urljoin(BASE + "/", path.lstrip("/")), data=payload, headers=BROWSER)
-                entry = {"status": response.status_code, "bytes": len(response.text)}
-                if response.status_code == 200:
-                    entry["tables"] = _shape(response.text, limit=2)
-                    entry["snippet"] = " ".join(response.text[:200].split())
-                    _save(raw, f"ok_POST_{path}_{len(payload)}.txt", response.text)
-                routes[key] = entry
-            except Exception as exc:
-                routes[key] = {"error": f"{type(exc).__name__}: {exc}"}
-
-        script = ""
-        try:
-            response = client.get(urljoin(BASE + "/", "static/script.js"), headers=BROWSER)
-            script = response.text if response.status_code == 200 else ""
-            _save(raw, "script.js", script)
-        except Exception as exc:
-            report["js"] = {"error": f"{type(exc).__name__}: {exc}"}
-
-        if script:
-            calls = _ajax_calls(script)
-            extract = [
-                "### getUrl contexts\n" + "\n\n".join(_functions_named(script, "getUrl", window=600)),
-                "### psxPortal contexts\n" + "\n\n".join(_functions_named(script, "psxPortal", window=500)),
-                "### /timeseries/ contexts\n" + "\n\n".join(_functions_named(script, "/timeseries/", window=500)),
-            ]
-            Path(args.calls).parent.mkdir(parents=True, exist_ok=True)
-            Path(args.calls).write_text(
-                "\n\n".join(extract) + "\n\n=== AJAX call sites ===\n\n" + "\n\n".join(calls),
-                encoding="utf-8",
-            )
-            report["js"] = {
-                "bytes": len(script),
-                "ajax_calls": len(calls),
-                "getUrl_def": _functions_named(script, "getUrl", window=600),
-                "prefix_logic": _functions_named(script, "psxPortal", window=500),
-                "timeseries_fn": _functions_named(script, "/timeseries/", window=500),
-            }
-
-        for route in ROUTES:
-            path = route.replace("{symbol}", SAMPLE)
-            url = urljoin(BASE + "/", path.lstrip("/"))
-            for name, headers in VARIANTS.items():
-                for method in ("GET", "POST"):
-                    key = f"{method} {path} [{name}]"
-                    try:
-                        if method == "GET":
-                            response = client.get(url, headers=headers)
-                        else:
-                            response = client.post(url, headers=headers, data={"symbol": SAMPLE})
-                    except Exception as exc:
-                        routes[key] = {"error": f"{type(exc).__name__}: {exc}"}
-                        continue
-                    entry = {
-                        "status": response.status_code,
-                        "bytes": len(response.text),
-                        "content_type": response.headers.get("content-type", ""),
-                    }
-                    if response.status_code == 200:
-                        entry["snippet"] = " ".join(response.text[:200].split())
-                        entry["tables"] = _shape(response.text, limit=2)
-                        _save(raw, f"ok_{method}_{path}_{name}.txt", response.text)
-                    routes[key] = entry
+                if raw is not None:
+                    (raw / f"ok_{method}_{re.sub(r'[^A-Za-z0-9]+', '_', path)}.txt").write_text(
+                        response.text, encoding="utf-8"
+                    )
+            targets[key] = entry
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2)[:6_000_000], encoding="utf-8")
     print(f"wrote {out}")
-    for path, info in pages.items():
-        print(f"page {path:18s} {info.get('status') or info.get('error')} {info.get('bytes', '')}")
-    ok = {k: v for k, v in routes.items() if v.get("status") == 200}
-    print(f"routes: {len(routes)} tried, {len(ok)} answered 200")
-    for key in ok:
-        print("   200", key)
+    for key, value in targets.items():
+        print(f"{value.get('status') or value.get('error')}  {key}  ({value.get('bytes', '')} bytes)")
+    for key, value in clients.items():
+        if "status" in value:
+            print(f"client {key}: {value.get('status')} {value.get('server') or ''}")
+        else:
+            print(f"client {key}: {value}")
     return 0
 
 
