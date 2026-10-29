@@ -25,6 +25,11 @@ company pairs: 60
    'LDCP'                           -> '304.52'
    'Volume'                         -> '1,149,000'
    'Total Trades'                   -> '414'
+token: {'found': True, 'length': 43, 'home_bytes': 96487, 'home_has_window_ps': True}
+   history_without_token    404 bytes=47734 tables=None rows=None
+   history_with_token       404 bytes=47734 tables=None rows=None
+   symbols_with_token       404 bytes=47731 tables=None rows=None
+   symbols_json_with_token  200 bytes=136853 tables=None rows=None
 screener selects: 5 options: 68
    option {'value': 'symbols', 'text': 'Symbols'}
    option {'value': 'website', 'text': 'Website'}

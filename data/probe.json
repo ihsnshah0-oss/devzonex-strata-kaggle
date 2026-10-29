@@ -1,6 +1,43 @@
 {
-  "probed_at": "2026-10-29T21:02:38+00:00",
+  "probed_at": "2026-10-29T21:22:30+00:00",
   "base": "https://dps.psx.com.pk",
+  "token": {
+    "found": true,
+    "length": 43,
+    "home_bytes": 96487,
+    "home_has_window_ps": true
+  },
+  "data_routes": {
+    "history_without_token": {
+      "method": "POST",
+      "path": "/historical",
+      "status": 404,
+      "bytes": 47734,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "history_with_token": {
+      "method": "POST",
+      "path": "/historical",
+      "status": 404,
+      "bytes": 47734,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "symbols_with_token": {
+      "method": "GET",
+      "path": "/symbols",
+      "status": 404,
+      "bytes": 47731,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "symbols_json_with_token": {
+      "method": "GET",
+      "path": "/symbols",
+      "status": 200,
+      "bytes": 136853,
+      "content_type": "application/json; charset=utf-8",
+      "json_head": "[{\"symbol\":\"AKBLTFC6\",\"name\":\"Askari Bank(TFC6)\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC6\",\"name\":\"Bank Al-Falah(TFC6\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC8\",\"name\":\"Bank Alfalah(TFC8)\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC9\",\"name\":\"Bank Alfalah Limited\",\"sectorName\":\"BILLS AN"
+    }
+  },
   "company": {
     "status": 200,
     "pairs": [
