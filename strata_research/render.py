@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .compute import ratio_lines
-from .formatting import fmt_money, fmt_pct, fmt_score, fmt_x
+from .formatting import fmt_amount, fmt_pct, fmt_score, fmt_x
 from .schemas import FundamentalReport, TeamBrief
 
 
@@ -46,8 +46,9 @@ def report_to_markdown(report: FundamentalReport) -> str:
     )
     lines.append("")
     lines.append(
-        f"*Sector:* {profile.sector or 'n/a'} · *Industry:* {profile.industry or 'n/a'} · "
-        f"*Currency:* {profile.currency} · *As of:* {profile.as_of}"
+        f"*Market:* {profile.market} · *Sector:* {profile.sector or 'n/a'} · "
+        f"*Industry:* {profile.industry or 'n/a'} · *Currency:* {profile.currency} · "
+        f"*As of:* {profile.as_of}"
     )
     lines.append("")
     lines.append(
@@ -100,7 +101,9 @@ def report_to_markdown(report: FundamentalReport) -> str:
     lines.append("")
     lines.append(ratio_table_markdown(report))
     lines.append("")
-    lines.append("## Quality score breakdown")
+    lines.append(
+        f"## Quality score breakdown ({report.scores.anchor_profile} anchors)"
+    )
     lines.append("")
     lines.append(score_table_markdown(report))
     lines.append("")
@@ -197,7 +200,10 @@ def report_to_console(report: FundamentalReport) -> str:
         f"{fmt_pct(report.ratios.net_margin)}   "
         f"Net debt/EBITDA {fmt_x(report.ratios.net_debt_to_ebitda)}",
         f"  Revenue CAGR {fmt_pct(report.ratios.revenue_cagr)}   "
-        f"FCF {fmt_money(report.ratios.fcf, currency=currency)}",
+        f"FCF {fmt_amount(report.ratios.fcf, currency=currency)}   "
+        f"Div yield {fmt_pct(report.ratios.dividend_yield)}",
+        f"  Market cap {fmt_amount(report.ratios.market_cap, currency=currency)}   "
+        f"EV {fmt_amount(report.ratios.enterprise_value, currency=currency)}",
     ]
     if report.scores.red_flags:
         blocks.append("")

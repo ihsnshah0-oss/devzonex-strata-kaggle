@@ -52,12 +52,12 @@ FUNDAMENTAL_CARD = AgentCard(
     title="Agent 1 · Fundamental Analyst",
     status="available",
     description=(
-        "Reads standardized financial statements, computes ratio and quality "
-        "scores deterministically, then uses an LLM to write a grounded research "
-        "note with an explicit verdict, conviction and red flags."
+        "Covers PSX-listed companies only. Reads standardized statements, computes "
+        "PKR ratios and a PSX-calibrated quality score deterministically, then uses "
+        "an LLM to write a grounded note with verdict, conviction and red flags."
     ),
     tools=("get_financials", "get_ratios", "get_score_breakdown",
-           "compute_scenario", "get_company_profile"),
+           "compute_scenario", "get_company_profile", "get_psx_context"),
     techniques=(
         "ratio analysis", "DuPont-style returns decomposition", "cash conversion",
         "rule-based scoring", "grounding validation", "tool-augmented prompting",

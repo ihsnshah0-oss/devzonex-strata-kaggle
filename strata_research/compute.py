@@ -108,6 +108,19 @@ def compute_ratios(company: CompanyFundamentals) -> RatioSet:
                 latest.net_income,
             )
 
+    gross_history = [value for value in margin_trend(company, "gross") if value is not None]
+    operating_history = [
+        value for value in margin_trend(company, "operating") if value is not None
+    ]
+    gross_change = (
+        gross_history[-1] - gross_history[0] if len(gross_history) >= 2 else None
+    )
+    operating_change = (
+        operating_history[-1] - operating_history[0]
+        if len(operating_history) >= 2
+        else None
+    )
+
     revenue_growth = None
     eps_growth = None
     if prior is not None:
@@ -149,6 +162,8 @@ def compute_ratios(company: CompanyFundamentals) -> RatioSet:
         interest_coverage=_round(safe_div(latest.operating_income, latest.interest_expense)),
         revenue_growth_yoy=_round(revenue_growth),
         eps_growth_yoy=_round(eps_growth),
+        gross_margin_change=_round(gross_change),
+        operating_margin_change=_round(operating_change),
         revenue_cagr=_round(_cagr(oldest.revenue, latest.revenue, span)) if span else None,
         eps_cagr=_round(_cagr(oldest.eps, eps, span)) if span else None,
         fcf=_round(fcf),

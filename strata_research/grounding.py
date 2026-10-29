@@ -20,7 +20,10 @@ from .schemas import (
 )
 
 NUMBER_RE = re.compile(r"[-+]?\d[\d,]*\.?\d*")
-REL_TOLERANCE = 0.005
+#: Display rounding is handled by explicit forms (0/1/2 dp, %, bn, crore), so the
+#: numeric tolerance can stay tight. A loose relative tolerance would let an
+#: invented 4,321 pass as a 4,300 share count.
+REL_TOLERANCE = 0.001
 ABS_TOLERANCE = 0.051
 MAX_REPORTED = 12
 
@@ -65,7 +68,13 @@ def _forms(value: float) -> set[float]:
     Models write 79 for a score of 78.59, 12.4% for a margin of 0.124, and 19.7x
     for a multiple of 19.749. All three should count as grounded.
     """
-    base = {value, value * 100.0, abs(value), abs(value) * 100.0}
+    base = {value, abs(value)}
+    if abs(value) < 1.5:
+        # Fraction-style metrics (margins, growth, returns) are quoted as percentages.
+        base |= {value * 100.0, abs(value) * 100.0}
+    if abs(value) >= 100.0:
+        # Millions-scale figures are also rendered as PKR bn (÷1000) and crore (÷10).
+        base |= {value / 1000.0, value / 10.0, abs(value) / 1000.0, abs(value) / 10.0}
     forms = set(base)
     for item in base:
         for decimals in (0, 1, 2):

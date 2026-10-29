@@ -10,9 +10,11 @@ from .base import (
 )
 from .demo import DemoProvider
 from .json_provider import JsonProvider
+from .psx_provider import PsxStatementsProvider
 from .registry import (
     build_providers,
     clear_cache,
+    demo_universe,
     fetch_fundamentals,
     provider_status,
 )
@@ -24,10 +26,12 @@ __all__ = [
     "FundamentalsProvider",
     "DemoProvider",
     "JsonProvider",
+    "PsxStatementsProvider",
     "YFinanceProvider",
     "build_providers",
     "provider_status",
     "fetch_fundamentals",
     "clear_cache",
+    "demo_universe",
     "to_number",
 ]

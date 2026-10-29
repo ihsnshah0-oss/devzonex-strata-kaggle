@@ -1,12 +1,13 @@
 """Command line interface.
 
-Examples::
+PSX-only desk. Examples::
 
     python -m strata_research status
+    python -m strata_research psx                       # universe + sectors
     python -m strata_research agents
-    python -m strata_research analyze NOVA
-    python -m strata_research analyze NOVA --save reports/nova.md
-    python -m strata_research brief NOVA --json
+    python -m strata_research analyze DMEPL             # demo universe
+    python -m strata_research analyze OGDC              # needs PSX statements or .KA
+    python -m strata_research brief DMFRT --json
     python -m strata_research serve --port 8000
 """
 
@@ -55,6 +56,7 @@ def cmd_status(args: argparse.Namespace, team: ResearchTeam) -> int:
         print(f"  - {entry['name']}: {'ready' if entry['available'] else 'unavailable'}"
               f"{' (network)' if entry['requires_network'] else ''}")
     print(f"Demo tickers: {', '.join(status['demo_tickers'])}")
+    print("Market: PSX (Pakistan Stock Exchange) · reporting currency: PKR")
     print("Agents:")
     for card in status["agents"]:
         print(f"  {card['order']}. {card['title']} [{card['status']}]")
@@ -73,6 +75,40 @@ def cmd_agents(args: argparse.Namespace, team: ResearchTeam) -> int:
         print(f"  outputs: {card['outputs']}")
         if card["tools"]:
             print(f"  tools:   {', '.join(card['tools'])}")
+    return 0
+
+
+def cmd_psx(args: argparse.Namespace, team: ResearchTeam) -> int:
+    from .data import demo_universe
+    from .psx import MACRO_LENS, PSX_SECTORS
+
+    payload = {
+        "market": "PSX",
+        "currency": "PKR",
+        "demo_companies": demo_universe(),
+        "sectors": sorted(PSX_SECTORS),
+        "macro_lens": [{"topic": topic, "detail": detail} for topic, detail in MACRO_LENS],
+        "providers": team.status()["providers"],
+        "settings": {
+            "psx_dir": team.settings.public_dict()["psx_dir"],
+            "psx_quotes": team.settings.psx_quotes,
+            "psx_base_url": team.settings.psx_base_url,
+        },
+    }
+    if args.json:
+        print(_dump(payload))
+        return 0
+    print("PSX research desk · Pakistan Stock Exchange · reporting currency PKR")
+    print(f"Statements folder: {payload['settings']['psx_dir'] or 'not configured'}")
+    print(f"Live quotes: {'on' if payload['settings']['psx_quotes'] else 'off'} "
+          f"({payload['settings']['psx_base_url']})")
+    print("\nDemo universe (fictional):")
+    for entry in payload["demo_companies"]:
+        print(f"  {entry['ticker']:6s} {entry['sector']:26s} {entry['name']}")
+    print("\nSectors covered:", ", ".join(payload["sectors"]))
+    print("\nMarket lens the analyst is instructed to use:")
+    for item in payload["macro_lens"]:
+        print(f"  - {item['topic']}: {item['detail']}")
     return 0
 
 
@@ -140,7 +176,7 @@ def cmd_serve(args: argparse.Namespace, team: ResearchTeam) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="strata-research",
-        description="Team of LLM research agents on a Python backend.",
+        description="PSX-only team of LLM research agents on a Python backend.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--offline", action="store_true",
@@ -155,10 +191,14 @@ def build_parser() -> argparse.ArgumentParser:
     agents.add_argument("--json", action="store_true")
     agents.set_defaults(handler=cmd_agents)
 
+    psx = subparsers.add_parser("psx", help="show the PSX universe, sectors and market lens")
+    psx.add_argument("--json", action="store_true")
+    psx.set_defaults(handler=cmd_psx)
+
     providers = subparsers.add_parser("providers", help="show data provider readiness")
     providers.set_defaults(handler=cmd_providers)
 
-    analyze = subparsers.add_parser("analyze", help="run the Fundamental Analyst")
+    analyze = subparsers.add_parser("analyze", help="run the Fundamental Analyst on a PSX symbol")
     analyze.add_argument("ticker")
     analyze.add_argument("--focus", default="balanced fundamental view")
     analyze.add_argument("--horizon", default="12-24 months")

@@ -14,14 +14,15 @@ from collections import deque
 from typing import Any
 
 from .agents import ALL_AGENTS, FundamentalAnalyst, agent_cards
+from .data import fetch_fundamentals
 from .config import Settings
-from .data import provider_status
-from .formatting import fmt_pct
+from .data import demo_universe, provider_status
+from .formatting import fmt_amount, fmt_pct
 from .prompts import build_team_brief_prompt
 from .schemas import FundamentalReport, ResearchRequest, TeamBrief
 from .tools import describe_tools
 
-DESK_NAME = "DevZoneX Strata Research Desk"
+DESK_NAME = "DevZoneX PSX Research Desk"
 
 
 class ResearchTeam:
@@ -55,14 +56,41 @@ class ResearchTeam:
         return agent_cards()
 
     def status(self) -> dict[str, Any]:
+        universe = demo_universe()
         return {
             "desk": DESK_NAME,
+            "market": "PSX",
+            "exchange": "Pakistan Stock Exchange",
+            "currency": "PKR",
             "settings": self.settings.public_dict(),
             "agents": agent_cards(),
             "providers": provider_status(self.settings),
             "tools": describe_tools(),
-            "demo_tickers": ["NOVA", "HELX", "ARCL"],
+            "demo_companies": universe,
+            "demo_tickers": [entry["ticker"] for entry in universe],
             "history_size": len(self._history),
+        }
+
+    def psx_context(self, ticker: str) -> dict[str, Any]:
+        """Sector lens, macro checklist and peers for a PSX symbol."""
+        from .psx import MACRO_LENS, sector_group, sector_note, yahoo_symbol
+
+        company = fetch_fundamentals(self.settings, ticker)
+        group = sector_group(company.profile.sector) or sector_group(company.profile.industry)
+        return {
+            "ticker": company.profile.ticker,
+            "name": company.profile.name,
+            "market": company.profile.market,
+            "currency": company.profile.currency,
+            "sector": company.profile.sector,
+            "sector_group": group,
+            "sector_lens": sector_note(company.profile.sector)
+            or sector_note(company.profile.industry),
+            "market_lens": [{"topic": topic, "detail": detail} for topic, detail in MACRO_LENS],
+            "peers": company.peers,
+            "yahoo_symbol": yahoo_symbol(company.profile.ticker),
+            "data_source": company.profile.data_source,
+            "data_quality": company.profile.data_quality,
         }
 
     # ------------------------------------------------------------------
@@ -143,8 +171,14 @@ class ResearchTeam:
         ]
         if report.ratios.ev_ebitda is not None:
             pieces.append(f"EV/EBITDA {report.ratios.ev_ebitda:.1f}x")
+        if report.ratios.dividend_yield is not None and report.ratios.dividend_yield > 0:
+            pieces.append(f"dividend yield {fmt_pct(report.ratios.dividend_yield)}")
         if report.ratios.net_margin is not None:
             pieces.append(f"net margin {fmt_pct(report.ratios.net_margin)}")
+        if report.ratios.market_cap is not None:
+            pieces.append(
+                f"market cap {fmt_amount(report.ratios.market_cap, report.profile.currency)}"
+            )
         if report.scores.red_flags:
             pieces.append(f"{len(report.scores.red_flags)} red flag(s)")
         return "; ".join(pieces) + "."

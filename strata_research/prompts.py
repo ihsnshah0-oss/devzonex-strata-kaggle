@@ -16,13 +16,14 @@ import json
 from typing import Any
 
 from .compute import compute_ratios, margin_trend, ratio_lines
-from .formatting import fmt_money, fmt_num, fmt_pct, fmt_per_share
+from .formatting import fmt_amount, fmt_num, fmt_pct, fmt_per_share
+from .psx import MACRO_LENS, sector_group, sector_note
 from .schemas import CompanyFundamentals, QualityScore, RatioSet
 
 DRAFT_MARKER_START = "<<<DETERMINISTIC_DRAFT"
 DRAFT_MARKER_END = "DETERMINISTIC_DRAFT>>>"
 
-ANALYST_SYSTEM_PROMPT = """You are the Fundamental Analyst on a disciplined equity research desk.
+ANALYST_SYSTEM_PROMPT = """You are the Fundamental Analyst on a disciplined PSX (Pakistan Stock Exchange) equity research desk.
 
 Operating rules:
 - You are evidence-driven. Every quantitative claim must come from the supplied
@@ -39,6 +40,12 @@ Operating rules:
 - If the evidence is too thin to reach a defensible conclusion (coverage < 40% or
   no valuation inputs), return verdict "INSUFFICIENT_DATA" and explain what is
   missing in watch_items.
+- You cover only PSX-listed companies. Amounts are in millions of PKR unless the
+  text says otherwise; quote price and per-share figures in rupees. Never convert
+  to another currency or to developed-market comparables.
+- Always connect the numbers to PSX reality: SBP policy rate, PKR/USD, inflation,
+  circular debt, tariffs/regulation, free float and liquidity. Name the mechanism,
+  not just the risk label.
 - Output valid JSON only, matching the requested schema exactly. No markdown fences.
 """
 
@@ -95,7 +102,7 @@ def financial_table(company: CompanyFundamentals) -> str:
             if attribute == "eps":
                 cells.append(fmt_per_share(value, currency))
             else:
-                cells.append(fmt_money(value, digits=2))
+                cells.append(fmt_amount(value, currency="", digits=1))
         lines.append(f"| {label} | " + " | ".join(cells) + " |")
     return "\n".join(lines)
 
@@ -114,7 +121,10 @@ def evidence_pack(
     lines: list[str] = []
     lines.append("## Company")
     lines.append(f"Name: {profile.name}")
-    lines.append(f"Ticker: {profile.ticker}  Currency: {profile.currency}")
+    lines.append(
+        f"Ticker: {profile.ticker}  Market: {profile.market}  Exchange: {profile.exchange}  "
+        f"Currency: {profile.currency}"
+    )
     lines.append(
         f"Sector: {profile.sector or 'n/a'}  Industry: {profile.industry or 'n/a'}  "
         f"Country: {profile.country or 'n/a'}"
@@ -140,6 +150,25 @@ def evidence_pack(
         f"## Annual statements (millions {profile.currency} unless per-share)"
     )
     lines.append(financial_table(company))
+
+    lines.append("")
+    lines.append("## PSX context")
+    group = sector_group(profile.sector) or sector_group(profile.industry)
+    lines.append(f"Sector group: {group or profile.sector or 'n/a'}")
+    note = sector_note(profile.sector) or sector_note(profile.industry)
+    if note:
+        lines.append(f"Sector lens: {note}")
+    lines.append("Market lens to address (pick the ones that actually bite here):")
+    for title, detail in MACRO_LENS:
+        lines.append(f"- {title}: {detail}")
+    lines.append(
+        "Scale reference: market cap "
+        + fmt_amount(ratios.market_cap, currency=profile.currency)
+        + ", enterprise value "
+        + fmt_amount(ratios.enterprise_value, currency=profile.currency)
+        + ". Quality score anchors are calibrated to PSX multiples "
+        f"({scores.anchor_profile} profile)."
+    )
 
     lines.append("")
     lines.append("## Computed ratios (deterministic)")
@@ -198,9 +227,12 @@ def build_analyst_prompt(
     payload = {
         "focus": focus,
         "horizon": horizon,
+        "market": "PSX (Pakistan Stock Exchange)",
         "task": (
-            "Write the fundamental research note for this company. Use the evidence "
-            "pack as the sole source of quantitative facts."
+            "Write the fundamental research note for this PSX-listed company. Use the "
+            "evidence pack as the sole source of quantitative facts, and tie the "
+            "argument to PSX-specific drivers (policy rate, PKR, circular debt, "
+            "tariffs/regulation, liquidity)."
         ),
         "output_schema": OUTPUT_SCHEMA,
     }
@@ -215,7 +247,8 @@ def build_analyst_prompt(
         "## Output",
         "Return ONE JSON object matching output_schema. "
         "conviction must reflect evidence strength, confidence must reflect data "
-        "completeness. Do not add extra top-level keys.",
+        "completeness. Do not add extra top-level keys. Keep every figure in PKR "
+        "terms as supplied; do not restate it in dollars.",
     ]
     if deterministic_draft is not None:
         sections.extend(

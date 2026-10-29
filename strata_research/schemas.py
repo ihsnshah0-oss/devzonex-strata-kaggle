@@ -53,10 +53,12 @@ class CompanyProfile(BaseModel):
 
     ticker: str
     name: str
+    market: str = "PSX"
+    exchange: str = "PSX"
     sector: str | None = None
     industry: str | None = None
-    country: str | None = None
-    currency: str = "USD"
+    country: str | None = "Pakistan"
+    currency: str = "PKR"
     description: str | None = None
     price: float | None = None
     shares_outstanding: float | None = Field(
@@ -72,7 +74,9 @@ class CompanyProfile(BaseModel):
     @field_validator("ticker")
     @classmethod
     def _upper_ticker(cls, value: str) -> str:
-        return value.strip().upper()
+        from .psx import normalize_symbol
+
+        return normalize_symbol(value)
 
 
 class CompanyFundamentals(BaseModel):
@@ -127,6 +131,10 @@ class RatioSet(BaseModel):
     # growth
     revenue_growth_yoy: float | None = None
     eps_growth_yoy: float | None = None
+    gross_margin_change: float | None = Field(
+        default=None, description="Latest minus oldest gross margin, in fraction points."
+    )
+    operating_margin_change: float | None = None
     revenue_cagr: float | None = None
     eps_cagr: float | None = None
     # cash flow
@@ -172,6 +180,7 @@ class QualityScore(BaseModel):
     overall: float = Field(ge=0, le=100)
     grade: str
     label: str
+    anchor_profile: str = "PSX"
     pillars: list[PillarScore] = Field(default_factory=list)
     components: list[ScoreComponent] = Field(default_factory=list)
     red_flags: list[str] = Field(default_factory=list)

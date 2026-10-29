@@ -23,8 +23,8 @@ from fastapi.staticfiles import StaticFiles
 from . import __version__
 from .compute import compute_ratios, margin_trend
 from .config import Settings
-from .data import DataProviderError, fetch_fundamentals, provider_status
-from .data.demo import DemoProvider
+from .data import DataProviderError, demo_universe, fetch_fundamentals, provider_status
+from .psx import PSX_SECTORS, normalize_symbol, yahoo_symbol
 from .llm import LLMError
 from .orchestrator import DESK_NAME, ResearchTeam
 from .schemas import ResearchRequest, TeamBrief
@@ -49,13 +49,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         _app.state.team.close()
 
     app = FastAPI(
-        title="DevZoneX Strata Research Desk",
+        title="DevZoneX PSX Research Desk",
         version=__version__,
         lifespan=lifespan,
         description=(
-            "A team of LLM research agents on a Python backend. Agent 1 is the "
-            "Fundamental Analyst: deterministic ratio/scoring engine plus an "
-            "OpenAI-compatible LLM (including a Strata endpoint) for the narrative."
+            "PSX-only research desk on a Python backend. Agent 1 is the Fundamental "
+            "Analyst: deterministic PKR ratio/scoring engine calibrated to Pakistan "
+            "Stock Exchange multiples, plus an OpenAI-compatible LLM (including a "
+            "Strata endpoint) for the narrative."
         ),
     )
     app.state.team = ResearchTeam(resolved)
@@ -89,6 +90,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "desk": DESK_NAME,
             "llm": team.settings.resolved_llm_kind,
             "model": team.settings.model,
+            "market": "PSX",
+            "currency": "PKR",
         }
 
     @app.get("/api/v1/status")
@@ -165,11 +168,58 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v1/demo/companies")
     def demo_companies() -> dict[str, Any]:
         team: ResearchTeam = app.state.team
+        universe = demo_universe()
         return {
-            "note": "Fictional companies used by the offline demo provider.",
-            "tickers": list(DemoProvider().universe),
+            "note": "Fictional PSX-listed companies used by the offline demo provider.",
+            "tickers": [entry["ticker"] for entry in universe],
+            "companies": universe,
             "active_provider": team.settings.data_provider,
         }
+
+    @app.get("/api/v1/psx/symbols")
+    def psx_symbols(live: bool = False) -> dict[str, Any]:
+        """PSX symbols this desk can currently analyse.
+
+        ``live=true`` also asks the PSX Data Portal for the full listed-symbol
+        directory (network call; empty when the portal is unreachable).
+        """
+        team: ResearchTeam = app.state.team
+        from .data.psx_provider import PsxStatementsProvider
+
+        statements = PsxStatementsProvider(team.settings.psx_dir).universe()
+        live_symbols: list[str] = []
+        live_error: str | None = None
+        if live:
+            from .psx import PsxQuoteClient
+
+            client = PsxQuoteClient(
+                base_url=team.settings.psx_base_url, timeout=team.settings.psx_quote_timeout
+            )
+            try:
+                live_symbols = client.symbols()
+            finally:
+                live_error = client.last_error
+                client.close()
+        return {
+            "market": "PSX",
+            "currency": "PKR",
+            "demo": demo_universe(),
+            "statements": statements,
+            "live_listed": live_symbols,
+            "live_error": live_error,
+            "sectors": sorted(PSX_SECTORS),
+            "yahoo_suffix": ".KA",
+        }
+
+    @app.get("/api/v1/psx/context/{ticker}")
+    def psx_context(ticker: str) -> dict[str, Any]:
+        team: ResearchTeam = app.state.team
+        return team.psx_context(normalize_symbol(ticker))
+
+    @app.get("/api/v1/psx/yahoo/{ticker}")
+    def psx_yahoo(ticker: str) -> dict[str, str]:
+        symbol = normalize_symbol(ticker)
+        return {"ticker": symbol, "yahoo_symbol": yahoo_symbol(symbol)}
 
     @app.get("/ui", include_in_schema=False)
     def ui_redirect() -> RedirectResponse:

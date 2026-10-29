@@ -1,12 +1,12 @@
 [project]
 name = "devzonex-strata-kaggle"
-version = "0.2.0"
-description = "Guided Kaggle GPU setup for Strata models, plus a team of LLM research agents on a Python backend"
+version = "0.3.0"
+description = "Guided Kaggle GPU setup for Strata models, plus a PSX-focused team of LLM research agents on a Python backend"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "DevZoneX" }]
-keywords = ["strata", "kaggle", "llm", "agents", "equity-research"]
+keywords = ["strata", "kaggle", "llm", "agents", "psx", "equity-research", "pakistan"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "License :: OSI Approved :: MIT License",

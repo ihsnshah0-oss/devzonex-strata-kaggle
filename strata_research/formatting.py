@@ -40,6 +40,25 @@ def fmt_num(value: float | None, digits: int = 2) -> str:
     return f"{value:,.{digits}f}"
 
 
+def fmt_amount(value: float | None, currency: str = "PKR", digits: int = 1) -> str:
+    """Compact PKR amount from a figure expressed in millions."""
+    if value is None:
+        return NA
+    prefix = f"{currency} " if currency else ""
+    if abs(value) >= 1_000_000:
+        return f"{prefix}{value / 1_000_000:,.{digits}f}trn"
+    if abs(value) >= 1_000:
+        return f"{prefix}{value / 1_000:,.{digits}f}bn"
+    return f"{prefix}{value:,.0f}M"
+
+
+def fmt_crore(value: float | None, digits: int = 0) -> str:
+    """PKR crores from a figure expressed in millions (1 crore = 10 million)."""
+    if value is None:
+        return NA
+    return f"PKR {value / 10:,.{digits}f} crore"
+
+
 def fmt_score(value: float | None) -> str:
     if value is None:
         return NA

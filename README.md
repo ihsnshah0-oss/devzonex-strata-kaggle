@@ -12,36 +12,55 @@ This project turns our Strata + Qwen3.8-Flash-Next Gyro-S setup into a guided no
 
 ---
 
-## 🧑‍💼 Strata Research Desk — a team of LLM research agents
+## 🧑‍💼 PSX Research Desk — a team of LLM research agents
 
 This repository also ships **`strata_research`**, a Python backend that runs a team of research
-agents against any OpenAI-compatible model endpoint — including the Strata server this notebook
-starts. **Agent 1, the Fundamental Analyst, is implemented end to end.** The other five
-specialists are declared with their inputs, outputs and tools so the roadmap is explicit.
+agents **on Pakistan Stock Exchange listings only**, against any OpenAI-compatible model endpoint —
+including the Strata server this notebook starts. **Agent 1, the Fundamental Analyst, is implemented
+end to end.** The other five specialists are declared with their inputs, outputs and tools so the
+roadmap is explicit.
 
 ```bash
 python -m pip install -e ".[api,dev]"
-python -m strata_research --offline analyze NOVA     # no keys needed
+python -m strata_research --offline psx              # PSX universe, sectors, macro lens
+python -m strata_research --offline analyze DMEPL    # no keys needed
 python -m strata_research serve --port 8000          # UI at /ui/, API docs at /docs
 ```
 
 | # | Agent | Status | What it does |
 |---|---|---|---|
-| 1 | **Fundamental Analyst** | ✅ available | Statements → deterministic ratios + quality score → LLM note with verdict, thesis, red flags, grounding check |
-| 2 | News & Sentiment Analyst | 🗺️ planned | RAG over filings/transcripts, cited catalysts and tone |
-| 3 | Technical & Market Structure | 🗺️ planned | Trend, volatility, liquidity levels from OHLCV |
+| 1 | **Fundamental Analyst** | ✅ available | PSX statements → deterministic PKR ratios + PSX-calibrated quality score → LLM note with verdict, thesis, red flags and grounding check |
+| 2 | News & Sentiment Analyst | 🗺️ planned | PSX announcements/disclosures, cited catalysts and tone |
+| 3 | Technical & Market Structure | 🗺️ planned | Trend, volatility and liquidity levels from PSX OHLCV |
 | 4 | Risk & Compliance | 🗺️ planned | Stress tests, position sizing, constraint checks |
 | 5 | Quant & Backtest | 🗺️ planned | Factor construction with walk-forward validation |
 | 6 | Portfolio Manager | 🗺️ planned | Reconciles specialist reports, records dissent |
 
-The design principle: **Python owns the numbers, the LLM owns the narrative.** Ratios, scores and
-red flags are computed deterministically; the model receives them as an evidence pack with five
-read-only tools, must answer in a strict JSON contract, and every figure it writes is re-checked
-against the computed evidence before the report is returned. If the endpoint is unavailable the
-desk still returns the deterministic note instead of failing.
+What "PSX-only" means in the implementation:
 
-- Full guide: **[docs/research-desk.md](docs/research-desk.md)**
-- Example JSON fundamentals: [examples/fundamentals/ACME.json](examples/fundamentals/ACME.json)
+- **Symbols** — `OGDC`, `ogdc`, `PSX:OGDC` and `OGDC.KA` all normalise to `OGDC`; non-PSX tickers are rejected.
+- **PKR everywhere** — statements are converted to millions of PKR (annual reports are usually in
+  thousands; `"units": "thousands"` in the file handles it, and EPS is never scaled), and amounts are
+  rendered in PKR bn/crore.
+- **PSX-calibrated scoring** — P/E 18x→4x, EV/EBITDA 12x→3.5x, FCF yield 2%→15%, plus a dividend-yield
+  component, so local multiples are judged against local norms rather than developed-market ones.
+- **Pakistan lens in every prompt** — SBP policy rate, PKR/USD, inflation, circular debt, tariffs and
+  regulation, free float and liquidity; sector-specific notes for cement, E&P, OMCs, fertiliser,
+  power and tech.
+- **PSX red flags** — policy-rate sensitivity (interest cost as a share of revenue), IPP circular-debt
+  exposure, and an explicit refusal to score banks/insurers with an industrial ratio model.
+- **Data** — your own statement files (`STRATA_RESEARCH_PSX_DIR`) plus live PSX Data Portal closes,
+  optional Yahoo `<SYMBOL>.KA` listings, or a fictional offline demo universe
+  (`DMEPL`, `DMFRT`, `DMCMT`, `DMPWR`).
+
+The design principle: **Python owns the numbers, the LLM owns the narrative.** Ratios, scores and red
+flags are computed deterministically; the model receives them as an evidence pack with six read-only
+tools, must answer in a strict JSON contract, and every figure it writes is re-checked against the
+computed evidence before the report is returned. If the endpoint is unavailable the desk still
+returns the deterministic note instead of failing.
+
+- Full guide: **[docs/research-desk.md](docs/research-desk.md)** · PSX data guide: **[docs/psx.md](docs/psx.md)**
+- Example PSX statements file: [examples/psx/DMQSR.json](examples/psx/DMQSR.json)
 - Tests: `python -m pytest -q tests/test_research_desk.py` (offline, no credentials)
 
 ---
@@ -113,7 +132,8 @@ Opening the notebook imports its code; it does **not** grant access to anyone el
 - **[Open the Kaggle launcher notebook](notebooks/Strata_Kaggle_Launcher.ipynb)**
 - [Kaggle setup checklist](docs/kaggle-setup.md)
 - [OpenCode connection guide](docs/opencode-setup.md)
-- [Strata Research Desk guide](docs/research-desk.md)
+- [PSX Research Desk guide](docs/research-desk.md)
+- [PSX data, units and limits](docs/psx.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Security policy](SECURITY.md)
 - [Strata official setup guide](https://github.com/Niko1221/Strata/blob/main/docs/AI_SETUP.md)

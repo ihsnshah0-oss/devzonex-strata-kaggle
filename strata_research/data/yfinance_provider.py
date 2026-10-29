@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..psx import normalize_symbol, yahoo_symbol
 from ..schemas import CompanyFundamentals, CompanyProfile, FinancialYear
 from .base import DataProviderError, ProviderUnavailable, to_number
 
@@ -85,6 +86,13 @@ def _year_of(column: Any) -> int | None:
 
 
 class YFinanceProvider:
+    """Live PSX fundamentals from Yahoo Finance ``<SYMBOL>.KA`` listings.
+
+    Coverage of PSX names on Yahoo varies by company and some fields are missing
+    for smaller caps, so every absent figure is reported as missing rather than
+    zero, and the report carries the vendor as its data source.
+    """
+
     name = "yfinance"
     requires_network = True
 
@@ -97,7 +105,7 @@ class YFinanceProvider:
 
     def fetch(self, ticker: str) -> CompanyFundamentals:
         yf = _import_yfinance()
-        symbol = ticker.strip().upper()
+        symbol = yahoo_symbol(normalize_symbol(ticker))
         try:
             handle = yf.Ticker(symbol)
             income = handle.income_stmt
@@ -153,12 +161,14 @@ class YFinanceProvider:
                 pass
 
         profile = CompanyProfile(
-            ticker=symbol,
+            ticker=normalize_symbol(symbol),
+            market="PSX",
+            exchange="PSX",
             name=info.get("longName") or info.get("shortName") or symbol,
             sector=info.get("sector"),
             industry=info.get("industry"),
-            country=info.get("country"),
-            currency=info.get("currency") or "USD",
+            country=info.get("country") or "Pakistan",
+            currency=info.get("currency") or "PKR",
             description=(info.get("longBusinessSummary") or "")[:1200] or None,
             price=price,
             shares_outstanding=shares,
@@ -168,7 +178,7 @@ class YFinanceProvider:
             data_quality="reported",
         )
         profile.notes.append(
-            "Figures fetched from Yahoo Finance via yfinance; verify against the "
-            "company's filings before relying on them."
+            f"Figures fetched from Yahoo Finance ({symbol}) via yfinance; verify "
+            "against the company's filings before relying on them."
         )
         return CompanyFundamentals(profile=profile, fiscal_years=years, peers=[])

@@ -18,6 +18,7 @@ from typing import Any, Callable
 
 from .compute import compute_ratios
 from .formatting import fmt_pct, fmt_x
+from .psx import MACRO_LENS, sector_group, sector_note
 from .schemas import CompanyFundamentals, QualityScore, RatioSet, ToolCallRecord
 from .scoring import score_company
 
@@ -167,6 +168,23 @@ def tool_scenario(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _tool_psx_context(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
+    profile = ctx.company.profile
+    group = sector_group(profile.sector) or sector_group(profile.industry)
+    return _json(
+        {
+            "market": profile.market,
+            "exchange": profile.exchange,
+            "currency": profile.currency,
+            "sector_group": group,
+            "sector_lens": sector_note(profile.sector) or sector_note(profile.industry),
+            "market_lens": [{"topic": title, "detail": detail} for title, detail in MACRO_LENS],
+            "peers": list(ctx.company.peers),
+            "yahoo_symbol": f"{profile.ticker}.KA",
+        }
+    )
+
+
 TOOLS: dict[str, ToolSpec] = {
     "get_financials": ToolSpec(
         name="get_financials",
@@ -234,6 +252,15 @@ TOOLS: dict[str, ToolSpec] = {
             "additionalProperties": False,
         },
         handler=tool_scenario,
+    ),
+    "get_psx_context": ToolSpec(
+        name="get_psx_context",
+        description=(
+            "Return PSX market context: sector group and sector-specific lens, the "
+            "Pakistan macro checklist, peers and the Yahoo listing code."
+        ),
+        parameters={"type": "object", "properties": {}, "additionalProperties": False},
+        handler=_tool_psx_context,
     ),
     "get_company_profile": ToolSpec(
         name="get_company_profile",
@@ -354,6 +381,8 @@ def _summarize(name: str, payload: dict[str, Any], ok: bool) -> str:
         return f"implied price {implied.get('share_price')}"
     if name == "get_company_profile":
         return "profile returned"
+    if name == "get_psx_context":
+        return f"PSX context for {payload.get('sector_group') or 'sector n/a'}"
     return "ok"
 
 

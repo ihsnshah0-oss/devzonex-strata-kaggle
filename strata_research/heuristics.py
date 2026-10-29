@@ -13,7 +13,8 @@ flags, narrative built from the components that scored best and worst.
 from __future__ import annotations
 
 from .compute import compute_ratios
-from .formatting import fmt_money, fmt_pct, fmt_per_share, fmt_x
+from .formatting import fmt_amount, fmt_pct, fmt_per_share, fmt_x
+from .psx import sector_group
 from .schemas import AnalystOutput, CompanyFundamentals, QualityScore, RatioSet
 from .scoring import score_company
 from .tools import ToolContext, build_context, tool_scenario
@@ -110,8 +111,8 @@ def rule_based_analysis(
 
     summary = (
         f"{profile.name} ({profile.ticker}) scores {scores.overall:.0f}/100 on the "
-        f"rule-based fundamental model (grade {scores.grade}, {scores.label}). "
-        f"Latest revenue is {fmt_money(latest.revenue, currency=currency)} with a "
+        f"PSX fundamental model (grade {scores.grade}, {scores.label}). "
+        f"Latest revenue is {fmt_amount(latest.revenue, currency=currency)} with a "
         f"{fmt_pct(ratios.net_margin)} net margin, {fmt_pct(ratios.roic)} ROIC and "
         f"{fmt_x(ratios.ev_ebitda)} EV/EBITDA. "
         + (
@@ -138,8 +139,17 @@ def rule_based_analysis(
         )
     if ratios.fcf is not None:
         thesis_bits.append(
-            f"Free cash flow of {fmt_money(ratios.fcf, currency=currency)} converts "
+            f"Free cash flow of {fmt_amount(ratios.fcf, currency=currency)} converts "
             f"{fmt_pct(ratios.fcf_conversion)} of net income into cash."
+        )
+    if ratios.dividend_yield is not None and ratios.dividend_yield > 0:
+        thesis_bits.append(
+            f"The dividend yield is {fmt_pct(ratios.dividend_yield)}, "
+            + (
+                "covered by free cash flow."
+                if (ratios.fcf_conversion or 0) >= 0.6
+                else "but cash conversion is thin."
+            )
         )
     if ratios.ev_ebitda is not None or ratios.pe is not None:
         thesis_bits.append(
@@ -202,15 +212,31 @@ def rule_based_analysis(
         f"Returns on invested capital of {fmt_pct(ratios.roic)} against a balance-sheet "
         f"pillar score of {_pillar(scores, 'balance_sheet'):.0f}/100 are the best "
         "available proxy for durability in this dataset. The statements cannot prove "
-        "pricing power; that needs qualitative evidence."
+        "pricing power; on PSX that usually needs evidence on market share, capacity "
+        "additions and pricing power with regulators, not just margins."
     )
 
+    group = sector_group(profile.sector) or sector_group(profile.industry)
     watch_items = [
-        "Next four quarters of revenue growth against the reported trend.",
-        f"Gross margin versus the latest {fmt_pct(ratios.gross_margin)}.",
-        f"Net debt / EBITDA of {fmt_x(ratios.net_debt_to_ebitda)} on the next balance sheet.",
-        f"Free cash flow conversion versus {fmt_pct(ratios.fcf_conversion)}.",
-    ][:4]
+        f"Next quarter's revenue growth against the {fmt_pct(ratios.revenue_growth_yoy, signed=True)} trend.",
+        f"Gross margin versus the latest {fmt_pct(ratios.gross_margin)} as input costs and the PKR move.",
+        f"Interest cover of {fmt_x(ratios.interest_coverage)} under the current SBP policy rate.",
+    ]
+    if group == "Power Generation":
+        watch_items.append("Circular-debt receivable ageing and capacity-payment recovery.")
+    elif group == "Cement":
+        watch_items.append("Despatch volumes, coal cost per tonne and retention prices.")
+    elif group == "Oil & Gas Exploration":
+        watch_items.append("Gas price notification, receivables from the gas chain and PKR/USD.")
+    elif group == "Fertilizer":
+        watch_items.append("Gas allocation/tariff for the sector and urea price notifications.")
+    else:
+        watch_items.append(
+            f"Free cash flow conversion versus {fmt_pct(ratios.fcf_conversion)}."
+        )
+    watch_items.append(
+        f"Net debt / EBITDA of {fmt_x(ratios.net_debt_to_ebitda)} on the next balance sheet."
+    )
 
     return AnalystOutput(
         verdict=verdict,  # type: ignore[arg-type]

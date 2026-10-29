@@ -1,4 +1,4 @@
-"""DevZoneX Strata Research — a small team of LLM research agents.
+"""DevZoneX PSX Research Desk — a team of LLM research agents for Pakistan Stock Exchange listings.
 
 The package is intentionally independent of the Kaggle launcher in
 ``scripts/``. It is a Python backend that talks to any OpenAI-compatible
@@ -10,7 +10,7 @@ Quick start::
     from strata_research import ResearchTeam, Settings
 
     team = ResearchTeam(Settings.from_env())
-    brief = team.brief("AAPL", focus="margin durability")
+    brief = team.brief("DMEPL", focus="dividend sustainability")
     print(brief.reports[0].analysis.summary)
 """
 
@@ -22,4 +22,4 @@ from .schemas import FundamentalReport, TeamBrief
 
 __all__ = ["Settings", "ResearchTeam", "FundamentalReport", "TeamBrief", "__version__"]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
