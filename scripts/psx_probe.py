@@ -1,13 +1,19 @@
-"""Probe the PSX Data Portal for reachable data routes (fingerprint + route matrix).
+"""Capture the exact markup of the PSX Data Portal pages the mirror depends on.
 
-Why this exists: the portal exposes JSON under ``/timeseries/{type}/{symbol}`` and
-HTML fragments under ``/indices/{code}``, ``/performers``, ``/daily-downloads``,
-etc. From a datacentre IP some of those answer 404/403 while ordinary pages work,
-which usually means the WAF is fingerprinting the client. This script compares
-clients (curl HTTP/1.1, curl HTTP/2, httpx HTTP/1.1, httpx HTTP/2), prints the
-exact status/headers, and reports what each reachable route contains.
+The portal's JSON routes (``/symbols``, ``/market-watch``,
+``/timeseries/eod/{symbol}``) return 404 from the current deployment, so the
+mirror reads the HTML it does publish:
 
-It writes ``data/probe.json`` (committed) plus raw bodies in ``captures/probe/``.
+    /screener                — every listed symbol with sector, index membership,
+                               market cap, price, 1-year change, P/E, yield
+    /indices                 — index levels (KSE100, KMI30, …)
+    /indices/{CODE}          — constituents of one index, with quotes/weights
+    /company/{SYMBOL}        — company statistics and announcements
+    /historical              — carries the portal's own "latest trading date"
+
+This script saves the raw markup of the rows/blocks those parsers read, so the
+parsers can be written against reality instead of guesswork. Snippets go into
+``data/probe.json`` (small, committed); full pages go to ``captures/probe/``.
 """
 
 from __future__ import annotations
@@ -15,7 +21,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,88 +31,20 @@ import httpx
 BASE = "https://dps.psx.com.pk"
 SYMBOL = "OGDC"
 
-UA = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-)
-
 HEADERS = {
-    "User-Agent": UA,
-    "Accept": "*/*",
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": f"{BASE}/",
 }
 
-#: routes worth testing, with the HTTP method the portal itself uses.
-#: The first block is the current candidate surface; the second block is every
-#: plausible history/payout route, checked so the gap can be documented.
-TARGETS = [
-    ("GET", "/screener", None),
-    ("GET", "/indices", None),
-    ("GET", "/indices/KSE100", None),
-    ("GET", "/indices/KMI30", None),
-    ("GET", "/company/{symbol}", None),
-    ("GET", "/company/{symbol}/payouts", None),
-    ("POST", "/payouts", {"symbol": "OGDC", "year": "2026"}),
-    ("GET", "/sitemap", None),
-    ("GET", "/timeseries/eod/{symbol}", None),
-    ("GET", "/symbols", None),
-    ("GET", "/market-watch", None),
-    ("GET", "/historical/{symbol}", None),
-    ("GET", "/historical-data/{symbol}", None),
-    ("GET", "/data/historical/{symbol}", None),
-    ("GET", "/historical?symbol={symbol}&month=09&year=2026", None),
-    ("GET", "/market-summary", None),
-    ("GET", "/daily-downloads", None),
-    ("GET", "/announcements/companies", None),
-]
 
-
-def curl(url: str, method: str, data: dict[str, str] | None, http2: bool) -> dict[str, object]:
-    """Ask curl for the status line and headers."""
-    command = [
-        "curl", "-sS", "-D", "-", "-o", "/dev/null", "--max-time", "30",
-        "--compressed", "-X", method, "-A", UA,
-        "-H", f"Referer: {BASE}/", "-H", "Accept: */*",
-    ]
-    command.append("--http2" if http2 else "--http1.1")
-    for key, value in (data or {}).items():
-        command += ["--data-urlencode", f"{key}={value}"]
-    command.append(url)
-    try:
-        completed = subprocess.run(command, capture_output=True, text=True, timeout=60)
-    except Exception as exc:
-        return {"error": f"{type(exc).__name__}: {exc}"}
-    head = completed.stdout.split("\r\n\r\n")[0]
-    status = None
-    match = re.search(r"HTTP/[\d.]+\s+(\d{3})", head)
-    if match:
-        status = int(match.group(1))
-    server = re.search(r"(?im)^server:\s*(.+)$", head)
-    return {
-        "status": status,
-        "server": server.group(1).strip() if server else None,
-        "stderr": completed.stderr.strip()[:200] or None,
-    }
-
-
-def _shape(html: str, limit: int = 3) -> list[dict[str, object]]:
-    out = []
-    for index, table in enumerate(re.findall(r"<table\b.*?</table>", html, re.IGNORECASE | re.DOTALL)):
-        headers = [
-            " ".join(re.sub(r"<[^>]+>", " ", cell).split())
-            for cell in re.findall(r"<th\b.*?</th>", table, re.IGNORECASE | re.DOTALL)
-        ]
-        rows = re.findall(r"<tr\b.*?</tr>", table, re.IGNORECASE | re.DOTALL)
-        sample = [
-            [" ".join(re.sub(r"<[^>]+>", " ", cell).split()) for cell in re.findall(
-                r"<t[dh]\b.*?</t[dh]>", row, re.IGNORECASE | re.DOTALL)][:14]
-            for row in rows[1:3]
-        ]
-        out.append({"table": index, "rows": len(rows), "headers": headers[:24], "sample_rows": sample[:3]})
-        if index + 1 >= limit:
-            break
-    return out
+def _first(pattern: str, text: str, size: int = 1400) -> str | None:
+    match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+    return match.group(0)[:size] if match else None
 
 
 def main() -> int:
@@ -124,94 +61,56 @@ def main() -> int:
     report: dict[str, object] = {
         "probed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "base": BASE,
-        "clients": {},
-        "targets": {},
+        "pages": {},
     }
-    clients: dict[str, object] = report["clients"]  # type: ignore[assignment]
-    targets: dict[str, object] = report["targets"]  # type: ignore[assignment]
-
-    with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=HEADERS) as h1:
-        home = h1.get(f"{BASE}/")
-        clients["httpx-http1.1 /"] = {
-            "status": home.status_code,
-            "headers": dict(home.headers),
-            "cookies": dict(h1.cookies),
-        }
-
-    for path_spec, data in (("/timeseries/eod/{symbol}", None), ("/screener", None), ("/indices/KSE100", None)):
-        url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
-        for label, http2 in (("curl-http1.1", False), ("curl-http2", True)):
-            clients[f"{label} {path_spec}"] = curl(url, "GET", data, http2)
-
-    # httpx over HTTP/2, if the h2 extra is installed
-    try:
-        with httpx.Client(http2=True, timeout=args.timeout, follow_redirects=True, headers=HEADERS) as h2:
-            for path_spec in ("/timeseries/eod/{symbol}", "/screener"):
-                url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
-                try:
-                    response = h2.get(url)
-                    clients[f"httpx-http2 {path_spec}"] = {
-                        "status": response.status_code,
-                        "http_version": response.http_version,
-                        "bytes": len(response.text),
-                    }
-                except Exception as exc:
-                    clients[f"httpx-http2 {path_spec}"] = {"error": f"{type(exc).__name__}: {exc}"}
-    except Exception as exc:
-        clients["httpx-http2"] = {"error": f"{type(exc).__name__}: {exc}"}
+    pages: dict[str, object] = report["pages"]  # type: ignore[assignment]
 
     with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=HEADERS) as client:
-        for method, path_spec, data in TARGETS:
-            path = path_spec.replace("{symbol}", SYMBOL).replace("{symbol_index}", "KSE100")
+        for path, name in (
+            ("/", "home"),
+            ("/screener", "screener"),
+            ("/indices", "indices"),
+            ("/indices/KSE100", "kse100"),
+            ("/indices/KMI30", "kmi30"),
+            (f"/company/{SYMBOL}", "company"),
+            ("/historical", "historical"),
+        ):
             url = urljoin(BASE + "/", path.lstrip("/"))
-            key = f"{method} {path}" + (f" {sorted(data)}" if data else "")
             try:
-                if method == "GET":
-                    response = client.get(url)
-                else:
-                    response = client.post(url, data=data or {})
+                response = client.get(url)
             except Exception as exc:
-                targets[key] = {"error": f"{type(exc).__name__}: {exc}"}
+                pages[path] = {"error": f"{type(exc).__name__}: {exc}"}
                 continue
-            body = response.text or ""
-            entry: dict[str, object] = {
-                "status": response.status_code,
-                "content_type": response.headers.get("content-type", ""),
-                "bytes": len(body),
-                "snippet": " ".join(body[:300].split()),
-                # what kinds of content does this page carry?
-                "content_probe": {
-                    key: len(re.findall(pattern, body))
-                    for key, pattern in {
-                        "stats_label": r"stats_label",
-                        "payout": r"[Pp]ayout|[Dd]ividend",
-                        "financial": r"[Ff]inancial",
-                        "KSE100": r"KSE100",
-                        "KMI30": r"KMI30",
-                        "data-search": r'data-search',
-                        "table": r"<table",
-                    }.items()
-                },
-            }
+            body = response.text
+            entry: dict[str, object] = {"status": response.status_code, "bytes": len(body)}
             if response.status_code == 200:
-                entry["tables"] = _shape(response.text)
                 if raw is not None:
-                    (raw / f"ok_{method}_{re.sub(r'[^A-Za-z0-9]+', '_', path)}.txt").write_text(
-                        response.text, encoding="utf-8"
-                    )
-            targets[key] = entry
+                    (raw / f"{name}.html").write_text(body, encoding="utf-8")
+                entry["snippets"] = {
+                    "thead": _first(r"<thead\b.*?</thead>", body, 2000),
+                    "first_row": _first(r"<tbody\b.*?</tr>", body, 1600),
+                    "stats_block": _first(r'<div class="stats_label".{0,1200}', body, 1400),
+                    "latest_date": _first(r'<[^>]*data-latest[^>]*>', body, 400),
+                    "date_picker": _first(r'id="[^"]*[Dd]ate[^"]*".{0,400}', body, 500),
+                    "page_header": _first(r'class="[^"]*page__header[^"]*".{0,300}', body, 400),
+                }
+                entry["columns"] = [
+                    " ".join(re.sub(r"<[^>]+>", " ", cell).split())
+                    for cell in re.findall(r"<th\b.*?</th>", body, re.IGNORECASE | re.DOTALL)
+                ][:24]
+                entry["epoch_values"] = sorted(
+                    {value for value in re.findall(r'data-[a-z-]+="(1[6-9]\d{8,12})"', body)}
+                )[:10]
+                entry["tables"] = len(re.findall(r"<table\b", body, re.IGNORECASE))
+            pages[path] = entry
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2)[:6_000_000], encoding="utf-8")
     print(f"wrote {out}")
-    for key, value in targets.items():
-        print(f"{value.get('status') or value.get('error')}  {key}  ({value.get('bytes', '')} bytes)")
-    for key, value in clients.items():
-        if "status" in value:
-            print(f"client {key}: {value.get('status')} {value.get('server') or ''}")
-        else:
-            print(f"client {key}: {value}")
+    for path, info in pages.items():
+        print(f"{path:22s} {info.get('status') or info.get('error')} {info.get('bytes', '')} "
+              f"tables={info.get('tables', '')} cols={len(info.get('columns') or [])}")
     return 0
 
 
