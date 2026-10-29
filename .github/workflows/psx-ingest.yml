@@ -6,6 +6,14 @@ name: PSX portal ingest
 # happens to have outbound internet access.
 
 on:
+  # A push trigger is included so the ingest can be started from a feature
+  # branch: GitHub only accepts workflow_dispatch for files present on the
+  # default branch.
+  push:
+    branches: ["arena/**"]
+    paths:
+      - "data/ingest-trigger.txt"
+      - ".github/workflows/psx-ingest.yml"
   workflow_dispatch:
     inputs:
       indices:
