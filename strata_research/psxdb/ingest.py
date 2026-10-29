@@ -58,10 +58,17 @@ SOURCE = "dps.psx.com.pk"
 #: and the full body lives in the capture directory.
 RAW_BODY_LIMIT = 8_000
 
-#: ``/screener`` publishes market capitalisation in **thousands of rupees**
-#: (OGDC: 1 316 987 285.36 there = Rs 1.317 trillion), while its constituent
-#: tables publish absolute rupees. Everything is normalised to rupees here.
-SCREENER_MARKET_CAP_UNIT = 1_000.0
+#: Market capitalisation is published in **thousands of rupees** on both
+#: ``/screener`` and ``/company/{SYMBOL}``: OGDC shows 1 316 987 285.36 while
+#: 4 300 928 400 shares x Rs 306.2 works out to Rs 1.317 trillion. Values are
+#: normalised to rupees on the way in, and the constituent tables (which publish
+#: absolute *free-float* rupees) are never mixed into the same column.
+MARKET_CAP_UNIT = 1_000.0
+
+
+def _market_cap_pkr(value: float | None) -> float | None:
+    """Convert a published market capitalisation to rupees."""
+    return None if value is None else value * MARKET_CAP_UNIT
 
 
 @dataclass
@@ -223,9 +230,7 @@ def ingest(
                 snapshot_as_of,
                 {
                     "price": row.price,
-                    "market_cap": (row.market_cap * SCREENER_MARKET_CAP_UNIT)
-                    if row.market_cap is not None
-                    else None,
+                    "market_cap": _market_cap_pkr(row.market_cap),
                     "pe": row.pe,
                     "dividend_yield": row.dividend_yield,
                     "free_float": row.free_float,
@@ -370,12 +375,31 @@ def ingest(
                 db.upsert_snapshot(
                     symbol,
                     target_date,
-                    stats,
+                    {**stats, "market_cap": _market_cap_pkr(stats.get("market_cap"))},
                     f"{SOURCE}/company/{symbol}",
                     sector=meta.get("sector"),
                     raw_hash=page.sha256,
                 )
                 report.rows["snapshots"] += 1
+                # the company page publishes the day's open/high/low, which the
+                # constituent table does not carry: enrich the same day's bar
+                report.rows["market_bars"] += db.upsert_bars(
+                    symbol,
+                    [
+                        {
+                            "trade_date": target_date,
+                            "open": stats.get("open"),
+                            "high": stats.get("high"),
+                            "low": stats.get("low"),
+                            # `close` stays NULL: the constituent table is the
+                            # market's own print for the day, and a later page
+                            # must not restate it (COALESCE keeps the first)
+                            "prev_close": stats.get("prev_close"),
+                            "volume": stats.get("volume"),
+                        }
+                    ],
+                    f"{SOURCE}/company/{symbol}",
+                )
                 if meta.get("name"):
                     db.upsert_symbols(
                         [

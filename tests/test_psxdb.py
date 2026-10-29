@@ -72,7 +72,7 @@ def build_capture(directory: Path) -> Path:
     company_dir = directory / "company"
     company_dir.mkdir(exist_ok=True)
     for symbol in ("OGDC", "PPL", "MEBL", "FFC"):
-        shutil.copy(FIXTURES / "company" / "OGDC.html", company_dir / f"{symbol}.html")
+        shutil.copy(FIXTURES / "company" / f"{symbol}.html", company_dir / f"{symbol}.html")
     return directory
 
 
@@ -195,7 +195,9 @@ def test_parse_company_stats_handles_every_block():
     assert stats["open"] == pytest.approx(216.00)
     assert stats["volume"] == pytest.approx(4_512_300)
     assert stats["prev_close"] == pytest.approx(215.40)
-    assert stats["market_cap"] == pytest.approx(940_123_456_789)
+    # published in thousands of rupees; normalisation happens in the ingest
+    assert stats["market_cap"] == pytest.approx(940_123_456.79)
+    assert stats["price"] == pytest.approx(218.75)     # "Close", not "Ask Price"
     assert stats["shares"] == pytest.approx(4_300_000_000)
     assert stats["free_float"] == pytest.approx(129_000_000)
     assert stats["free_float_pct"] == pytest.approx(3.00)   # not clobbered by free_float
@@ -398,10 +400,17 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     assert ogdc_bar["close"] == pytest.approx(218.75)
     assert ogdc_bar["prev_close"] == pytest.approx(215.40)
     assert ogdc_bar["volume"] == pytest.approx(4_512_300)
+    # the company page adds the intraday range the constituent table lacks
+    assert (ogdc_bar["low"], ogdc_bar["high"]) == (pytest.approx(214.10), pytest.approx(219.90))
+    assert ogdc_bar["open"] == pytest.approx(216.00)
+    # a bar assembled from two pages records both contributors
+    assert ogdc_bar["source"] == (
+        "dps.psx.com.pk/indices + dps.psx.com.pk/company/OGDC"
+    )
 
     # ---- company pages add the intraday range the constituent table lacks
     # market cap is normalised to rupees: thousands x 1 000 on the way in
-    assert quotes_ogdc_market_cap(database) == pytest.approx(940_123_456_789)
+    assert quotes_ogdc_market_cap(database) == pytest.approx(940_123_456_790, rel=1e-9)
 
     quotes = {row["symbol"]: row for row in latest_quotes(database, index_code="KMI30")}
     assert set(quotes) == {"FFC", "MEBL", "PPL"}

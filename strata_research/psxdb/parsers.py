@@ -509,7 +509,9 @@ def parse_indices(html: str) -> list[IndexRow]:
 
 # ------------------------------------------------------------- company pages
 _STAT_LABELS = {
-    "price": ("close", "current price", "price"),
+    # "close" only: a bare "price" needle would match "Ask Price"/"Bid Price",
+    # which are the (usually zero) order-book quotes, not the traded price.
+    "price": ("close", "current price"),
     "open": ("open",),
     "prev_close": ("ldcp", "previous close"),
     "volume": ("volume",),

@@ -273,7 +273,15 @@ class PsxDatabase:
                     close = COALESCE(excluded.close, {table}.close),
                     prev_close = COALESCE(excluded.prev_close, {table}.prev_close),
                     volume = COALESCE(excluded.volume, {table}.volume),
-                    source = excluded.source,
+                    -- a bar is often assembled from two pages (the index table has
+                    -- the close, the company page the intraday range) so the
+                    -- provenance keeps every contributor
+                    source = CASE
+                        WHEN {table}.source = excluded.source
+                             OR instr({table}.source, excluded.source) > 0
+                        THEN excluded.source
+                        ELSE {table}.source || ' + ' || excluded.source
+                    END,
                     captured_at = excluded.captured_at
                 """,
                 payload,
