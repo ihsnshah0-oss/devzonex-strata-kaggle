@@ -1,24 +1,30 @@
 """Ingestion pipeline: PSX Data Portal → SQLite.
 
 Order of work (each step is independent, so a partial run still leaves a usable
-database):
+database and every failure is reported rather than fatal):
 
-1. ``GET /symbols``            — the listed universe, sectors and flags.
-2. ``GET /market-watch``       — today's quotes **and index membership**, which is
-                                 how the KSE100 / KMI30 constituent lists are
-                                 derived (nothing is hardcoded, so PSX rebalances
-                                 are picked up automatically).
-3. ``GET /timeseries/eod/{i}`` — daily bars for the index itself.
-4. ``GET /timeseries/eod/{s}`` — daily bars for every constituent, one request
-                                 each, ~5 years of history per call.
-5. ``GET /company/{s}``        — company statistics (market cap, P/E, free float,
-                                 52-week range) plus any annual financials the
-                                 page exposes.
-6. ``GET /indices``            — fallback levels if a step above failed.
+1. ``GET /historical``   — the portal's own "latest trading date" stamp, so
+                           every row is filed under the trading day the portal
+                           is actually showing.
+2. ``GET /screener``     — the whole listed market in one page: every symbol
+                           with its sector code, index memberships, market cap,
+                           price, change, 1-year change, P/E, dividend yield,
+                           free float and 30-day average volume.
+3. ``GET /indices``      — level, day high/low and change for each published
+                           index (this is where KSE100 / KMI30 levels come from).
+4. ``GET /indices/{CODE}``— the constituents of each tracked index, with LDCP,
+                           today's price, volume, index weight and points. This
+                           is the authoritative constituent list — nothing is
+                           hardcoded, so a rebalance is picked up automatically.
+5. ``GET /company/{SYM}`` — per-constituent company page: open/high/low/volume,
+                           ranges, circuit breaker, ratios, and the financial
+                           line items the company publishes.
 
-Failures are collected per item: one dead symbol never aborts a run. The run is
-recorded in ``ingest_runs`` with request/row/error counts, and every response's
-size and sha256 is stored in ``raw_payloads`` so a figure can be traced back.
+What the portal does **not** publish any more (all returning 404 from nginx):
+``/symbols``, ``/market-watch``, ``/timeseries/eod/{symbol}``. There is
+therefore no historical price series to backfill. Each run stores the trading
+day the portal shows plus LDCP, so running the ingest daily builds a genuine
+day-by-day series — and nothing is ever filled in from another provider.
 """
 
 from __future__ import annotations
@@ -26,7 +32,7 @@ from __future__ import annotations
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
@@ -35,15 +41,21 @@ from .client import PortalError, PortalSchemaError
 from .parsers import (
     ParseError,
     parse_company_financials,
+    parse_company_meta,
     parse_company_stats,
-    parse_eod_series,
+    parse_index_constituents,
     parse_indices,
-    parse_market_watch,
+    parse_latest_trade_date,
+    parse_screener,
 )
 from .schema import DEFAULT_INDICES
 from .store import PsxDatabase
 
 SOURCE = "dps.psx.com.pk"
+
+#: Raw HTML kept in ``raw_payloads`` is truncated; the sha256 is the audit trail
+#: and the full body lives in the capture directory.
+RAW_BODY_LIMIT = 8_000
 
 
 @dataclass
@@ -51,10 +63,12 @@ class IngestReport:
     run_id: int
     mode: str
     indices: list[str] = field(default_factory=list)
+    trade_date: str | None = None
     requests: int = 0
     rows: dict[str, int] = field(default_factory=dict)
     constituents: dict[str, list[str]] = field(default_factory=dict)
     errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     notes: dict[str, Any] = field(default_factory=dict)
     started_at: str = ""
     finished_at: str = ""
@@ -70,10 +84,12 @@ class IngestReport:
             "mode": self.mode,
             "source": SOURCE,
             "indices": self.indices,
+            "trade_date": self.trade_date,
             "requests": self.requests,
             "rows": self.rows,
             "rows_written": self.rows_written,
             "errors": self.errors,
+            "warnings": self.warnings,
             "constituents": {code: len(symbols) for code, symbols in self.constituents.items()},
             "notes": self.notes,
             "started_at": self.started_at,
@@ -86,12 +102,8 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-#: Raw HTML is stored truncated: the sha256 is the audit trail, and the full
-#: response body is kept in the capture directory instead of bloating the database.
-RAW_BODY_LIMIT = 8_000
-
-
 def _log_raw(db: PsxDatabase, run_id: int, response: Any, *, keep_body: bool) -> None:
+    """Record provenance. Never allowed to break ingestion."""
     try:
         db.log_raw(
             run_id,
@@ -102,14 +114,16 @@ def _log_raw(db: PsxDatabase, run_id: int, response: Any, *, keep_body: bool) ->
             response.sha256,
             max_bytes=RAW_BODY_LIMIT if keep_body else 0,
         )
-    except Exception:  # provenance must never break ingestion
+    except Exception:  # pragma: no cover - defensive
         pass
 
 
-def _log_raw_last(db: PsxDatabase, run_id: int, client: Any, *, keep_body: bool) -> None:
-    responses = getattr(client, "responses", None) or []
-    if responses:
-        _log_raw(db, run_id, responses[-1], keep_body=keep_body)
+def _fallback_trade_date(today: date | None = None) -> date:
+    """Last weekday on/before ``today`` (Karachi), used only if the portal is mute."""
+    day = today or date.today()
+    while day.weekday() >= 5:
+        day = date.fromordinal(day.toordinal() - 1)
+    return day
 
 
 def ingest(
@@ -117,179 +131,103 @@ def ingest(
     db: PsxDatabase,
     *,
     indices: Sequence[str] = DEFAULT_INDICES,
-    history_days: int = 400,
     include_company_pages: bool = True,
     company_limit: int | None = None,
     workers: int = 3,
     as_of: date | None = None,
     capture_dir: Path | None = None,
     log: Callable[[str], None] = print,
-    expected_constituents: dict[str, set[str]] | None = None,
 ) -> IngestReport:
     """Run the full ingestion and return a report (also stored in the database)."""
     db.initialise()
     codes = [code.strip().upper() for code in indices if code and code.strip()]
     report = IngestReport(run_id=db.start_run("live", codes), mode="live", indices=codes)
+    report.requests = 0
     report.started_at = _now()
     started = datetime.now(timezone.utc)
-    report.rows = {key: 0 for key in (
-        "symbols", "memberships", "market_bars", "index_bars", "snapshots", "financial_years"
-    )}
-    target_date = as_of or date.today()
-
-    def note(message: str) -> None:
-        if message.startswith("ERROR "):
-            report.errors.append(message)
-        log(message)
-
-    # 1 ---------------------------------------------------------- universe
-    try:
-        symbols = client.symbols()
-        _log_raw_last(db, report.run_id, client, keep_body=False)
-        report.rows["symbols"] = db.upsert_symbols(symbols, SOURCE)
-        log(f"symbols: {report.rows['symbols']} listed instruments")
-    except (PortalError, ParseError) as exc:
-        note(f"ERROR symbols: {exc}")
-        symbols = []
-    sector_by_symbol = {row["symbol"]: row.get("sector") for row in symbols}
-
-    # 2 ------------------------------------------------------- market watch
-    membership: dict[str, list[str]] = {code: [] for code in codes}
-    watch_quotes: dict[str, Any] = {}
-    try:
-        page = client.market_watch()
-        _log_raw(db, report.run_id, page, keep_body=True)
-        watch_rows = parse_market_watch(page.body)
-        for row in watch_rows:
-            watch_quotes[row.symbol] = row
-            for code in codes:
-                if code in row.indices:
-                    membership[code].append(row.symbol)
-            for token in row.indices:
-                if token not in membership:
-                    membership.setdefault(token, []).append(row.symbol)
-        log(
-            "market-watch: {rows} quotes; membership found -> {summary}".format(
-                rows=len(watch_rows),
-                summary=", ".join(f"{code}:{len(membership.get(code, []))}" for code in codes),
-            )
+    report.rows = {
+        key: 0
+        for key in (
+            "symbols",
+            "memberships",
+            "market_bars",
+            "index_bars",
+            "index_levels",
+            "snapshots",
+            "financials",
         )
-        for code in codes:
-            if not membership.get(code):
-                note(
-                    f"ERROR membership: no {code} constituents found in market-watch "
-                    "(the membership column may have moved)"
-                )
-    except (PortalError, ParseError) as exc:
-        note(f"ERROR market-watch: {exc}")
-
-    # If the portal's membership column was unusable, fall back to an explicit list.
-    if expected_constituents:
-        for code, symbols_for_code in expected_constituents.items():
-            if not membership.get(code):
-                membership[code] = sorted(symbols_for_code)
-                report.notes.setdefault("membership_overrides", []).append(code)
-
-    for code in codes:
-        unique = sorted(dict.fromkeys(membership.get(code, [])))
-        report.constituents[code] = unique
-        if unique:
-            report.rows["memberships"] += db.upsert_memberships(
-                code, unique, target_date, SOURCE
-            )
-
-    # today's bars from the watch table (the only source with intraday high/low)
-    watch_bars = {
-        symbol: {
-            "trade_date": target_date,
-            "ts": None,
-            "open": row.open,
-            "high": row.high,
-            "low": row.low,
-            "close": row.current if row.current is not None else row.ldcp,
-            "volume": row.volume,
-        }
-        for symbol, row in watch_quotes.items()
-        if (row.current is not None or row.ldcp is not None)
     }
-    if watch_bars:
-        for symbol, bar in watch_bars.items():
-            report.rows["market_bars"] += db.upsert_bars(symbol, [bar], f"{SOURCE}/market-watch")
-
-    # 3/4 ------------------------------------------------ daily price series
-    cutoff = target_date - timedelta(days=max(30, history_days))
-    constituent_set = sorted({symbol for symbols_for_code in membership.values() for symbol in symbols_for_code})
-    index_codes_in_universe = sorted(set(codes))
-    price_targets = sorted(set(constituent_set) | set(index_codes_in_universe))
-
     lock = threading.Lock()
 
-    def fetch_eod(symbol: str) -> tuple[str, str | None]:
-        is_index = symbol in codes
+    def warn(message: str) -> None:
+        report.warnings.append(message)
+        log(f"warning: {message}")
+
+    def fail(message: str) -> None:
+        report.errors.append(message)
+        log(f"error: {message}")
+
+    # 0 ------------------------------------------------------- trading date
+    target_date = as_of
+    if target_date is None:
         try:
-            series = parse_eod_series(client.eod(symbol).json(), symbol)
-        except (PortalError, PortalSchemaError, ParseError) as exc:
-            return symbol, f"{symbol}: {exc}"
-        except Exception as exc:  # a broken symbol must not kill the run
-            return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
-        bars = [bar for bar in series if bar["trade_date"] >= cutoff]
-        if not bars:
-            return symbol, f"{symbol}: no bars on/after {cutoff.isoformat()}"
-        with lock:
-            if is_index:
-                report.rows["index_bars"] += db.upsert_bars(
-                    symbol, bars, f"{SOURCE}/timeseries/eod", table="index_bars",
-                    key_column="index_code",
-                )
-            else:
-                report.rows["market_bars"] += db.upsert_bars(
-                    symbol, bars, f"{SOURCE}/timeseries/eod"
-                )
-        return symbol, None
+            page = client.historical_page()
+            _log_raw(db, report.run_id, page, keep_body=False)
+            stamp_date, stamp_source = parse_latest_trade_date(page.body)
+        except (PortalError, PortalSchemaError) as exc:
+            stamp_date, stamp_source = None, "unavailable"
+            warn(f"historical page: {exc}")
+        target_date = stamp_date or as_of or _fallback_trade_date()
+        report.notes["trade_date_source"] = stamp_source if stamp_date else "computed-last-weekday"
+    else:
+        report.notes["trade_date_source"] = "caller-supplied"
+    report.trade_date = target_date.isoformat()
 
-    if price_targets:
-        log(f"price series: {len(price_targets)} symbols since {cutoff.isoformat()}")
-        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-            futures = {pool.submit(fetch_eod, symbol): symbol for symbol in price_targets}
-            for future in as_completed(futures):
-                symbol, error = future.result()
-                if error:
-                    report.errors.append(f"ERROR eod: {error}")
-
-    # index levels from the stored series
-    index_rows = []
-    for code in codes:
-        row = db.conn.execute(
-            "SELECT close, trade_date FROM index_bars WHERE index_code = ? "
-            "ORDER BY trade_date DESC LIMIT 2",
-            (code,),
-        ).fetchall()
-        if row:
-            latest = row[0]
-            previous = row[1] if len(row) > 1 else None
-            change = None
-            change_pct = None
-            if previous and previous["close"]:
-                change = latest["close"] - previous["close"]
-                change_pct = change / previous["close"] * 100.0
-            index_rows.append(
+    # 1 --------------------------------------------------------- the universe
+    screener_rows: dict[str, Any] = {}
+    try:
+        page = client.screener()
+        _log_raw(db, report.run_id, page, keep_body=True)
+        rows = parse_screener(page.body)
+        snapshot_as_of = target_date
+        symbols_payload = [
+            {
+                "symbol": row.symbol,
+                "name": row.name,
+                "sector_code": row.sector_code,
+                "listed_in": row.listed_in,
+            }
+            for row in rows
+        ]
+        report.rows["symbols"] = db.upsert_symbols(symbols_payload, f"{SOURCE}/screener")
+        for row in rows:
+            screener_rows[row.symbol] = row
+            db.upsert_snapshot(
+                row.symbol,
+                snapshot_as_of,
                 {
-                    "code": code,
-                    "name": f"{code} Index",
-                    "level": latest["close"],
-                    "change": change,
-                    "change_pct": change_pct,
-                    "as_of": latest["trade_date"],
-                }
+                    "price": row.price,
+                    "market_cap": row.market_cap,
+                    "pe": row.pe,
+                    "dividend_yield": row.dividend_yield,
+                    "free_float": row.free_float,
+                    "year_change_pct": row.year_change_pct,
+                    "avg_volume_30d": row.avg_volume_30d,
+                },
+                f"{SOURCE}/screener",
+                raw_hash=page.sha256,
             )
-    if index_rows:
-        db.upsert_indices(index_rows, f"{SOURCE}/timeseries/eod")
+            report.rows["snapshots"] += 1
+        log(f"screener: {len(rows)} listed symbols")
+    except (PortalError, ParseError) as exc:
+        fail(f"screener: {exc}")
 
-    # 6 ---------------------------------------------- fallback index levels
+    # 2 ------------------------------------------------------- index levels
     try:
         page = client.indices_page()
         _log_raw(db, report.run_id, page, keep_body=True)
-        fallback = [
+        levels = parse_indices(page.body)
+        payload = [
             {
                 "code": row.code,
                 "name": row.name,
@@ -298,20 +236,116 @@ def ingest(
                 "change_pct": row.change_pct,
                 "high": row.high,
                 "low": row.low,
-                "volume": row.volume,
                 "as_of": target_date,
             }
-            for row in parse_indices(page.body)
-            if row.code in codes
+            for row in levels
         ]
-        if fallback:
-            db.upsert_indices(fallback, f"{SOURCE}/indices")
-            report.notes["index_levels_from"] = [row["code"] for row in fallback]
+        report.rows["index_levels"] = db.upsert_indices(payload, f"{SOURCE}/indices")
+        bars = [
+            {
+                "trade_date": target_date,
+                "open": None,
+                "high": row.high,
+                "low": row.low,
+                "close": row.level,
+                # the portal publishes change, so the previous level is derivable
+                "prev_close": (row.level - row.change)
+                if row.level is not None and row.change is not None
+                else None,
+                "volume": None,
+            }
+            for row in levels
+            if row.level is not None
+        ]
+        for row in levels:
+            if row.level is not None:
+                report.rows["index_bars"] += db.upsert_bars(
+                    row.code,
+                    [
+                        {
+                            "trade_date": target_date,
+                            "high": row.high,
+                            "low": row.low,
+                            "close": row.level,
+                            "prev_close": (row.level - row.change)
+                            if row.change is not None
+                            else None,
+                        }
+                    ],
+                    f"{SOURCE}/indices",
+                    table="index_bars",
+                    key_column="index_code",
+                )
+        del bars
+        log(f"indices: {len(levels)} levels stored")
     except (PortalError, ParseError) as exc:
-        report.notes.setdefault("warnings", []).append(f"indices page: {exc}")
+        fail(f"indices: {exc}")
+        levels = []
 
-    # 5 -------------------------------------------------- company snapshots
-    company_targets = sorted(constituent_set)
+    # 3 -------------------------------------------------- index constituents
+    membership: dict[str, list[str]] = {code: [] for code in codes}
+    quotes: dict[str, dict[str, Any]] = {}
+    for code in codes:
+        try:
+            page = client.index_constituents(code)
+            _log_raw(db, report.run_id, page, keep_body=True)
+            members = parse_index_constituents(page.body, code)
+        except (PortalError, ParseError) as exc:
+            fail(f"indices/{code}: {exc}")
+            continue
+
+        membership[code] = sorted({member.symbol for member in members})
+        report.rows["memberships"] += db.upsert_memberships(
+            code,
+            [
+                {
+                    "symbol": member.symbol,
+                    "weight_pct": member.weight_pct,
+                    "index_points": member.index_points,
+                }
+                for member in members
+            ],
+            target_date,
+            f"{SOURCE}/indices/{code}",
+        )
+        db.upsert_symbols(
+            [
+                {"symbol": member.symbol, "name": member.name, "listed_in": {code}}
+                for member in members
+            ],
+            f"{SOURCE}/indices/{code}",
+        )
+        for member in members:
+            previous = quotes.get(member.symbol, {})
+            quotes[member.symbol] = {
+                "close": member.close if member.close is not None else previous.get("close"),
+                "prev_close": member.ldcp if member.ldcp is not None else previous.get("prev_close"),
+                "volume": member.volume if member.volume is not None else previous.get("volume"),
+                "change": member.change,
+                "change_pct": member.change_pct,
+            }
+        log(f"indices/{code}: {len(members)} constituents")
+
+    constituent_set = sorted({symbol for symbols in membership.values() for symbol in symbols})
+    report.constituents = {code: symbols for code, symbols in membership.items()}
+    for code, symbols in membership.items():
+        if not symbols:
+            fail(f"membership: no {code} constituents could be parsed")
+
+    # today's bars from the constituent tables (close + previous close + volume)
+    for symbol, quote in quotes.items():
+        bar = {
+            "trade_date": target_date,
+            "close": quote.get("close"),
+            "prev_close": quote.get("prev_close"),
+            "volume": quote.get("volume"),
+        }
+        if bar["close"] is None and bar["prev_close"] is None:
+            continue
+        report.rows["market_bars"] += db.upsert_bars(symbol, [bar], f"{SOURCE}/indices")
+
+    # 4 -------------------------------------------------- company snapshots
+    company_targets = list(constituent_set)
     if company_limit is not None:
         company_targets = company_targets[: max(0, company_limit)]
     if include_company_pages and company_targets:
@@ -325,6 +359,7 @@ def ingest(
             try:
                 stats = parse_company_stats(page.body)
                 financials = parse_company_financials(page.body)
+                meta = parse_company_meta(page.body)
             except (ParseError, PortalSchemaError) as exc:
                 return symbol, f"{symbol}: {exc}"
             except Exception as exc:  # pragma: no cover - defensive
@@ -335,14 +370,25 @@ def ingest(
                     symbol,
                     target_date,
                     stats,
-                    f"{SOURCE}/company",
-                    sector=sector_by_symbol.get(symbol),
+                    f"{SOURCE}/company/{symbol}",
+                    sector=meta.get("sector"),
                     raw_hash=page.sha256,
                 )
                 report.rows["snapshots"] += 1
+                if meta.get("name"):
+                    db.upsert_symbols(
+                        [
+                            {
+                                "symbol": symbol,
+                                "name": meta["name"],
+                                "sector": meta.get("sector"),
+                            }
+                        ],
+                        f"{SOURCE}/company/{symbol}",
+                    )
                 if financials:
-                    report.rows["financial_years"] += db.upsert_financial_years(
-                        symbol, financials, f"{SOURCE}/company"
+                    report.rows["financials"] += db.upsert_financials(
+                        symbol, financials, f"{SOURCE}/company/{symbol}"
                     )
             return symbol, None
 
@@ -351,18 +397,18 @@ def ingest(
             for future in as_completed(futures):
                 symbol, error = future.result()
                 if error:
-                    report.errors.append(f"ERROR company: {error}")
+                    fail(f"company: {error}")
 
-    # ------------------------------------------------------------ finalise
+    # -------------------------------------------------------------- finalise
     report.requests = int(getattr(client, "requests_made", 0))
     report.finished_at = _now()
     report.duration_s = (datetime.now(timezone.utc) - started).total_seconds()
     report.notes.update(
         {
-            "history_days": history_days,
-            "cutoff": cutoff.isoformat(),
             "constituents": {code: len(items) for code, items in report.constituents.items()},
             "errors": len(report.errors),
+            "warnings": len(report.warnings),
+            "withdrawn_routes": ["/symbols", "/market-watch", "/timeseries/eod/{symbol}"],
         }
     )
     db.finish_run(
@@ -374,7 +420,7 @@ def ingest(
     )
 
     if capture_dir is not None:
-        responses = getattr(client, "responses", [])
+        responses = getattr(client, "responses", []) or []
         if responses:
             manifest = save_capture(responses, Path(capture_dir))
             report.notes["capture"] = {
@@ -399,7 +445,6 @@ def ingest_from_capture(
     db: PsxDatabase,
     *,
     indices: Sequence[str] = DEFAULT_INDICES,
-    history_days: int = 400,
     include_company_pages: bool = True,
     log: Callable[[str], None] = print,
 ) -> IngestReport:
@@ -411,7 +456,6 @@ def ingest_from_capture(
         client,
         db,
         indices=indices,
-        history_days=history_days,
         include_company_pages=include_company_pages,
         workers=1,
         log=log,
@@ -422,3 +466,6 @@ def ingest_from_capture(
             "UPDATE ingest_runs SET mode = 'capture' WHERE run_id = ?", (report.run_id,)
         )
     return report
+
+
+__all__ = ["IngestReport", "SOURCE", "ingest", "ingest_from_capture"]

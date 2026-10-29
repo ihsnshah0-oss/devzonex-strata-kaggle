@@ -3,6 +3,14 @@
 All writes are idempotent upserts keyed on natural keys, so re-running an ingest
 (refresh, backfill, or a re-run after a partial failure) converges to the same
 database. Reads live in :mod:`strata_research.psxdb.query`.
+
+Two rules apply everywhere:
+
+* a **richer row is never overwritten by a poorer one** — every ``ON CONFLICT``
+  clause uses ``COALESCE`` so a bar that has a high/low keeps them when a later
+  page only publishes a close;
+* writes are serialised behind one lock, because the ingester fetches on several
+  worker threads but SQLite runs one transaction per connection.
 """
 
 from __future__ import annotations
@@ -18,6 +26,23 @@ from typing import Any, Iterable, Iterator, Sequence
 from .schema import DDL, DEFAULT_INDICES, SCHEMA_VERSION, TABLES
 
 DEFAULT_DB_PATH = Path("data/psx.db")
+
+#: numeric columns of ``company_financials``' canonical metric names, kept in one
+#: place so the ingest and the queries agree.
+FINANCIAL_METRICS = (
+    "revenue",
+    "gross_profit",
+    "operating_income",
+    "pretax_income",
+    "income_tax_expense",
+    "net_income",
+    "eps",
+    "dividend_per_share",
+    "gross_margin_pct",
+    "net_margin_pct",
+    "eps_growth_pct",
+    "peg",
+)
 
 
 def utc_now() -> str:
@@ -40,11 +65,9 @@ class PsxDatabase:
     def __init__(self, path: Path | str = DEFAULT_DB_PATH) -> None:
         self.path = Path(path).expanduser()
         self._conn: sqlite3.Connection | None = None
-        #: The ingester writes from several worker threads, and one SQLite
-        #: connection may only run one transaction at a time.
         self._lock = threading.RLock()
 
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------ setup
     @property
     def conn(self) -> sqlite3.Connection:
         with self._lock:
@@ -60,7 +83,6 @@ class PsxDatabase:
             self._conn.row_factory = sqlite3.Row
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute("PRAGMA synchronous=NORMAL")
-            self._conn.execute("PRAGMA foreign_keys=ON")
         return self._conn
 
     def close(self) -> None:
@@ -89,7 +111,6 @@ class PsxDatabase:
             else:
                 connection.commit()
 
-    # ------------------------------------------------------------------
     def initialise(self) -> "PsxDatabase":
         with self.transaction() as connection:
             for statement in DDL:
@@ -104,13 +125,16 @@ class PsxDatabase:
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                 (",".join(DEFAULT_INDICES),),
             )
+            connection.execute(
+                "INSERT INTO meta (key, value) VALUES ('source', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                ("https://dps.psx.com.pk",),
+            )
         return self
 
     @property
     def schema_version(self) -> int | None:
-        row = self.conn.execute(
-            "SELECT value FROM meta WHERE key = 'schema_version'"
-        ).fetchone()
+        row = self.conn.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
         return int(row["value"]) if row else None
 
     def table_counts(self) -> dict[str, int]:
@@ -129,9 +153,16 @@ class PsxDatabase:
         now = utc_now()
         payload = [
             (
-                row["symbol"], row.get("name"), row.get("sector"),
-                int(row.get("is_etf") or 0), int(row.get("is_debt") or 0),
-                source, now, now,
+                row["symbol"],
+                row.get("name"),
+                row.get("sector"),
+                row.get("sector_code"),
+                ",".join(sorted(row.get("listed_in") or [])) or None,
+                int(row.get("is_etf") or 0),
+                int(row.get("is_debt") or 0),
+                source,
+                now,
+                now,
             )
             for row in rows
             if row.get("symbol")
@@ -141,12 +172,14 @@ class PsxDatabase:
         with self.transaction() as connection:
             connection.executemany(
                 """
-                INSERT INTO symbols (symbol, name, sector, is_etf, is_debt, source,
-                                     first_seen, last_seen)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO symbols (symbol, name, sector, sector_code, listed_in,
+                                     is_etf, is_debt, source, first_seen, last_seen)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(symbol) DO UPDATE SET
                     name = COALESCE(excluded.name, symbols.name),
                     sector = COALESCE(excluded.sector, symbols.sector),
+                    sector_code = COALESCE(excluded.sector_code, symbols.sector_code),
+                    listed_in = COALESCE(excluded.listed_in, symbols.listed_in),
                     is_etf = excluded.is_etf,
                     is_debt = excluded.is_debt,
                     last_seen = excluded.last_seen
@@ -157,18 +190,36 @@ class PsxDatabase:
 
     # ---------------------------------------------------------- membership
     def upsert_memberships(
-        self, index_code: str, symbols: Sequence[str], as_of: date | str, source: str
+        self,
+        index_code: str,
+        members: Sequence[dict[str, Any]],
+        as_of: date | str,
+        source: str,
     ) -> int:
         stamp = _iso(as_of) or utc_now()
-        payload = [(index_code, symbol, stamp, source) for symbol in dict.fromkeys(symbols)]
+        payload = [
+            (
+                index_code,
+                member["symbol"],
+                stamp,
+                member.get("weight_pct"),
+                member.get("index_points"),
+                source,
+            )
+            for member in members
+            if member.get("symbol")
+        ]
         if not payload:
             return 0
         with self.transaction() as connection:
             connection.executemany(
                 """
-                INSERT INTO index_memberships (index_code, symbol, as_of, source)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO index_memberships
+                    (index_code, symbol, as_of, weight_pct, index_points, source)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(index_code, symbol, as_of) DO UPDATE SET
+                    weight_pct = COALESCE(excluded.weight_pct, index_memberships.weight_pct),
+                    index_points = COALESCE(excluded.index_points, index_memberships.index_points),
                     source = excluded.source
                 """,
                 payload,
@@ -195,8 +246,16 @@ class PsxDatabase:
                 continue
             payload.append(
                 (
-                    symbol, trade_date, bar.get("ts"), bar.get("open"), bar.get("high"),
-                    bar.get("low"), bar.get("close"), bar.get("volume"), source, captured,
+                    symbol,
+                    trade_date,
+                    bar.get("open"),
+                    bar.get("high"),
+                    bar.get("low"),
+                    bar.get("close"),
+                    bar.get("prev_close"),
+                    bar.get("volume"),
+                    source,
+                    captured,
                 )
             )
         if not payload:
@@ -204,15 +263,15 @@ class PsxDatabase:
         with self.transaction() as connection:
             connection.executemany(
                 f"""
-                INSERT INTO {table} ({key_column}, trade_date, ts, open, high, low,
-                                      close, volume, source, captured_at)
+                INSERT INTO {table} ({key_column}, trade_date, open, high, low,
+                                     close, prev_close, volume, source, captured_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT({key_column}, trade_date) DO UPDATE SET
-                    ts = COALESCE(excluded.ts, {table}.ts),
-                    close = COALESCE(excluded.close, {table}.close),
                     open = COALESCE(excluded.open, {table}.open),
                     high = COALESCE(excluded.high, {table}.high),
                     low = COALESCE(excluded.low, {table}.low),
+                    close = COALESCE(excluded.close, {table}.close),
+                    prev_close = COALESCE(excluded.prev_close, {table}.prev_close),
                     volume = COALESCE(excluded.volume, {table}.volume),
                     source = excluded.source,
                     captured_at = excluded.captured_at
@@ -226,9 +285,17 @@ class PsxDatabase:
         now = utc_now()
         payload = [
             (
-                row["code"], row.get("name"), row.get("level"), row.get("change"),
-                row.get("change_pct"), row.get("high"), row.get("low"), row.get("volume"),
-                row.get("as_of") or now, source, now,
+                row["code"],
+                row.get("name"),
+                row.get("level"),
+                row.get("change"),
+                row.get("change_pct"),
+                row.get("high"),
+                row.get("low"),
+                row.get("volume"),
+                row.get("as_of") or now,
+                source,
+                now,
             )
             for row in rows
             if row.get("code")
@@ -269,72 +336,69 @@ class PsxDatabase:
         raw_hash: str | None = None,
     ) -> None:
         stamp = _iso(as_of) or utc_now()
+        fields = (
+            "price", "open", "high", "low", "prev_close", "volume", "high_52w", "low_52w",
+            "circuit_high", "circuit_low", "pe", "pb", "shares", "free_float",
+            "free_float_pct", "market_cap", "dividend_yield", "avg_volume_30d",
+            "year_change_pct", "ytd_change_pct",
+        )
+        numbers = tuple(stats.get(name) for name in fields)
         with self.transaction() as connection:
             connection.execute(
-                """
-                INSERT INTO company_snapshots (
-                    symbol, as_of, market_cap, shares, free_float, free_float_pct, pe, pb,
-                    high_52w, low_52w, year_change_pct, ytd_change_pct, sector, raw_hash,
-                    source, captured_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                f"""
+                INSERT INTO company_snapshots
+                    (symbol, as_of, {", ".join(fields)}, sector, raw_hash, source, captured_at)
+                VALUES (?, ?, {", ".join("?" for _ in fields)}, ?, ?, ?, ?)
                 ON CONFLICT(symbol, as_of) DO UPDATE SET
-                    market_cap = COALESCE(excluded.market_cap, company_snapshots.market_cap),
-                    shares = COALESCE(excluded.shares, company_snapshots.shares),
-                    free_float = COALESCE(excluded.free_float, company_snapshots.free_float),
-                    free_float_pct = COALESCE(excluded.free_float_pct, company_snapshots.free_float_pct),
-                    pe = COALESCE(excluded.pe, company_snapshots.pe),
-                    pb = COALESCE(excluded.pb, company_snapshots.pb),
-                    high_52w = COALESCE(excluded.high_52w, company_snapshots.high_52w),
-                    low_52w = COALESCE(excluded.low_52w, company_snapshots.low_52w),
-                    year_change_pct = COALESCE(excluded.year_change_pct, company_snapshots.year_change_pct),
-                    ytd_change_pct = COALESCE(excluded.ytd_change_pct, company_snapshots.ytd_change_pct),
+                    {", ".join(f"{name} = COALESCE(excluded.{name}, company_snapshots.{name})"
+                               for name in fields)},
                     sector = COALESCE(excluded.sector, company_snapshots.sector),
                     raw_hash = COALESCE(excluded.raw_hash, company_snapshots.raw_hash),
                     source = excluded.source,
                     captured_at = excluded.captured_at
                 """,
-                (
-                    symbol, stamp, stats.get("market_cap"), stats.get("shares"),
-                    stats.get("free_float"), stats.get("free_float_pct"), stats.get("pe"),
-                    stats.get("pb"), stats.get("high_52w"), stats.get("low_52w"),
-                    stats.get("year_change_pct"), stats.get("ytd_change_pct"), sector,
-                    raw_hash, source, utc_now(),
-                ),
+                (symbol, stamp, *numbers, sector, raw_hash, source, utc_now()),
             )
 
-    def upsert_financial_years(
-        self, symbol: str, years: Iterable[dict[str, Any]], source: str
+    def upsert_financials(
+        self, symbol: str, entries: Iterable[dict[str, Any]], source: str
     ) -> int:
-        fields = (
-            "revenue", "gross_profit", "operating_income", "pretax_income",
-            "income_tax_expense", "net_income", "eps", "interest_expense",
-            "depreciation_amortization", "total_assets", "total_equity", "total_debt",
-            "cash_and_equivalents", "current_assets", "current_liabilities", "inventory",
-            "operating_cash_flow", "capex", "dividend_per_share",
-        )
         captured = utc_now()
         payload = []
-        for year in years:
-            fiscal_year = year.get("fiscal_year")
-            if not fiscal_year:
+        for entry in entries:
+            period = entry.get("period")
+            metric = entry.get("metric")
+            if not period or not metric:
                 continue
             payload.append(
-                (symbol, int(fiscal_year), *[year.get(field) for field in fields], source, captured)
+                (
+                    symbol,
+                    str(period),
+                    str(metric),
+                    entry.get("fiscal_year"),
+                    entry.get("quarter"),
+                    entry.get("label"),
+                    entry.get("value"),
+                    source,
+                    captured,
+                )
             )
         if not payload:
             return 0
-        columns = ", ".join(fields)
-        placeholders = ", ".join(["?"] * (len(fields) + 4))
-        updates = ", ".join(f"{field} = COALESCE(excluded.{field}, company_financial_years.{field})"
-                            for field in fields)
         with self.transaction() as connection:
             connection.executemany(
-                f"""
-                INSERT INTO company_financial_years
-                    (symbol, fiscal_year, {columns}, source, captured_at)
-                VALUES ({placeholders})
-                ON CONFLICT(symbol, fiscal_year) DO UPDATE SET
-                    {updates}, source = excluded.source, captured_at = excluded.captured_at
+                """
+                INSERT INTO company_financials
+                    (symbol, period, metric, fiscal_year, quarter, label, value,
+                     source, captured_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(symbol, period, metric) DO UPDATE SET
+                    fiscal_year = COALESCE(excluded.fiscal_year, company_financials.fiscal_year),
+                    quarter = COALESCE(excluded.quarter, company_financials.quarter),
+                    label = COALESCE(excluded.label, company_financials.label),
+                    value = COALESCE(excluded.value, company_financials.value),
+                    source = excluded.source,
+                    captured_at = excluded.captured_at
                 """,
                 payload,
             )
@@ -396,3 +460,11 @@ class PsxDatabase:
                 """,
                 (run_id, endpoint, url, status, len(body), sha256, utc_now(), stored),
             )
+
+
+__all__ = [
+    "DEFAULT_DB_PATH",
+    "FINANCIAL_METRICS",
+    "PsxDatabase",
+    "utc_now",
+]

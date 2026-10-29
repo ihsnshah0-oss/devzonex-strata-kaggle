@@ -1,20 +1,36 @@
 """SQLite schema for the PSX Data Portal mirror.
 
+Scope
+-----
+Every column here is filled from a page on ``https://dps.psx.com.pk``. Nothing
+is derived from another provider and nothing is invented; a field the portal
+does not publish stays ``NULL``.
+
 Design notes
 ------------
-* One database file holds the whole portal mirror (default ``data/psx.db``).
-* Every table that can be refreshed is keyed so that re-running an ingest is
-  idempotent (``INSERT … ON CONFLICT DO UPDATE``).
-* ``index_memberships`` is an *as-of* snapshot: rebalances are preserved instead
-  of overwritten, so a historical report can say which index a stock was in on
-  the day it was written.
-* ``ingest_runs`` and ``raw_payloads`` carry provenance: which endpoint, when,
-  HTTP status and a hash of the bytes, so a number can always be traced back.
+* One database file holds the whole mirror (default ``data/psx.db``).
+* Every refresh is an idempotent upsert on a natural key, so re-running an
+  ingest converges instead of duplicating.
+* ``index_memberships`` is an *as-of* snapshot: rebalances are preserved, so a
+  report can say which index a stock belonged to on a given date.
+* ``company_financials`` is a narrow ``(period, metric, value)`` table because
+  the portal publishes whatever line items a company reports — storing the
+  published label next to a canonical metric keeps that honest.
+* ``ingest_runs`` and ``raw_payloads`` carry provenance: endpoint, timestamp,
+  HTTP status and the sha256 of the bytes, so a figure can be traced back.
+
+History caveat
+--------------
+The portal's per-symbol history route (``/timeseries/eod/{symbol}``) returns
+404 from the current deployment, and the historical-data form no longer serves
+rows. A run therefore records **the trading day the portal is showing**, plus
+LDCP (the previous close). Running the ingest daily builds the series one real
+trading day at a time; nothing is back-filled from any other source.
 """
 
 from __future__ import annotations
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 DDL = [
     # ---------------------------------------------------------------- symbols
@@ -23,6 +39,8 @@ DDL = [
         symbol        TEXT PRIMARY KEY,
         name          TEXT,
         sector        TEXT,
+        sector_code   TEXT,
+        listed_in     TEXT,
         is_etf        INTEGER NOT NULL DEFAULT 0,
         is_debt       INTEGER NOT NULL DEFAULT 0,
         source        TEXT NOT NULL,
@@ -52,6 +70,8 @@ DDL = [
         index_code    TEXT NOT NULL,
         symbol        TEXT NOT NULL,
         as_of         TEXT NOT NULL,
+        weight_pct    REAL,
+        index_points  REAL,
         source        TEXT NOT NULL,
         PRIMARY KEY (index_code, symbol, as_of)
     )
@@ -65,11 +85,11 @@ DDL = [
     CREATE TABLE IF NOT EXISTS eod_bars (
         symbol        TEXT NOT NULL,
         trade_date    TEXT NOT NULL,
-        ts            INTEGER,
         open          REAL,
         high          REAL,
         low           REAL,
         close         REAL,
+        prev_close    REAL,
         volume        REAL,
         source        TEXT NOT NULL,
         captured_at   TEXT NOT NULL,
@@ -80,11 +100,11 @@ DDL = [
     CREATE TABLE IF NOT EXISTS index_bars (
         index_code    TEXT NOT NULL,
         trade_date    TEXT NOT NULL,
-        ts            INTEGER,
         open          REAL,
         high          REAL,
         low           REAL,
         close         REAL,
+        prev_close    REAL,
         volume        REAL,
         source        TEXT NOT NULL,
         captured_at   TEXT NOT NULL,
@@ -94,52 +114,53 @@ DDL = [
     # --------------------------------------------------------- company stats
     """
     CREATE TABLE IF NOT EXISTS company_snapshots (
-        symbol        TEXT NOT NULL,
-        as_of         TEXT NOT NULL,
-        market_cap    REAL,
-        shares        REAL,
-        free_float    REAL,
-        free_float_pct REAL,
-        pe            REAL,
-        pb            REAL,
-        high_52w      REAL,
-        low_52w       REAL,
+        symbol          TEXT NOT NULL,
+        as_of           TEXT NOT NULL,
+        price           REAL,
+        open            REAL,
+        high            REAL,
+        low             REAL,
+        prev_close      REAL,
+        volume          REAL,
+        high_52w        REAL,
+        low_52w         REAL,
+        circuit_high    REAL,
+        circuit_low     REAL,
+        pe              REAL,
+        pb              REAL,
+        shares          REAL,
+        free_float      REAL,
+        free_float_pct  REAL,
+        market_cap      REAL,
+        dividend_yield  REAL,
+        avg_volume_30d  REAL,
         year_change_pct REAL,
-        ytd_change_pct REAL,
-        sector        TEXT,
-        raw_hash      TEXT,
-        source        TEXT NOT NULL,
-        captured_at   TEXT NOT NULL,
+        ytd_change_pct  REAL,
+        sector          TEXT,
+        raw_hash        TEXT,
+        source          TEXT NOT NULL,
+        captured_at     TEXT NOT NULL,
         PRIMARY KEY (symbol, as_of)
     )
     """,
+    # ----------------------------------------------------- published financials
     """
-    CREATE TABLE IF NOT EXISTS company_financial_years (
+    CREATE TABLE IF NOT EXISTS company_financials (
         symbol        TEXT NOT NULL,
-        fiscal_year   INTEGER NOT NULL,
-        revenue       REAL,
-        gross_profit  REAL,
-        operating_income REAL,
-        pretax_income REAL,
-        income_tax_expense REAL,
-        net_income    REAL,
-        eps           REAL,
-        interest_expense REAL,
-        depreciation_amortization REAL,
-        total_assets  REAL,
-        total_equity  REAL,
-        total_debt    REAL,
-        cash_and_equivalents REAL,
-        current_assets REAL,
-        current_liabilities REAL,
-        inventory     REAL,
-        operating_cash_flow REAL,
-        capex         REAL,
-        dividend_per_share REAL,
+        period        TEXT NOT NULL,
+        metric        TEXT NOT NULL,
+        fiscal_year   INTEGER,
+        quarter       INTEGER,
+        label         TEXT,
+        value         REAL,
         source        TEXT NOT NULL,
         captured_at   TEXT NOT NULL,
-        PRIMARY KEY (symbol, fiscal_year)
+        PRIMARY KEY (symbol, period, metric)
     )
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_financials_metric
+        ON company_financials (symbol, metric)
     """,
     # ----------------------------------------------------------- provenance
     """
@@ -184,7 +205,7 @@ TABLES = (
     "eod_bars",
     "index_bars",
     "company_snapshots",
-    "company_financial_years",
+    "company_financials",
     "ingest_runs",
     "raw_payloads",
 )

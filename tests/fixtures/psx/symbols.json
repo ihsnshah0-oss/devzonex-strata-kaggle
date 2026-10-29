@@ -1,7 +1,0 @@
-[
-  {"symbol": "OGDC", "name": "Oil & Gas Development Company Limited", "sectorName": "Oil & Gas Exploration Companies", "isETF": false, "isDebt": false},
-  {"symbol": "PPL", "name": "Pakistan Petroleum Limited", "sectorName": "Oil & Gas Exploration Companies", "isETF": false, "isDebt": false},
-  {"symbol": "MEBL", "name": "Meezan Bank Limited", "sectorName": "Commercial Banks", "isETF": false, "isDebt": false},
-  {"symbol": "FFC", "name": "Fauji Fertilizer Company Limited", "sectorName": "Fertilizer", "isETF": false, "isDebt": false},
-  {"symbol": "NBPGETF", "name": "NBP Pakistan Growth ETF", "sectorName": "Exchange Traded Funds", "isETF": true, "isDebt": false}
-]

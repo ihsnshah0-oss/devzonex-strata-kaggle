@@ -4,9 +4,9 @@ name: PSX portal ingest
 # (https://dps.psx.com.pk) into a SQLite database.
 #
 # The portal is the ONLY data source. This runner is just a machine with
-# outbound internet access, so no third-party market-data provider is involved.
-# The resulting database is uploaded as an artifact and also committed back to
-# the branch (gzipped) so it can be inspected without the Actions UI.
+# outbound internet access; no third-party market-data provider is involved.
+# The database is uploaded as an artifact and also committed back to the branch
+# (gzipped) so it can be inspected without the Actions UI.
 
 on:
   push:
@@ -19,10 +19,6 @@ on:
       indices:
         description: "Comma-separated index codes"
         default: "KSE100,KMI30"
-        required: false
-      days:
-        description: "History window in days"
-        default: "400"
         required: false
       company_pages:
         description: "Fetch /company/{symbol} pages (true/false)"
@@ -63,7 +59,6 @@ jobs:
         continue-on-error: true
         env:
           INDICES: ${{ github.event.inputs.indices || 'KSE100,KMI30' }}
-          DAYS: ${{ github.event.inputs.days || '400' }}
           COMPANY: ${{ github.event.inputs.company_pages || 'true' }}
         run: |
           set -o pipefail
@@ -72,25 +67,25 @@ jobs:
           python -m strata_research.psxdb ingest \
             --db data/psx.db \
             --indices "$INDICES" \
-            --days "$DAYS" \
-            --workers 3 \
-            --interval 0.25 \
+            --workers 2 \
+            --interval 0.4 \
             --capture-dir captures/latest \
             --json $FLAGS > data/ingest-report.json 2> data/ingest.log
           echo "ingest_exit=$?" | tee -a data/ingest.log
-          tail -c 20000 data/ingest-report.json || true
-          tail -n 40 data/ingest.log || true
+          cat data/ingest.log || true
 
       - name: Summarise
         if: always()
         run: |
-          echo "### PSX ingest" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          python -m strata_research.psxdb stats --db data/psx.db >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
-          python -m strata_research.psxdb constituents KSE100 --db data/psx.db | head -15 >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
-          python -m strata_research.psxdb constituents KMI30 --db data/psx.db | head -15 >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat data/ingest.log >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+          {
+            echo "### PSX ingest"
+            echo '```'
+            python -m strata_research.psxdb stats --db data/psx.db || true
+            python -m strata_research.psxdb constituents KSE100 --db data/psx.db | head -12 || true
+            python -m strata_research.psxdb constituents KMI30 --db data/psx.db | head -12 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          tail -n 40 data/ingest.log >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
 
       - name: Package the database
         if: always()

@@ -82,7 +82,6 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             client,
             db,
             indices=codes,
-            history_days=args.days,
             include_company_pages=not args.no_company,
             company_limit=args.company_limit,
             workers=args.workers,
@@ -96,18 +95,18 @@ def cmd_ingest(args: argparse.Namespace) -> int:
         db.close()
     if args.json:
         _print_json(report.to_dict())
-    failures = [error for error in report.errors if error.startswith("ERROR")]
-    hard_failures = [error for error in failures if not error.startswith("ERROR eod:")]
     print(
         f"run {report.run_id}: {report.rows_written} rows, {report.requests} requests, "
-        f"{len(failures)} error(s)"
+        f"{len(report.errors)} error(s) for trade date {report.trade_date}"
     )
-    for error in failures[: args.max_errors]:
+    for error in report.errors[: args.max_errors]:
         print("  " + error)
-    if len(failures) > args.max_errors:
-        print(f"  … {len(failures) - args.max_errors} more")
-    # A run that fetched nothing at all is a failure; a few dead symbols are not.
-    if report.rows_written == 0 or (hard_failures and not report.rows["market_bars"]):
+    if len(report.errors) > args.max_errors:
+        print(f"  … {len(report.errors) - args.max_errors} more")
+    for note in report.warnings[: args.max_errors]:
+        print("  warning: " + note)
+    # A run that fetched nothing is a failure; a few dead symbols are not.
+    if report.rows_written == 0:
         return 1
     return 0
 
@@ -119,7 +118,6 @@ def cmd_from_capture(args: argparse.Namespace) -> int:
         Path(args.capture_dir),
         db,
         indices=codes,
-        history_days=args.days,
         include_company_pages=not args.no_company,
     )
     if args.json:
@@ -139,6 +137,9 @@ def cmd_stats(args: argparse.Namespace) -> int:
         db.close()
         return 0
     print(f"database: {stats['path']} (schema v{stats['schema_version']})")
+    if stats.get("memberships"):
+        print("members (latest snapshot):",
+              ", ".join(f"{code} {count}" for code, count in sorted(stats["memberships"].items())))
     print("rows:")
     for table, count in stats["tables"].items():
         print(f"  {table:26s} {count:>8}")
@@ -226,11 +227,9 @@ def cmd_history(args: argparse.Namespace) -> int:
         return 1
     print(f"{args.symbol.upper()}: {len(rows)} bar(s), newest first")
     for row in rows:
-        print(
-            f"  {row['trade_date']}  close {row['close']:>12,.2f}  "
-            f"open {row['open'] if row['open'] is not None else 'n/a':>10}  "
-            f"volume {row['volume'] if row['volume'] is not None else 'n/a'}"
-        )
+        close = f"{row['close']:,.2f}" if row.get("close") is not None else "n/a"
+        volume = f"{row['volume']:,.0f}" if row.get("volume") else "n/a"
+        print(f"  {row['trade_date']}  close {close:>12s}  volume {volume:>14s}")
     return 0
 
 
@@ -315,7 +314,10 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_parser = subparsers.add_parser("ingest", help="pull data from dps.psx.com.pk")
     _add_db(ingest_parser)
     _add_indices(ingest_parser)
-    ingest_parser.add_argument("--days", type=int, default=400, help="history window (default 400)")
+    ingest_parser.add_argument(
+        "--days", type=int, default=None,
+        help=argparse.SUPPRESS,  # the portal no longer serves a history window
+    )
     ingest_parser.add_argument("--workers", type=int, default=3, help="concurrent requests (default 3)")
     ingest_parser.add_argument("--interval", type=float, default=0.25, help="min seconds between requests")
     ingest_parser.add_argument("--timeout", type=float, default=25.0)
@@ -332,7 +334,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_db(capture)
     _add_indices(capture)
     capture.add_argument("capture_dir")
-    capture.add_argument("--days", type=int, default=400)
+    capture.add_argument("--days", type=int, default=None, help=argparse.SUPPRESS)
     capture.add_argument("--no-company", action="store_true")
     capture.add_argument("--json", action="store_true")
     capture.set_defaults(handler=cmd_from_capture)
