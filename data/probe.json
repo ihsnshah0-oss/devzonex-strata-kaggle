@@ -1,5 +1,5 @@
 {
-  "probed_at": "2026-10-29T20:38:30+00:00",
+  "probed_at": "2026-10-29T20:40:08+00:00",
   "base": "https://dps.psx.com.pk",
   "pages": {
     "/": {
@@ -15,7 +15,76 @@
       },
       "columns": [],
       "epoch_values": [],
-      "tables": 0
+      "tables": 0,
+      "stats_labels": [
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change",
+        "YTD Change",
+        "Previous Close",
+        "DAY RANGE",
+        "52-WEEK RANGE",
+        "High",
+        "Low",
+        "Volume",
+        "1-Year Change"
+      ],
+      "table_row_labels": [],
+      "index_tokens": [
+        "ALLSHR",
+        "KMI30",
+        "KSE100",
+        "KSE30"
+      ]
     },
     "/screener": {
       "status": 200,
@@ -53,7 +122,48 @@
         "1731600000",
         "173679480000"
       ],
-      "tables": 1
+      "tables": 1,
+      "stats_labels": [],
+      "table_row_labels": [
+        [
+          "SYMBOL",
+          "786",
+          "786R",
+          "AABS",
+          "AAL NC",
+          "AASM NC",
+          "AATM",
+          "ABL",
+          "ABOT",
+          "ABSON NC",
+          "ACPL",
+          "ADAMS",
+          "ADMM",
+          "ADOS",
+          "ADTM",
+          "AEL",
+          "AGHA",
+          "AGIC",
+          "AGICR2",
+          "AGIL XD",
+          "AGL",
+          "AGP",
+          "AGSML",
+          "AGTL",
+          "AHCL XD",
+          "AHL",
+          "AHTM XD",
+          "AICL",
+          "AIRLINK",
+          "AKBL"
+        ]
+      ],
+      "index_tokens": [
+        "ALLSHR",
+        "KMI30",
+        "KSE100",
+        "KSE30"
+      ]
     },
     "/indices": {
       "status": 200,
@@ -76,7 +186,40 @@
         "Sector Indices"
       ],
       "epoch_values": [],
-      "tables": 2
+      "tables": 2,
+      "stats_labels": [],
+      "table_row_labels": [
+        [
+          "Index",
+          "KSE100",
+          "KSE100PR",
+          "ALLSHR",
+          "KSE30",
+          "KMI30",
+          "BKTI",
+          "OGTI",
+          "KMIALLSHR",
+          "PSXDIV20",
+          "UPP9",
+          "NITPGI",
+          "NBPPGI",
+          "MZNPI",
+          "JSMFI",
+          "ACI",
+          "JSGBKTI",
+          "HBLTTI (28-10-2026 18:30:00)",
+          "MII30"
+        ],
+        [
+          "Sector Indices"
+        ]
+      ],
+      "index_tokens": [
+        "ALLSHR",
+        "KMI30",
+        "KSE100",
+        "KSE30"
+      ]
     },
     "/indices/KSE100": {
       "status": 200,
@@ -110,7 +253,43 @@
         "18081015074",
         "19956300000"
       ],
-      "tables": 1
+      "tables": 1,
+      "stats_labels": [],
+      "table_row_labels": [
+        [
+          "SYMBOL",
+          "ABL",
+          "ABOT",
+          "AGP",
+          "AHCL XD",
+          "AICL",
+          "AIRLINK",
+          "AKBL",
+          "APL",
+          "ATLH",
+          "ATRL",
+          "BAFL",
+          "BAHL",
+          "BML",
+          "BNWM",
+          "BOP",
+          "BWCL",
+          "CHCC XD",
+          "CNERGY",
+          "COLG",
+          "CPHL",
+          "DCR XD",
+          "DGKC XD",
+          "EFERT",
+          "ENGROH",
+          "FABL",
+          "FATIMA",
+          "FCCL",
+          "FFC",
+          "FFL"
+        ]
+      ],
+      "index_tokens": []
     },
     "/indices/KMI30": {
       "status": 200,
@@ -140,7 +319,43 @@
         "17578353740",
         "18143107952"
       ],
-      "tables": 1
+      "tables": 1,
+      "stats_labels": [],
+      "table_row_labels": [
+        [
+          "SYMBOL",
+          "AIRLINK",
+          "ATRL",
+          "CPHL",
+          "DGKC XD",
+          "EFERT",
+          "ENGROH",
+          "FCCL",
+          "FFC",
+          "FFL",
+          "GAL",
+          "GHNI",
+          "HCAR",
+          "HUBC XD",
+          "LUCK",
+          "MARI",
+          "MEBL",
+          "MLCF",
+          "NML XD",
+          "NRL",
+          "OGDC XD",
+          "PAEL",
+          "PPL XD",
+          "PRL",
+          "PSO XD",
+          "SAZEW",
+          "SEARL XD",
+          "SNGP",
+          "SSGC",
+          "SYS"
+        ]
+      ],
+      "index_tokens": []
     },
     "/company/OGDC": {
       "status": 200,
@@ -180,7 +395,125 @@
         "2023"
       ],
       "epoch_values": [],
-      "tables": 7
+      "tables": 7,
+      "stats_labels": [
+        "Open",
+        "High",
+        "Low",
+        "Volume",
+        "CIRCUIT BREAKER",
+        "DAY RANGE",
+        "52-WEEK RANGE ^",
+        "Ask Price",
+        "Ask Volume",
+        "Bid Price",
+        "Bid Volume",
+        "LDCP",
+        "VAR",
+        "HAIRCUT",
+        "P/E Ratio (TTM) **",
+        "1-Year Change * ^",
+        "YTD Change * ^",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Change",
+        "LDCP",
+        "Volume",
+        "Total Trades",
+        "CIRCUIT BREAKER",
+        "DAY RANGE",
+        "Ask Price",
+        "Ask Volume",
+        "Bid Price",
+        "Bid Volume",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Change",
+        "LDCP",
+        "Volume",
+        "Total Trades",
+        "CIRCUIT BREAKER",
+        "DAY RANGE",
+        "Ask Price",
+        "Ask Volume",
+        "Bid Price",
+        "Bid Volume",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Change",
+        "LDCP",
+        "Volume",
+        "Total Trades",
+        "CIRCUIT BREAKER",
+        "DAY RANGE",
+        "Ask Price",
+        "Ask Volume",
+        "Bid Price",
+        "Bid Volume",
+        "Open"
+      ],
+      "table_row_labels": [
+        [
+          "Ahmed Hayat Lak",
+          "Zafar Masud",
+          "Wasim Ahmad"
+        ],
+        [
+          "Date",
+          "Sep 25, 2026",
+          "Sep 4, 2026",
+          "Apr 30, 2026",
+          "Apr 29, 2026",
+          "Feb 26, 2026"
+        ],
+        [
+          "Date",
+          "Oct 29, 2026",
+          "Oct 23, 2026",
+          "Oct 16, 2026",
+          "Sep 24, 2026",
+          "Aug 27, 2026"
+        ],
+        [
+          "Date",
+          "Oct 29, 2026",
+          "Oct 22, 2026",
+          "Sep 9, 2026",
+          "Aug 17, 2026",
+          "Jul 9, 2026"
+        ],
+        [
+          "",
+          "Sales",
+          "Profit after Taxation",
+          "EPS"
+        ],
+        [
+          "",
+          "Sales",
+          "Profit after Taxation",
+          "EPS"
+        ],
+        [
+          "",
+          "Gross Profit Margin (%)",
+          "Net Profit Margin (%)",
+          "EPS Growth (%)",
+          "PEG"
+        ]
+      ],
+      "index_tokens": [
+        "ALLSHR",
+        "KMI30",
+        "KSE100",
+        "KSE30"
+      ]
     },
     "/historical": {
       "status": 200,
@@ -197,7 +530,15 @@
       "epoch_values": [
         "1793273641000"
       ],
-      "tables": 0
+      "tables": 0,
+      "stats_labels": [],
+      "table_row_labels": [],
+      "index_tokens": [
+        "ALLSHR",
+        "KMI30",
+        "KSE100",
+        "KSE30"
+      ]
     }
   }
 }
