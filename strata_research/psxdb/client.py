@@ -68,6 +68,20 @@ TOKEN_PATTERN = re.compile(r"window\.__ps\s*=\s*(\{.*?\})\s*(?:;|</script>)", re
 #: The portal rotates the token every few minutes; refetch a little before that.
 TOKEN_TTL_SECONDS = 240.0
 
+#: Data routes answer only to XMLHttpRequests: without this the portal returns 404.
+XHR_HEADERS = {
+    "X-Requested-With": "XMLHttpRequest",
+    "Accept": "text/html, application/xhtml+xml, */*; q=0.01",
+    "Referer": f"{DEFAULT_BASE_URL}/",
+}
+
+#: JSON data routes (``/symbols``, ``/timeseries/*``) want JSON in ``Accept``.
+JSON_XHR_HEADERS = {
+    "X-Requested-With": "XMLHttpRequest",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "Referer": f"{DEFAULT_BASE_URL}/",
+}
+
 #: Statuses worth another attempt (429/469 are the portal's rate-limit answers).
 RETRY_STATUSES = frozenset({408, 425, 429, 469, 500, 502, 503, 504})
 
@@ -222,6 +236,8 @@ class PsxPortalClient:
         method: str = "GET",
         data: dict[str, str] | None = None,
         token: bool = True,
+        xhr: bool = False,
+        accept_json: bool = False,
         attempts: int | None = None,
         record: bool = True,
     ) -> PortalResponse:
@@ -234,6 +250,8 @@ class PsxPortalClient:
             attempt += 1
             self._throttle()
             headers: dict[str, str] = {}
+            if xhr:
+                headers.update(JSON_XHR_HEADERS if accept_json else XHR_HEADERS)
             if token:
                 value = self._current_token()
                 if value:
@@ -338,12 +356,35 @@ class PsxPortalClient:
         """
         code = symbol.strip().upper()
         return self._request(
-            f"history/{code}", "/historical", method="POST", data={"symbol": code}
+            f"history/{code}",
+            "/historical",
+            method="POST",
+            data={"symbol": code},
+            xhr=True,
         )
 
     def symbols_json(self) -> PortalResponse:
-        """``GET /symbols`` — the portal's JSON symbol directory."""
-        return self._request("symbols", "/symbols")
+        """``GET /symbols`` — the portal's JSON symbol directory (1052 entries)."""
+        return self._request("symbols", "/symbols", xhr=True, accept_json=True)
+
+    def timeseries_eod(self, symbol: str) -> PortalResponse:
+        """``GET /timeseries/eod/{SYM}`` — the chart's own JSON feed."""
+        code = symbol.strip().upper()
+        return self._request(
+            f"timeseries/eod/{code}", f"/timeseries/eod/{code}", xhr=True, accept_json=True
+        )
+
+    def trading_board(self, market: str = "REG", board: str = "MAIN") -> PortalResponse:
+        """``GET /trading-board/{MARKET}/{BOARD}`` — live bid/offer board."""
+        return self._request(
+            f"trading-board/{market}/{board}",
+            f"/trading-board/{market}/{board}",
+            xhr=True,
+        )
+
+    def sector_summary(self) -> PortalResponse:
+        """``GET /sector-summary/sectorwise`` — advance/decline and cap per sector."""
+        return self._request("sector-summary", "/sector-summary/sectorwise", xhr=True)
 
 
 def request_summary(client: Any) -> dict[str, Any]:

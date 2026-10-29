@@ -136,6 +136,7 @@ def main() -> int:
                 "bytes": len(response.text),
                 "content_type": response.headers.get("content-type"),
             }
+            entry["_body"] = response.text
             if response.status_code == 200:
                 if "json" in (response.headers.get("content-type") or ""):
                     entry["json_head"] = response.text[:300]
@@ -205,6 +206,10 @@ def main() -> int:
             row[:900] for row in re.findall(r"<tr\b.*?</tr>", kse.text, re.DOTALL)[1:3]
         ]
 
+    # never persist the raw bodies inside the JSON report
+    for entry in report.get("data_routes", {}).values():
+        entry.pop("_body", None)
+
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2)[:4_000_000], encoding="utf-8")
@@ -212,6 +217,26 @@ def main() -> int:
     print("company pairs:", len(report["company"]["pairs"]))
     for pair in report["company"]["pairs"][:25]:
         print(f"   {pair['label']!r:32s} -> {pair['value']!r}")
+    # Keep a small, real sample of the history markup in the repo so the parser
+    # can be written against reality instead of a guess.
+    sample = report.get("data_routes", {}).get("history_token_xhr", {})
+    if sample.get("status") == 200:
+        body = sample.pop("_body", "")
+        rows = re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)
+        head = re.findall(r"<th\b.*?</th>", body, re.DOTALL)
+        if rows:
+            trimmed = (
+                "<table class=\"tbl\">\n<thead><tr>"
+                + "".join(re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)[0])
+                + "</tr></thead>\n<tbody>\n"
+                + "\n".join(rows[1:6] + rows[-2:])
+                + "\n</tbody>\n</table>\n"
+            )
+            sample_path = Path(args.out).parent / "history-sample.html"
+            sample_path.write_text(trimmed, encoding="utf-8")
+            print(f"wrote {sample_path} ({len(trimmed)} bytes, {len(rows) - 1} data rows on the portal)")
+        del head
+
     print("token:", report["token"])
     for label, entry in report["data_routes"].items():
         if "error" in entry:
