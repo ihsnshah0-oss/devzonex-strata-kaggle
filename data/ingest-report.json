@@ -7,7 +7,7 @@
     "KMI30"
   ],
   "trade_date": "2026-10-29",
-  "requests": 109,
+  "requests": 110,
   "rows": {
     "symbols": 754,
     "memberships": 130,
@@ -43,8 +43,8 @@
       "files": 109
     }
   },
-  "started_at": "2026-10-29T21:06:36+00:00",
-  "finished_at": "2026-10-29T21:07:46+00:00",
-  "duration_s": 70.53
+  "started_at": "2026-10-29T21:12:11+00:00",
+  "finished_at": "2026-10-29T21:13:21+00:00",
+  "duration_s": 70.06
 }
-run 1: 5975 rows, 109 requests, 0 error(s) for trade date 2026-10-29
+run 1: 5975 rows, 110 requests, 0 error(s) for trade date 2026-10-29

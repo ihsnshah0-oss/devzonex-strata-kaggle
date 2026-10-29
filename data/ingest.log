@@ -4,5 +4,5 @@ indices/KSE100: 100 constituents
 indices/KMI30: 30 constituents
 company pages: 103
 capture saved: captures/latest (109 files)
-done: 5975 rows, 109 requests, 0 error(s) in 70.5s
+done: 5975 rows, 110 requests, 0 error(s) in 70.1s
 ingest_exit=0
