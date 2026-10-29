@@ -1,24 +1,15 @@
-"""Capture the exact markup of the PSX Data Portal pages the mirror depends on.
+"""Read the exact label/value pairs and units the PSX Data Portal publishes.
 
-The portal's JSON routes (``/symbols``, ``/market-watch``,
-``/timeseries/eod/{symbol}``) return 404 from the current deployment, so the
-mirror reads the HTML it does publish:
-
-    /screener                — every listed symbol with sector, index membership,
-                               market cap, price, 1-year change, P/E, yield
-    /indices                 — index levels (KSE100, KMI30, …)
-    /indices/{CODE}          — constituents of one index, with quotes/weights
-    /company/{SYMBOL}        — company statistics and announcements
-    /historical              — carries the portal's own "latest trading date"
-
-This script saves the raw markup of the rows/blocks those parsers read, so the
-parsers can be written against reality instead of guesswork. Snippets go into
-``data/probe.json`` (small, committed); full pages go to ``captures/probe/``.
+The mirror's parsers must match reality, not guesses: this probe dumps the
+(label, value) pairs from a company page, the sector filter options from
+/screener, and the financial table headers, so units ("market cap in millions")
+and label spellings are visible. Output goes to ``data/probe.json``.
 """
 
 from __future__ import annotations
 
 import argparse
+import html as html_module
 import json
 import re
 import sys
@@ -30,7 +21,6 @@ import httpx
 
 BASE = "https://dps.psx.com.pk"
 SYMBOL = "OGDC"
-
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -40,95 +30,89 @@ HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": f"{BASE}/",
 }
+TAG = re.compile(r"<[^>]+>")
 
 
-def _first(pattern: str, text: str, size: int = 1400) -> str | None:
-    match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
-    return match.group(0)[:size] if match else None
+def text(raw: str) -> str:
+    return re.sub(r"\s+", " ", html_module.unescape(TAG.sub(" ", raw)).replace("\xa0", " ")).strip()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default="data/probe.json")
     parser.add_argument("--raw", default="captures/probe")
-    parser.add_argument("--timeout", type=float, default=30.0)
     args = parser.parse_args()
 
     raw = Path(args.raw) if args.raw else None
     if raw is not None:
         raw.mkdir(parents=True, exist_ok=True)
-
     report: dict[str, object] = {
         "probed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "base": BASE,
-        "pages": {},
     }
-    pages: dict[str, object] = report["pages"]  # type: ignore[assignment]
 
-    with httpx.Client(timeout=args.timeout, follow_redirects=True, headers=HEADERS) as client:
-        for path, name in (
-            ("/", "home"),
-            ("/screener", "screener"),
-            ("/indices", "indices"),
-            ("/indices/KSE100", "kse100"),
-            ("/indices/KMI30", "kmi30"),
-            (f"/company/{SYMBOL}", "company"),
-            ("/historical", "historical"),
-        ):
-            url = urljoin(BASE + "/", path.lstrip("/"))
-            try:
-                response = client.get(url)
-            except Exception as exc:
-                pages[path] = {"error": f"{type(exc).__name__}: {exc}"}
-                continue
-            body = response.text
-            entry: dict[str, object] = {"status": response.status_code, "bytes": len(body)}
-            if response.status_code == 200:
-                if raw is not None:
-                    (raw / f"{name}.html").write_text(body, encoding="utf-8")
-                entry["snippets"] = {
-                    "thead": _first(r"<thead\b.*?</thead>", body, 2000),
-                    "first_row": _first(r"<tbody\b.*?</tr>", body, 1600),
-                    "stats_block": _first(r'<div class="stats_label".{0,1200}', body, 1400),
-                    "latest_date": _first(r'<[^>]*data-latest[^>]*>', body, 400),
-                    "date_picker": _first(r'id="[^"]*[Dd]ate[^"]*".{0,400}', body, 500),
-                    "page_header": _first(r'class="[^"]*page__header[^"]*".{0,300}', body, 400),
-                }
-                entry["columns"] = [
-                    " ".join(re.sub(r"<[^>]+>", " ", cell).split())
-                    for cell in re.findall(r"<th\b.*?</th>", body, re.IGNORECASE | re.DOTALL)
-                ][:24]
-                entry["epoch_values"] = sorted(
-                    {value for value in re.findall(r'data-[a-z-]+="(1[6-9]\d{8,12})"', body)}
-                )[:10]
-                entry["tables"] = len(re.findall(r"<table\b", body, re.IGNORECASE))
-                entry["stats_labels"] = [
-                    " ".join(re.sub(r"<[^>]+>", " ", label).split())
-                    for label in re.findall(r'class="stats_label"[^>]*>(.*?)</div>', body, re.DOTALL)
-                ][:60]
-                # first cell of every row of every financial table: the line items
-                label_rows: list[list[str]] = []
-                for table in re.findall(r"<table\b.*?</table>", body, re.IGNORECASE | re.DOTALL):
-                    labels = [
-                        " ".join(re.sub(r"<[^>]+>", " ", cell).split())
-                        for cell in re.findall(
-                            r"<tr\b[^>]*>\s*<t[dh]\b[^>]*>(.*?)</t[dh]>", table, re.DOTALL
-                        )
-                    ]
-                    if labels:
-                        label_rows.append(labels[:30])
-                entry["table_row_labels"] = label_rows[:8]
-                # symbols the page advertises as its own index membership
-                entry["index_tokens"] = sorted(set(re.findall(r"\b(KSE100|KMI30|ALLSHR|KSE30)\b", body)))[:6]
-            pages[path] = entry
+    with httpx.Client(timeout=30.0, follow_redirects=True, headers=HEADERS) as client:
+        client.get(f"{BASE}/")  # session cookie, like a browser
+
+        company = client.get(f"{BASE}/company/{SYMBOL}")
+        body = company.text
+        if raw is not None:
+            (raw / f"company_{SYMBOL}.html").write_text(body, encoding="utf-8")
+        pairs = [
+            {"label": text(label), "value": text(value)}
+            for label, value in re.findall(
+                r'class="[^"]*stats_label[^"]*"[^>]*>(.*?)</(?:div|span|p)>\s*'
+                r'<(?:div|span|p)[^>]*class="[^"]*stats_value[^"]*"[^>]*>(.*?)</(?:div|span|p)>',
+                body,
+                re.DOTALL,
+            )
+        ]
+        report["company"] = {"status": company.status_code, "pairs": pairs[:60]}
+
+        financial_tables = []
+        for table in re.findall(r"<table\b.*?</table>", body, re.IGNORECASE | re.DOTALL)[:8]:
+            head = [
+                text(cell) for cell in re.findall(r"<thead\b.*?</thead>", table, re.DOTALL)
+                for cell in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", cell)
+            ]
+            first_rows = [
+                [text(c) for c in re.findall(r"<t[dh]\b[^>]*>(.*?)</t[dh]>", row)]
+                for row in re.findall(r"<tr\b[^>]*>.*?</tr>", table, re.DOTALL)[:4]
+            ]
+            financial_tables.append({"head_row": head[:10], "sample": [r[:8] for r in first_rows]})
+        report["financial_tables"] = financial_tables
+
+        screener = client.get(f"{BASE}/screener")
+        options = [
+            {"value": value, "text": text(label)}
+            for value, label in re.findall(
+                r"<option[^>]*value=\"([^\"]*)\"[^>]*>(.*?)</option>", screener.text, re.DOTALL
+            )
+        ]
+        report["screener"] = {
+            "status": screener.status_code,
+            "select_count": len(re.findall(r"<select", screener.text)),
+            "options": options[:80],
+            "sector_cell_samples": re.findall(
+                r'<td[^>]*data-name="sector"[^>]*>.*?</td>|<td>0\d{3}</td>', screener.text
+            )[:5],
+        }
+
+        kse = client.get(f"{BASE}/indices/KSE100")
+        report["kse100_first_rows"] = [
+            row[:900] for row in re.findall(r"<tr\b.*?</tr>", kse.text, re.DOTALL)[1:3]
+        ]
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(report, indent=2)[:6_000_000], encoding="utf-8")
+    out.write_text(json.dumps(report, indent=2)[:4_000_000], encoding="utf-8")
     print(f"wrote {out}")
-    for path, info in pages.items():
-        print(f"{path:22s} {info.get('status') or info.get('error')} {info.get('bytes', '')} "
-              f"tables={info.get('tables', '')} cols={len(info.get('columns') or [])}")
+    print("company pairs:", len(report["company"]["pairs"]))
+    for pair in report["company"]["pairs"][:25]:
+        print(f"   {pair['label']!r:32s} -> {pair['value']!r}")
+    print("screener selects:", report["screener"]["select_count"], "options:", len(options))
+    for option in options[:10]:
+        print("   option", option)
     return 0
 
 
