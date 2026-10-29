@@ -1,5 +1,5 @@
 {
-  "probed_at": "2026-10-29T21:25:20+00:00",
+  "probed_at": "2026-10-29T21:26:27+00:00",
   "base": "https://dps.psx.com.pk",
   "token": {
     "found": true,
@@ -14,7 +14,7 @@
       "status": 404,
       "bytes": 47734,
       "content_type": "text/html; charset=utf-8",
-      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:25 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
+      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:26 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
     },
     "history_token": {
       "method": "POST",
@@ -22,7 +22,7 @@
       "status": 404,
       "bytes": 47734,
       "content_type": "text/html; charset=utf-8",
-      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:25 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
+      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:26 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
     },
     "history_token_xhr": {
       "method": "POST",
