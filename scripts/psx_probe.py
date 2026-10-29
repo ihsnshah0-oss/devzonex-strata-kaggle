@@ -38,23 +38,28 @@ HEADERS = {
     "Referer": f"{BASE}/",
 }
 
-#: routes worth testing, with the HTTP method the portal itself uses
+#: routes worth testing, with the HTTP method the portal itself uses.
+#: The first block is the current candidate surface; the second block is every
+#: plausible history/payout route, checked so the gap can be documented.
 TARGETS = [
-    ("GET", "/timeseries/eod/{symbol}", None),
-    ("GET", "/timeseries/int/{symbol}", None),
-    ("GET", "/symbols", None),
-    ("GET", "/market-watch", None),
-    ("GET", "/indices/{symbol_index}", None),
+    ("GET", "/screener", None),
+    ("GET", "/indices", None),
     ("GET", "/indices/KSE100", None),
     ("GET", "/indices/KMI30", None),
-    ("GET", "/performers", None),
-    ("GET", "/listings-table/all", None),
-    ("GET", "/trading-board/{symbol}", None),
-    ("POST", "/daily-downloads", {"date": "2026-10-29"}),
-    ("POST", "/daily-downloads", {"date": "29/10/2026"}),
-    ("POST", "/historical-downloads", {}),
-    ("GET", "/other-downloads", None),
-    ("GET", "/data/top-10-symbols", None),
+    ("GET", "/company/{symbol}", None),
+    ("GET", "/company/{symbol}/payouts", None),
+    ("POST", "/payouts", {"symbol": "OGDC", "year": "2026"}),
+    ("GET", "/sitemap", None),
+    ("GET", "/timeseries/eod/{symbol}", None),
+    ("GET", "/symbols", None),
+    ("GET", "/market-watch", None),
+    ("GET", "/historical/{symbol}", None),
+    ("GET", "/historical-data/{symbol}", None),
+    ("GET", "/data/historical/{symbol}", None),
+    ("GET", "/historical?symbol={symbol}&month=09&year=2026", None),
+    ("GET", "/market-summary", None),
+    ("GET", "/daily-downloads", None),
+    ("GET", "/announcements/companies", None),
 ]
 
 
@@ -99,7 +104,7 @@ def _shape(html: str, limit: int = 3) -> list[dict[str, object]]:
                 r"<t[dh]\b.*?</t[dh]>", row, re.IGNORECASE | re.DOTALL)][:14]
             for row in rows[1:3]
         ]
-        out.append({"table": index, "rows": len(rows), "headers": headers[:18], "sample_rows": sample})
+        out.append({"table": index, "rows": len(rows), "headers": headers[:24], "sample_rows": sample[:3]})
         if index + 1 >= limit:
             break
     return out
@@ -133,7 +138,7 @@ def main() -> int:
             "cookies": dict(h1.cookies),
         }
 
-    for path_spec, data in (("/timeseries/eod/{symbol}", None), ("/symbols", None), ("/indices/KSE100", None)):
+    for path_spec, data in (("/timeseries/eod/{symbol}", None), ("/screener", None), ("/indices/KSE100", None)):
         url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
         for label, http2 in (("curl-http1.1", False), ("curl-http2", True)):
             clients[f"{label} {path_spec}"] = curl(url, "GET", data, http2)
@@ -141,7 +146,7 @@ def main() -> int:
     # httpx over HTTP/2, if the h2 extra is installed
     try:
         with httpx.Client(http2=True, timeout=args.timeout, follow_redirects=True, headers=HEADERS) as h2:
-            for path_spec in ("/timeseries/eod/{symbol}", "/symbols"):
+            for path_spec in ("/timeseries/eod/{symbol}", "/screener"):
                 url = urljoin(BASE + "/", path_spec.replace("{symbol}", SYMBOL).lstrip("/"))
                 try:
                     response = h2.get(url)
@@ -168,11 +173,25 @@ def main() -> int:
             except Exception as exc:
                 targets[key] = {"error": f"{type(exc).__name__}: {exc}"}
                 continue
+            body = response.text or ""
             entry: dict[str, object] = {
                 "status": response.status_code,
                 "content_type": response.headers.get("content-type", ""),
-                "bytes": len(response.text),
-                "snippet": " ".join(response.text[:300].split()),
+                "bytes": len(body),
+                "snippet": " ".join(body[:300].split()),
+                # what kinds of content does this page carry?
+                "content_probe": {
+                    key: len(re.findall(pattern, body))
+                    for key, pattern in {
+                        "stats_label": r"stats_label",
+                        "payout": r"[Pp]ayout|[Dd]ividend",
+                        "financial": r"[Ff]inancial",
+                        "KSE100": r"KSE100",
+                        "KMI30": r"KMI30",
+                        "data-search": r'data-search',
+                        "table": r"<table",
+                    }.items()
+                },
             }
             if response.status_code == 200:
                 entry["tables"] = _shape(response.text)
