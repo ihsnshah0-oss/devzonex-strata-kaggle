@@ -49,11 +49,11 @@ What "PSX-only" means in the implementation:
   power and tech.
 - **PSX red flags** — policy-rate sensitivity (interest cost as a share of revenue), IPP circular-debt
   exposure, and an explicit refusal to score banks/insurers with an industrial ratio model.
-- **Data** — prices from the **PSX Data Portal only**, read from the committed SQLite mirror
-  (`data/psx.db.gz`) and falling back to the portal's `/company/{SYMBOL}` page; fundamentals from
-  your own statement files (`STRATA_RESEARCH_PSX_DIR`), optional Yahoo `<SYMBOL>.KA` statements, or a
-  fictional offline demo universe (`DMEPL`, `DMFRT`, `DMCMT`, `DMPWR`). The mirror itself is built
-  from the portal exclusively — no other source ever enters it.
+- **Data** — a SQLite mirror built from the **PSX Data Portal only**: 103 KSE100/KMI30 companies,
+  235 583 daily bars (2016 → today), index levels and the portal's published financials
+  (`data/psx.db.gz`). `analyze OGDC` works out of the box because the desk reads that mirror; hand-keyed
+  statements (`STRATA_RESEARCH_PSX_DIR`) are only needed for the balance-sheet and cash-flow lines the
+  portal does not publish. No Yahoo, no aggregator, nothing synthetic ever enters the database.
 
 The design principle: **Python owns the numbers, the LLM owns the narrative.** Ratios, scores and red
 flags are computed deterministically; the model receives them as an evidence pack with six read-only
@@ -137,7 +137,7 @@ Opening the notebook imports its code; it does **not** grant access to anyone el
 - [OpenCode connection guide](docs/opencode-setup.md)
 - [PSX Research Desk guide](docs/research-desk.md)
 - [PSX data, units and limits](docs/psx.md)
-- [PSX KSE100/KMI30 SQLite mirror](docs/psx-database.md)
+- [PSX KSE100/KMI30 SQLite mirror — 235 583 daily bars](docs/psx-database.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Security policy](SECURITY.md)
 - [Strata official setup guide](https://github.com/Niko1221/Strata/blob/main/docs/AI_SETUP.md)

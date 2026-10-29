@@ -73,18 +73,22 @@ Prices come from the **PSX Data Portal only** (`https://dps.psx.com.pk`), in thi
 1. **The local mirror** — `data/psx.db`, the SQLite database described in
    [psx-database.md](psx-database.md). When it exists it is authoritative: an exact, offline close
    plus the trade date the portal itself reported, with no network call at all.
-2. **`/company/{SYMBOL}`** — when there is no mirror, the desk reads the company page: `Close` (or
-   `Current Price` when the market is open) and `LDCP`, and derives the change from the two.
-3. **Nothing.** A missing quote is never fatal: `profile.price` from your statement file is used and
+2. **`/timeseries/eod/{SYMBOL}`** — with no mirror, the desk reads the portal's own chart feed:
+   `[[epoch, close, volume, open], …]`, newest first, and takes the latest close.
+3. **`/company/{SYMBOL}`** — if the feed is down, the company page still publishes `Close` and
+   `LDCP`, and the desk derives the change from the two.
+4. **Nothing.** A missing quote is never fatal: `profile.price` from your statement file is used and
    the report records what happened (`data_quality: mixed`).
 
 Notes that matter:
 
-- The old `POST /historical` month table this client used **no longer returns rows** — the deployment
-  serves the date picker and nothing else. That route is gone from the code, not merely
-  error-suppressed.
-- This is an **unofficial, undocumented endpoint**. Markup can change; the parser degrades to
-  "no quote" rather than crashing, and `scripts/psx_probe.py` shows the current shape.
+- Since **2026-09-24** every data route needs a short-lived request token (`X-Req-Id`, taken from
+  `window.__ps._k` on any page) **and** `X-Requested-With: XMLHttpRequest`. Without them the portal
+  answers `404`, which once made `POST /historical` look retired. The client handles this
+  automatically — see [psx-database.md](psx-database.md).
+- This is an **unofficial, undocumented surface**. Markup can change; every parser degrades to
+  "no quote" rather than crashing, and `scripts/psx_probe.py` reports the current routes, statuses and
+  token state.
 - A live close overrides a `price` you typed in `data/psx`, and the report says so.
 - `STRATA_RESEARCH_PSX_QUOTES=false` forces fully offline runs; `PsxQuoteClient(mirror_path=...)`
   points at a different database.

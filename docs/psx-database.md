@@ -1,76 +1,83 @@
 # PSX database — KSE100 + KMI30 mirrored from the PSX Data Portal
 
-A SQLite mirror of the **Pakistan Stock Exchange** indices, built only from
-`https://dps.psx.com.pk`. No Yahoo, no aggregator, no invented numbers: every
-row records the portal route it came from and a sha256 of the bytes that carried
-it.
+A SQLite mirror of the **Pakistan Stock Exchange**, built only from
+`https://dps.psx.com.pk`. No Yahoo, no aggregator, no invented numbers: every row records the
+portal route it came from, and the raw bytes are hashed.
 
 ```bash
-python -m strata_research.psxdb init                       # create data/psx.db
-python -m strata_research.psxdb ingest                     # pull from the portal
-python -m strata_research.psxdb stats                     # what is in there
-python -m strata_research.psxdb constituents KSE100       # 100 members
-python -m strata_research.psxdb quotes --index KMI30      # latest closes
+gunzip -c data/psx.db.gz > data/psx.db          # the committed mirror (7.4 MB gzipped)
+python -m strata_research.psxdb stats           # what is in there
+python -m strata_research.psxdb quotes --index KMI30
+python -m strata_research.psxdb history OGDC --limit 30
 ```
 
-Last live run (2026-10-29, `data/psx.db.gz` in this repo):
+Latest live run (2026-10-29, `data/psx.db.gz` in this repo):
 
 | | |
 |---|---|
 | Trading day | 2026-10-29 (the portal's own `data-latest` stamp) |
-| KSE100 / KMI30 members | **100 / 30** (derived from the portal, not hardcoded) |
-| Symbols listed on the screener | **754** |
-| Symbols with a sector | **701** |
+| KSE100 / KMI30 members | **100 / 30** (derived from the portal, never hardcoded) |
+| Symbols listed on the screener | 754 (701 with a sector) |
 | Index levels | 18 (KSE100, KMI30, ALLSHR, KSE30, …) |
-| Daily bars | 103 (KSE100 ∪ KMI30), each with open/high/low/close/prev_close/volume |
-| Published financial line items | 3 992 rows across 103 companies and 22 periods |
-| Requests / errors / duration | 110 / 0 / 70 s |
-| Database size | 271 KB gzipped (`data/psx.db.gz`) |
+| **Daily bars** | **235 583** across 103 companies, **2016-10-31 → 2026-10-29** |
+| Index bars | 2 496 (KSE100 and KMI30, 2021-11-01 → 2026-10-29) |
+| Company financial line items | 3 992 rows · 103 companies · 9 metrics · 22 periods |
+| Run | 317 requests, **0 errors**, 227 s |
 
-A second run 6 minutes later stored **exactly the same counts with 0 new rows and 0
-duplicate bars** — re-running the ingest is idempotent, and the portal was still serving the
-2026-10-29 session (the market had closed), so no phantom trade date was invented.
+A second run stored **identical counts with 0 new rows and 0 duplicate bars** — re-running the
+ingest is idempotent, and each symbol's 0.5 MB history page is fetched once, not every night.
+
+## The request token — why the routes looked withdrawn
+
+Until this was found, `POST /historical`, `/symbols` and `/timeseries/*` all answered **404**, which
+looked like the portal had retired them. They had not: since **2026-09-24** the portal requires a
+short-lived request token on data routes.
+
+* The token is `window.__ps._k`, embedded in **every** HTML page (43 characters, rotated roughly
+  every five minutes).
+* It is sent as the `X-Req-Id` header; data routes also require
+  `X-Requested-With: XMLHttpRequest` and **404** (not 401) without them, which is what made the
+  routes look gone.
+* `strata_research/psxdb/client.py` learns the token from any page it downloads, caches it for 240
+  seconds, and refreshes it once when a data route answers 401/403/404.
+* `scripts/psx_probe.py` prints the token's presence and the status of every data route, so a future
+  change is diagnosed in one run instead of guessed at.
+
+Evidence (probe run 2026-10-29, `data/probe.log`):
+
+```
+history_plain       404   (no token, no xhr)
+history_token       404   (token, but no X-Requested-With)
+history_token_xhr   200   bytes=497628  tables=1 rows=2480
+symbols_token_xhr   200   bytes=136853  json_len=1052
+timeseries_eod      200   bytes=41185   json {"status":1,"data":[[epoch,close,volume,open],...]}
+trading_board       200   bytes=369238  SYMBOL/NAME/BID/OFFER/LDCP/CHANGE/VOLUME
+sector_summary      200   bytes=492697  39 sectors
+```
 
 ## What the portal publishes (verified, not assumed)
 
-`scripts/psx_probe.py` reads the portal the way a browser does and reports what
-each route returns. As of 2026-10-29:
-
-| Route | Content | Units / notes |
+| Route | Content | Notes |
 |---|---|---|
-| `/screener` | one row per listed symbol: SECTOR code, LISTED IN, MARKET CAP., PRICE, CHANGE (%), 1-YEAR CH. (%), PE RATIO (TTM), DIVIDEND YIELD (%), FREE FLOAT, 30D VOLUME AVG. | market cap in **thousands of rupees**; the page's sector filter maps codes to industry names |
-| `/indices` | Index, High, Low, Current, Change, % Change | index level, not a per-stock price |
-| `/indices/KSE100`, `/indices/KMI30` | SYMBOL, NAME, LDCP, CURRENT, CHANGE, CHANGE (%), IDX WTG (%), IDX POINT, VOLUME, FREEFLOAT (M), MARKET CAP (M) | this is the **authoritative constituent list**; `data-order` carries unrounded values |
-| `/company/{SYMBOL}` | Open, High, Low, Volume, CIRCUIT BREAKER, DAY RANGE, 52-WEEK RANGE, LDCP, Close, P/E (TTM), 1-year/YTD change, announcements, annual and quarterly financial tables | market cap in thousands of rupees |
-| `/historical` | the date picker only — **but** it carries `data-latest`, the portal's own latest trading date | used to stamp every row with the right trading day |
+| `GET /screener` | one row per listed symbol: sector code, LISTED IN, market cap, price, change %, 1-year change %, P/E (TTM), dividend yield, free float, 30-day average volume | market cap in **thousands of rupees**; the sector `<select>` maps codes to industry names |
+| `GET /indices` | level, day high/low, change per index | index level, not a per-stock price |
+| `GET /indices/{CODE}` | constituents with LDCP, current, change, weight, index points, volume, free float, market cap | authoritative constituent list |
+| `POST /historical` (`symbol=`) | **full daily OHLCV** table, ~2 480 rows per symbol | needs token + XHR headers; ~0.5 MB per symbol |
+| `GET /timeseries/eod/{SYM}` | `[[epoch, close, volume, open], …]`, newest first | cheap (~40 KB), **no high/low** |
+| `GET /symbols` | 1 052 symbols as JSON: symbol, name, sector, `isETF`, `isDebt` | token + JSON accept |
+| `GET /company/{SYM}` | quote stats, ranges, P/E, market cap, shares, free float, announcements, annual and quarterly financial tables | market cap in thousands of rupees |
+| `GET /historical` | the date picker only — **but** it carries `data-latest`, the portal's latest trading date | used to stamp every row |
+| `GET /trading-board/{MKT}/{BOARD}` | live bid/offer board per market (`REG`, `ODL`, …) and board (`MAIN`, `GEM`, `BNB`) | not ingested yet |
+| `GET /sector-summary/sectorwise` | advance/decline, turnover, market cap per sector | not ingested yet |
 
-### What it no longer publishes
+The history table's markup is preserved verbatim in
+`tests/fixtures/psx/history/OGDC.html` (and `data/history-sample.html` is a live copy), so the
+parser is tested against the portal's real shape:
 
-These routes returned `404` from `nginx/1.20.2` when checked with `curl`
-HTTP/1.1, `curl --http2`, `httpx` HTTP/1.1 and `httpx` HTTP/2, with and without
-browser XHR headers:
-
+```html
+<th data-name="time">DATE </th> … <th data-name="volume">VOLUME</th>
+<tr><td data-order="1793271600">Oct 29, 2026</td><td class="right">306.00</td> …
 ```
-/symbols               /market-watch          /timeseries/eod/{symbol}
-/timeseries/int/{sym}  POST /historical       POST /daily-downloads
-/historical/{symbol}   /performers            /trading-board/{symbol}
-```
-
-Consequences, stated plainly:
-
-* **There is no historical price series to backfill.** A run stores the trading
-  day the portal is showing plus **LDCP** (the previous close), so a cold start
-  seeds two days and a daily schedule builds a real day-by-day series. Nothing
-  is ever synthesised, interpolated or pulled from another provider.
-* **OHLCV comes from two pages.** The constituent table supplies close, LDCP and
-  volume; the company page supplies open/high/low. A bar therefore lists *both*
-  contributors in `source`, and the market's own print stays authoritative for
-  the close.
-* **Financial line items are whatever the company page prints** — typically
-  Sales, Profit after Taxation, EPS, and margin/ratio lines, sometimes bank
-  specific (Mark-up Earned, Total Income). That is enough for margins, P/E and
-  EPS trends; it is **not** enough for a full EV/EBITDA or free-cash-flow model,
-  and the desk says so instead of inventing the missing statements.
 
 ## Schema (v2)
 
@@ -80,9 +87,9 @@ symbols                  symbol, name, sector, sector_code, listed_in, is_etf, i
 indices                  code, name, level, change, change_pct, high, low, volume,
                          as_of, source, updated_at
 index_memberships        index_code, symbol, as_of, weight_pct, index_points, source
-                         (as-of snapshots — a rebalance adds a row, it never rewrites)
+                         (as-of snapshots — a rebalance adds rows, it never rewrites)
 eod_bars                 symbol, trade_date, open, high, low, close, prev_close,
-                         volume, source, captured_at
+                         volume, source, captured_at          PK (symbol, trade_date)
 index_bars               index_code, trade_date, … same shape
 company_snapshots        symbol, as_of, price, open, high, low, prev_close, volume,
                          high_52w, low_52w, circuit_high, circuit_low, pe, pb,
@@ -95,125 +102,119 @@ ingest_runs              run_id, started_at, finished_at, mode, indices, request
                          rows_written, errors, notes
 raw_payloads             run_id, endpoint, url, http_status, bytes, sha256,
                          captured_at, body
-meta                     key, value   ← trading day, schema version, last run
+meta                     key, value   ← schema version, default indices, source URL
 ```
 
 Design rules:
 
-* **Idempotent.** Every write is an `INSERT … ON CONFLICT DO UPDATE` on a
-  natural key, so re-running converges instead of duplicating.
-* **A richer row is never overwritten by a poorer one.** All updates use
-  `COALESCE`, so a bar that has a high/low keeps them when a later page only
-  publishes a close.
-* **No hardcoded memberships.** The constituent lists come from `/indices/{CODE}` on every run;
-  `ingest(expected_constituents=...)` exists for callers who want a sanity check, but the mirror
-  never falls back to a list baked into the code — if the portal does not say it, the database does
-  not claim it.
-* **Memberships are as-of snapshots.** A KSE100 rebalance adds a new snapshot
-  instead of rewriting history: `constituents KSE100 --as-of 2026-06-30` still
-  answers the old question.
-* **Financials are narrow on purpose.** `(period, metric, value)` with the
-  published `label` kept beside a canonical `metric`, because the portal prints
-  whatever each company reports.
-* **Provenance is mandatory.** `raw_payloads` stores the endpoint, URL, status,
-  byte count, sha256 and a truncated body (the full page is in the capture), and
-  every bar/snapshot names its source page.
+* **Idempotent.** Every write is `INSERT … ON CONFLICT DO UPDATE` on a natural key.
+* **A richer row is never overwritten by a poorer one.** All updates use `COALESCE`, so a bar that
+  has a high/low keeps them when the cheap chart feed later supplies only close/volume. The 2026-10-29
+  OGDC bar even records all four contributors:
+  `indices + historical + timeseries/eod + company/OGDC`.
+* **No hardcoded memberships.** `KSE100`/`KMI30` come from `/indices/{CODE}` on every run; if the
+  portal does not say it, the database does not claim it.
+* **Provenance is mandatory.** `raw_payloads` stores endpoint, URL, status, bytes, sha256 and a
+  truncated body; a capture directory keeps the full pages.
 
 ## Units and definitions that bite
 
 | Item | Portal publishes | Stored as |
 |---|---|---|
-| Market capitalisation (`/screener`, `/company`) | thousands of rupees (`1 316 987 285.36`) | rupees (`1 316 987 285 360`), one conversion in `ingest.MARKET_CAP_UNIT` |
-| `MARKET CAP (M)` in `/indices/{CODE}` | absolute **free-float** rupees | not mixed into `company_snapshots.market_cap` |
-| Formula, EPS, per-share values | rupees | rupees, never scaled |
+| Market cap (`/screener`, `/company`) | thousands of rupees (`1 316 987 285.36`) | rupees (`1 316 987 285 360`) — one conversion in `ingest._market_cap_pkr()` |
+| `MARKET CAP (M)` in `/indices/{CODE}` | absolute free-float rupees | never mixed into `company_snapshots.market_cap` |
+| EPS, formula, per-share | rupees | rupees, never scaled |
 | `LDCP` | previous session's close | `prev_close`, never `close` |
-| `IDX WTG (%)` | percent | `index_memberships.weight_pct` |
-| Timestamps | Pakistan wall-clock (ms epoch in `data-latest`) | `trade_date` in Karachi (weekend-safe `derive_trade_date`) |
+| History dates | `Oct 29, 2026` **and** `data-order="1793271600"` | `trade_date` in Karachi |
+| `/timeseries` rows | `[epoch, close, volume, open]` | mapped positionally; high/low stay `NULL` |
 
-The market-cap conversion is the classic PSX trap: the portal's number is
-`1 316 987 285.36`, which reads like Rs 1.3 billion but is Rs 1.317 **trillion**
-for 4 300 928 400 shares at Rs 306. The mirror cross-checks nothing silently —
-`shares × price` and the stored value agree, and the test suite asserts the
-conversion.
+Cross-check baked into the tests: `shares × price` must equal the stored market cap
+(4 300 928 400 × 306.47 = Rs 1.317 trillion).
 
 ## Command reference
 
 | Command | What it does |
 |---|---|
 | `init` | create the schema (`data/psx.db` by default) |
-| `ingest` | pull `/screener`, `/indices`, each tracked `/indices/{CODE}`, and one `/company/{SYMBOL}` per constituent |
+| `ingest` | pull `/screener`, `/indices`, each `/indices/{CODE}`, `POST /historical` (once per symbol), `/timeseries/eod/{SYM}` for every constituent and index, and one `/company/{SYM}` per constituent |
 | `from-capture DIR` | replay a saved capture with no network at all |
 | `stats` | row counts, coverage, member counts, last run |
 | `constituents [CODE]` | members of the latest snapshot (or `--as-of`) |
 | `quotes [--index CODE]` | latest bar per symbol with the implied change |
-| `history SYMBOL` | stored bars, newest first (`--index` reads index bars) |
+| `history SYMBOL [--limit N] [--since DATE] [--index]` | stored bars, newest first |
 | `indices` / `market` | index levels / breadth for the latest day |
-| `fundamentals SYMBOL` | snapshot + published financial periods as JSON |
+| `fundamentals SYMBOL` | snapshot + memberships + published financial periods as JSON |
 | `export --table T --out F` | CSV dump of any table |
 
-Ingest flags: `--indices KSE100,KMI30`, `--workers 2`, `--interval 0.4`,
-`--no-company` (skip company pages, ~4 requests instead of ~110),
-`--company-limit N`, `--capture-dir DIR`, `--json`, `--db PATH`.
+Ingest flags: `--indices KSE100,KMI30`, `--workers 3`, `--interval 0.25`, `--no-company`,
+`--company-limit N`, `--no-history` (skip the expensive backfill), `--history-limit N`,
+`--full-history` (refetch every history page), `--capture-dir DIR`, `--json`, `--db PATH`.
 
-A failing symbol or a moved column never aborts a run: errors are collected in
-the report and the run continues. A run that stores **nothing** exits non-zero.
+A failing symbol never aborts a run: errors are collected in the report and the run continues. A run
+that stores **nothing** exits non-zero.
 
 ## How the live mirror is produced
 
-`dps.psx.com.pk` is not reachable from every network (this project's dev sandbox
-blocks it), so ingestion runs on GitHub Actions:
+`dps.psx.com.pk` is not reachable from every network (this project's dev sandbox blocks it), so
+ingestion runs on GitHub Actions:
 
-* `.github/workflows/psx-ingest.yml` — runs the offline test suite, ingests,
-  commits `data/psx.db.gz` + `data/ingest-report.json` + `data/ingest.log` back
-  to the branch, and uploads the full database and the raw capture as artifacts.
-  Triggers: `workflow_dispatch`, and a push that touches
-  `data/ingest-trigger.txt` (the `workflow_dispatch` API only accepts workflows
-  present on the default branch).
-* `.github/workflows/psx-probe.yml` — runs `scripts/psx_probe.py` and commits
-  `data/probe.json`, so a future route change is diagnosed in one run instead of
-  guessed at.
+* `.github/workflows/psx-ingest.yml` — offline test suite, restore the committed gzip, ingest, gzip
+  and **commit `data/psx.db.gz` + `data/ingest-report.json` + `data/ingest.log` back to the branch**,
+  and upload the database and the raw capture as artifacts. Triggers: `workflow_dispatch`, and a push
+  that touches `data/ingest-trigger.txt` (the dispatch API only accepts workflows present on the
+  default branch).
+* `.github/workflows/psx-probe.yml` — runs `scripts/psx_probe.py`, commits `data/probe.json`,
+  `data/probe.log` and a real `data/history-sample.html`.
 
-Reproduce locally:
-
-```bash
-gunzip -c data/psx.db.gz > data/psx.db      # the committed mirror
-python -m strata_research.psxdb stats
-python -m strata_research.psxdb export --table eod_bars --out /tmp/eod.csv
-```
+Both workflows rebase and retry before pushing, because two runs can land on the branch at once.
 
 ## Using the mirror in the desk
 
-`strata_research.psx.PsxQuoteClient` reads closes from `data/psx.db` when it
-exists (offline, exact) — expanding the committed `data/psx.db.gz` on first use —
-then falls back to `/company/{SYMBOL}` for a live quote. The old `/historical`
-form route is gone, and `symbols()` likewise prefers the mirror over `/screener`.
+`strata_research.psx.PsxQuoteClient` reads closes from `data/psx.db` when it exists — expanding the
+committed `data/psx.db.gz` on first use — then falls back to `/timeseries/eod/{SYM}` and finally to
+`/company/{SYM}`.
 
-For the analyst, `psxdb.query.run_fundamentals(symbol)` returns one symbol's
-profile, snapshot, index memberships and published financial periods as plain
-dicts; `psxdb.query.database_stats()` powers `stats`.
+`strata_research.data.portal_provider.PortalStatementsProvider` turns the same mirror into
+fundamentals for the analyst: profile, price, market cap, and the annual Sales / Profit after
+Taxation / EPS rows the portal publishes, converted to millions of PKR. That is why
+`python -m strata_research analyze OGDC` works with no API key and no hand-keyed statements:
+
+```bash
+python -m strata_research analyze MARI
+python -m strata_research watchlist --json     # what can the portal answer?
+```
 
 ## Tests
 
 ```bash
-python -m pytest tests/test_psxdb.py -q      # 47 tests, offline
+python -m pytest tests/test_psxdb.py -q        # 56 tests, offline
+python -m pytest tests/test_portal_provider.py -q
 ```
 
-Covered: parser behaviour against the portal's real markup (including `data-order`
-values, `AHCL XD`-style markers, `K`/`M`/`B` suffixes and empty P/E cells),
-unit conversions, weekend-safe trade dates, store idempotency, richer-row
-preservation, as-of membership, capture replay, per-symbol failure isolation,
-thread-safe writes, the CLI, and mirror-backed desk quotes.
+Covered: the token lifecycle (extract, send, refresh on 404), XHR headers on data routes, the real
+history markup, the chart feed's `[epoch, close, volume, open]` rows, header-matched columns,
+`AHCL XD`-style symbols, `K`/`M`/`B` magnitudes, weekend-safe trade dates, unit conversions, store
+idempotency, richer-row preservation, as-of memberships, capture replay, per-symbol failure
+isolation, thread-safe writes, and the CLI.
 
 ## Limits, stated up front
 
-* **One trading day per run.** Daily history accrues only while the ingest runs;
-  the portal offers nothing to backfill it.
-* **No per-stock high/low or open from the history route** (it is gone). Today's
-  range comes from the company page; earlier days have close/prev_close/volume.
-* **No shares outstanding, free float or total assets for many companies** — the
-  screener/company pages simply do not print them.
-* **Banks and insurers** report different line items; the narrow financials table
-  stores what they print instead of forcing them into an industrial template.
-* **The portal is not an API.** If its markup changes, the parser raises a
-  diagnosable error and the run continues for everything it could still read —
-  run `scripts/psx_probe.py` to see the new shape.
+* **The chart feed has no high/low.** Only `POST /historical` and the company page publish an
+  intraday range, so bars from the daily refresh have `high`/`low` filled by the backfill or `NULL`.
+* **Financial line items are whatever the company page prints** — typically Sales, Profit after
+  Taxation, EPS and published margins, sometimes bank-specific. No balance sheet, cash flow or
+  EBITDA: the desk scores those as `n/a` instead of inventing them.
+* **The portal is not an API.** A markup change breaks a parser loudly (with a snippet of what was
+  seen); `scripts/psx_probe.py` is the first thing to run when that happens.
+* **Board/market data is not ingested yet** (`/trading-board/*`, `/sector-summary/sectorwise` answer
+  200 and are recorded by the probe, but nothing stores them).
+* **The token is short-lived and undocumented.** If the portal changes the mechanism, ingestion fails
+  loudly rather than silently falling back to another data source.
+
+## A note on third-party PSX packages
+
+`psxdata`, `psx-data-reader` and similar libraries wrap the same `dps.psx.com.pk` pages — and
+`psxdata`'s changelog is what pointed at the `X-Req-Id` token (`#161`). They are not used here, by
+design: the requirement is portal-only data, an auditable provenance trail, and a single Python
+dependency (`httpx`). A wrapper would add pandas/pyarrow/beautifulsoup to the runtime, and some
+wrappers quietly fail over to other providers — which would break the "portal only" guarantee.

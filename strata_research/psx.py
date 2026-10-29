@@ -376,6 +376,30 @@ class PsxQuoteClient:
             finally:
                 database.close()
         try:
+            from .psxdb.client import PsxPortalClient
+
+            portal = PsxPortalClient(
+                base_url=self.base_url,
+                timeout=self.timeout,
+                retries=1,
+                min_interval=0.0,
+                client=self._client,
+            )
+            try:
+                payload = portal.symbols_json().json()
+            finally:
+                portal.close()
+            entries = payload if isinstance(payload, list) else payload.get("data") or []
+            found = [
+                str(entry.get("symbol", "")).strip().upper()
+                for entry in entries
+                if isinstance(entry, dict) and entry.get("symbol")
+            ]
+            if found:
+                return found
+        except Exception as exc:  # fall through to the screener page
+            self.last_error = f"symbol directory unavailable: {exc}"
+        try:
             from .psxdb.parsers import parse_screener
 
             response = self._http().get(f"{self.base_url}/screener")
@@ -411,13 +435,55 @@ class PsxQuoteClient:
             finally:
                 database.close()
 
-        # no mirror: ask the company page directly (the portal's live quote)
+        # no mirror: ask the portal's own chart feed (cheap, one request)
         try:
+            from .psxdb.client import PsxPortalClient
+            from .psxdb.parsers import parse_timeseries_eod
+
+            portal = PsxPortalClient(
+                base_url=self.base_url,
+                timeout=self.timeout,
+                retries=1,
+                min_interval=0.0,
+                client=self._client,
+            )
+            try:
+                page = portal.timeseries_eod(base)
+            finally:
+                portal.close()
+            bars = parse_timeseries_eod(page.body, base)
+            latest = bars[-1]
+            previous = bars[-2] if len(bars) > 1 else None
+            change_pct = None
+            if previous and previous.get("close") and latest.get("close"):
+                change_pct = latest["close"] / previous["close"] - 1.0
+            return PsxQuote(
+                symbol=base,
+                price=latest.get("close"),
+                change_pct=round(change_pct, 6) if change_pct is not None else None,
+                volume=latest.get("volume"),
+                as_of=latest["trade_date"].isoformat(),
+            )
+        except Exception as exc:  # fall through to the company page
+            self.last_error = f"chart feed unavailable for {base}: {exc}"
+
+        # last resort: the company page publishes the session's close and LDCP
+        try:
+            from .psxdb.client import PsxPortalClient
             from .psxdb.parsers import parse_company_stats
 
-            response = self._http().get(f"{self.base_url}/company/{base}")
-            response.raise_for_status()
-            stats = parse_company_stats(response.text)
+            portal = PsxPortalClient(
+                base_url=self.base_url,
+                timeout=self.timeout,
+                retries=1,
+                min_interval=0.0,
+                client=self._client,
+            )
+            try:
+                page = portal.company(base)
+            finally:
+                portal.close()
+            stats = parse_company_stats(page.body)
             price = stats.get("price")
             previous = stats.get("prev_close")
             if price is not None:
@@ -431,40 +497,5 @@ class PsxQuoteClient:
                 )
         except Exception as exc:  # non-fatal, as above
             self.last_error = f"quote unavailable for {base}: {exc}"
-            return PsxQuote(symbol=base)
 
-        rows: list[dict[str, Any]] = []
-        today = date.today()
-        for months_back in (0, 1):
-            year = today.year
-            month = today.month - months_back
-            if month < 1:
-                month += 12
-                year -= 1
-            try:
-                response = self._http().post(
-                    f"{self.base_url}/historical",
-                    data={"month": str(month), "year": str(year), "symbol": base},
-                    headers={"Content-Type": "application/x-www-form-urlencoded"},
-                )
-                response.raise_for_status()
-            except Exception as exc:
-                self.last_error = f"quote unavailable for {base}: {exc}"
-                continue
-            rows = parse_historical_table(response.text)
-            if rows:
-                break
-        if not rows:
-            return PsxQuote(symbol=base)
-        latest = rows[-1]
-        previous = rows[-2] if len(rows) > 1 else None
-        change_pct = None
-        if previous and previous["close"] and latest["close"]:
-            change_pct = latest["close"] / previous["close"] - 1.0
-        return PsxQuote(
-            symbol=base,
-            price=latest["close"],
-            change_pct=round(change_pct, 6) if change_pct is not None else None,
-            volume=latest["volume"],
-            as_of=latest["date"].isoformat() if latest["date"] else None,
-        )
+        return PsxQuote(symbol=base)

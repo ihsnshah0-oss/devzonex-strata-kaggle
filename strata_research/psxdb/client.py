@@ -162,6 +162,8 @@ class PsxPortalClient:
     responses: list[PortalResponse] = field(default_factory=list)
     token_ttl: float = TOKEN_TTL_SECONDS
     use_token: bool = True
+    #: An externally supplied httpx client (tests, or a shared pool).
+    client: httpx.Client | None = None
     _client: httpx.Client | None = None
     _last_request: float = 0.0
     _token: str | None = None
@@ -170,6 +172,8 @@ class PsxPortalClient:
 
     def __post_init__(self) -> None:
         self.base_url = self.base_url.rstrip("/")
+        #: Never close a client we did not create (tests, or a shared pool).
+        self._owns_client = self.client is None
 
     def __enter__(self) -> "PsxPortalClient":
         return self
@@ -178,13 +182,16 @@ class PsxPortalClient:
         self.close()
 
     def close(self) -> None:
-        if self._client is not None:
+        if self._client is not None and self._owns_client:
             self._client.close()
-            self._client = None
+        self._client = None
 
     # ------------------------------------------------------------------ plumbing
     def _http(self) -> httpx.Client:
         if self._client is None:
+            if self.client is not None:
+                self._client = self.client
+                return self._client
             self._client = httpx.Client(
                 timeout=self.timeout,
                 follow_redirects=True,
