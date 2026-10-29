@@ -86,6 +86,8 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             company_limit=args.company_limit,
             workers=args.workers,
             capture_dir=Path(args.capture_dir) if args.capture_dir else None,
+            # progress goes to stderr so `--json > report.json` stays valid JSON
+            log=lambda message: print(message, file=sys.stderr, flush=True),
         )
     except Exception as exc:  # surface a clean message in CI logs
         print(f"ingest failed: {type(exc).__name__}: {exc}", file=sys.stderr)
@@ -119,6 +121,7 @@ def cmd_from_capture(args: argparse.Namespace) -> int:
         db,
         indices=codes,
         include_company_pages=not args.no_company,
+        log=lambda message: print(message, file=sys.stderr, flush=True),
     )
     if args.json:
         _print_json(report.to_dict())

@@ -180,6 +180,29 @@ def _find(headers: dict[str, int], *candidates: str) -> int | None:
     return None
 
 
+#: A PSX symbol: letters/digits, optionally suffixed by a marker such as "XD"
+#: (ex-dividend) or "XR" (ex-rights) that the portal appends to the display text.
+_SYMBOL_RE = re.compile(r"[A-Z0-9][A-Z0-9.\-]{0,15}")
+
+
+def symbol_of(cell: Cell) -> str | None:
+    """The trading symbol of a row's first cell.
+
+    The portal appends market markers to the display text ("AHCL XD"), so the
+    first whitespace-separated token is used, with ``data-order`` preferred when
+    the cell ships one.
+    """
+    if cell is None:
+        return None
+    for candidate in (cell.order, cell.text):
+        if not candidate:
+            continue
+        token = str(candidate).strip().split(" ")[0].upper()
+        if token and _SYMBOL_RE.fullmatch(token):
+            return token
+    return None
+
+
 def index_tokens(raw_html: str) -> set[str]:
     """Every index code mentioned in a cell's text or attributes."""
     text = clean_text(raw_html)
@@ -302,10 +325,8 @@ def parse_screener(html: str) -> list[ScreenerRow]:
     parsed: list[ScreenerRow] = []
     for cells in table_rows[header_index + 1:]:
         symbol_cell = cell(cells, col_symbol)
-        if symbol_cell is None:
-            continue
-        symbol = (symbol_cell.text or "").strip().upper()
-        if not symbol or not re.fullmatch(r"[A-Z0-9][A-Z0-9.\-]{0,15}", symbol):
+        symbol = symbol_of(symbol_cell) if symbol_cell is not None else None
+        if symbol is None:
             continue
         listed_cell = cell(cells, col_listed)
         listing_text = listed_cell.text if listed_cell else ""
@@ -390,10 +411,8 @@ def parse_index_constituents(html: str, index_code: str = "?") -> list[Constitue
     parsed: list[ConstituentRow] = []
     for cells in table_rows[header_index + 1:]:
         symbol_cell = cell(cells, col_symbol)
-        if symbol_cell is None:
-            continue
-        symbol = (symbol_cell.text or "").strip().upper()
-        if not symbol or not re.fullmatch(r"[A-Z0-9][A-Z0-9.\-]{0,15}", symbol):
+        symbol = symbol_of(symbol_cell) if symbol_cell is not None else None
+        if symbol is None:
             continue
         name_cell = cell(cells, col_name)
         parsed.append(
@@ -752,6 +771,7 @@ __all__ = [
     "parse_screener",
     "rows",
     "summarise_parse_gap",
+    "symbol_of",
     "tables",
     "to_float",
     "to_int",

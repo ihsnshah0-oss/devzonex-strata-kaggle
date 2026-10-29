@@ -143,6 +143,25 @@ def test_parse_index_constituents_reads_quotes_weights_and_scale():
     assert ogdc.market_cap == pytest.approx(940_123_456_789)
 
 
+def test_symbols_with_market_markers_keep_their_trading_symbol():
+    """The portal prints "AHCL XD" (ex-dividend) but the symbol is AHCL."""
+    html = """
+    <table>
+      <thead><tr><th>SYMBOL</th><th>NAME</th><th>LDCP</th><th>CURRENT</th></tr></thead>
+      <tbody>
+        <tr><td data-order="AHCL"><a data-title="Arif Habib Corporation">AHCL XD</a></td>
+            <td>Arif Habib Corporation Limited</td>
+            <td data-order="55.1">55.10</td><td data-order="56.2">56.20</td></tr>
+        <tr><td>PIBTL XR</td><td>Pakistan International Bulk Terminal</td>
+            <td data-order="9.4">9.40</td><td data-order="9.55">9.55</td></tr>
+      </tbody>
+    </table>
+    """
+    rows = parse_index_constituents(html, "KSE100")
+    assert [row.symbol for row in rows] == ["AHCL", "PIBTL"]
+    assert rows[0].close == pytest.approx(56.20)
+
+
 def test_parse_index_constituents_reports_a_missing_table():
     with pytest.raises(ParseError):
         parse_index_constituents("<html><body>no table here</body></html>", "KMI30")
