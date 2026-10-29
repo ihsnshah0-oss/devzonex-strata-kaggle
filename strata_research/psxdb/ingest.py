@@ -47,6 +47,7 @@ from .parsers import (
     parse_indices,
     parse_latest_trade_date,
     parse_screener,
+    parse_sector_codes,
 )
 from .schema import DEFAULT_INDICES
 from .store import PsxDatabase
@@ -56,6 +57,11 @@ SOURCE = "dps.psx.com.pk"
 #: Raw HTML kept in ``raw_payloads`` is truncated; the sha256 is the audit trail
 #: and the full body lives in the capture directory.
 RAW_BODY_LIMIT = 8_000
+
+#: ``/screener`` publishes market capitalisation in **thousands of rupees**
+#: (OGDC: 1 316 987 285.36 there = Rs 1.317 trillion), while its constituent
+#: tables publish absolute rupees. Everything is normalised to rupees here.
+SCREENER_MARKET_CAP_UNIT = 1_000.0
 
 
 @dataclass
@@ -196,12 +202,15 @@ def ingest(
         page = client.screener()
         _log_raw(db, report.run_id, page, keep_body=True)
         rows = parse_screener(page.body)
+        sector_names = parse_sector_codes(page.body)
+        report.notes["sector_codes_mapped"] = len(sector_names)
         snapshot_as_of = target_date
         symbols_payload = [
             {
                 "symbol": row.symbol,
                 "name": row.name,
                 "sector_code": row.sector_code,
+                "sector": sector_names.get((row.sector_code or "").strip()),
                 "listed_in": row.listed_in,
             }
             for row in rows
@@ -214,7 +223,9 @@ def ingest(
                 snapshot_as_of,
                 {
                     "price": row.price,
-                    "market_cap": row.market_cap,
+                    "market_cap": (row.market_cap * SCREENER_MARKET_CAP_UNIT)
+                    if row.market_cap is not None
+                    else None,
                     "pe": row.pe,
                     "dividend_yield": row.dividend_yield,
                     "free_float": row.free_float,
@@ -248,22 +259,6 @@ def ingest(
             for row in levels
         ]
         report.rows["index_levels"] = db.upsert_indices(payload, f"{SOURCE}/indices")
-        bars = [
-            {
-                "trade_date": target_date,
-                "open": None,
-                "high": row.high,
-                "low": row.low,
-                "close": row.level,
-                # the portal publishes change, so the previous level is derivable
-                "prev_close": (row.level - row.change)
-                if row.level is not None and row.change is not None
-                else None,
-                "volume": None,
-            }
-            for row in levels
-            if row.level is not None
-        ]
         for row in levels:
             if row.level is not None:
                 report.rows["index_bars"] += db.upsert_bars(
@@ -283,7 +278,6 @@ def ingest(
                     table="index_bars",
                     key_column="index_code",
                 )
-        del bars
         log(f"indices: {len(levels)} levels stored")
     except (PortalError, ParseError) as exc:
         fail(f"indices: {exc}")

@@ -42,6 +42,7 @@ from strata_research.psxdb.parsers import (
     parse_indices,
     parse_latest_trade_date,
     parse_screener,
+    parse_sector_codes,
     to_float,
 )
 from strata_research.psxdb.schema import TABLES
@@ -98,7 +99,8 @@ def test_parse_screener_reads_every_published_column():
     assert ogdc.name == "Oil & Gas Development Company Limited"
     assert ogdc.sector_code == "0813"
     assert ogdc.listed_in == {"KSE100"}
-    assert ogdc.market_cap == pytest.approx(940_123_456_789)   # data-order, not "940.1B"
+    # the screener publishes market cap in thousands of rupees, as data-order
+    assert ogdc.market_cap == pytest.approx(940_123_456.789)
     assert ogdc.price == pytest.approx(218.75)
     assert ogdc.change_pct == pytest.approx(1.5553)
     assert ogdc.year_change_pct == pytest.approx(24.1)
@@ -114,6 +116,13 @@ def test_parse_screener_reads_every_published_column():
 
     # a missing P/E is published as an empty cell: None, never 0
     assert by_symbol["NBPGETF"].pe is None
+
+
+def test_parse_sector_codes_reads_the_filter_dropdown():
+    codes = parse_sector_codes((FIXTURES / "screener.html").read_text(encoding="utf-8"))
+    assert codes["0813"] == "OIL & GAS EXPLORATION COMPANIES"
+    assert codes["0812"].startswith("INV. BANKS")
+    assert "Select..." not in codes.values()
 
 
 def test_parse_screener_rejects_a_page_without_a_table():
@@ -196,7 +205,7 @@ def test_parse_company_stats_handles_every_block():
     assert stats["ytd_change_pct"] == pytest.approx(11.60)
     # "low — high" blocks yield both bounds
     assert (stats["low_52w"], stats["high_52w"]) == (pytest.approx(148.20), pytest.approx(241.50))
-    assert (stats["day_low"], stats["day_high"]) == (pytest.approx(214.10), pytest.approx(219.90))
+    assert (stats["low"], stats["high"]) == (pytest.approx(214.10), pytest.approx(219.90))
     assert (stats["circuit_low"], stats["circuit_high"]) == (pytest.approx(193.86), pytest.approx(236.94))
 
 
@@ -370,6 +379,7 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     # ---- the whole market's symbols and sector codes come from /screener
     ogdc_symbol = next(row for row in symbols(database) if row["symbol"] == "OGDC")
     assert ogdc_symbol["sector_code"] == "0813"
+    assert ogdc_symbol["sector"] == "Oil & Gas Exploration Companies"   # company page wins
     assert ogdc_symbol["listed_in"] == "KSE100"
     assert len(symbols(database)) == 5          # including the ETF outside both indices
 
@@ -390,6 +400,9 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     assert ogdc_bar["volume"] == pytest.approx(4_512_300)
 
     # ---- company pages add the intraday range the constituent table lacks
+    # market cap is normalised to rupees: thousands x 1 000 on the way in
+    assert quotes_ogdc_market_cap(database) == pytest.approx(940_123_456_789)
+
     quotes = {row["symbol"]: row for row in latest_quotes(database, index_code="KMI30")}
     assert set(quotes) == {"FFC", "MEBL", "PPL"}
     assert quotes["MEBL"]["close"] == pytest.approx(92.31)
@@ -420,6 +433,13 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     assert fundamentals["last_close"]["close"] == pytest.approx(218.75)
     assert fundamentals["indices"] == ["KSE100"]
     database.close()
+
+
+def quotes_ogdc_market_cap(database: PsxDatabase) -> float | None:
+    row = database.conn.execute(
+        "SELECT market_cap FROM company_snapshots WHERE symbol = 'OGDC'"
+    ).fetchone()
+    return row["market_cap"] if row else None
 
 
 def test_ingest_is_idempotent_across_runs(capture: Path, tmp_path: Path):

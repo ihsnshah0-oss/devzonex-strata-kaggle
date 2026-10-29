@@ -354,6 +354,24 @@ def parse_screener(html: str) -> list[ScreenerRow]:
     return parsed
 
 
+def parse_sector_codes(html: str) -> dict[str, str]:
+    """The portal's sector filter maps codes to industry names.
+
+    ``/screener`` carries ``<option value="0807">COMMERCIAL BANKS</option>``, and
+    its table rows only publish the code, so this lookup is what turns "0807"
+    into a sector a reader recognises.
+    """
+    mapping: dict[str, str] = {}
+    for value, label in re.findall(
+        r"<option[^>]*value=\"([^\"]*)\"[^>]*>(.*?)</option>", html or "", re.DOTALL
+    ):
+        code = (value or "").strip()
+        name = clean_text(label)
+        if code and name and re.fullmatch(r"[0-9]{3,5}", code):
+            mapping[code] = name
+    return mapping
+
+
 # ------------------------------------------------------- index constituents
 @dataclass
 class ConstituentRow:
@@ -491,24 +509,25 @@ def parse_indices(html: str) -> list[IndexRow]:
 
 # ------------------------------------------------------------- company pages
 _STAT_LABELS = {
-    "market_cap": ("market cap", "market capitalization"),
-    "shares": ("shares", "shares outstanding", "outstanding shares"),
+    "price": ("close", "current price", "price"),
+    "open": ("open",),
+    "prev_close": ("ldcp", "previous close"),
+    "volume": ("volume",),
+    "shares": ("shares outstanding", "shares", "no of shares"),
     "free_float": ("free float",),
     "free_float_pct": ("free float %", "free float percentage"),
-    "pe": ("p/e ratio", "p/e", "pe ratio", "price to earnings"),
+    "pe": ("p/e ratio", "p/e", "pe ratio"),
     "pb": ("p/b", "price to book"),
+    "year_change_pct": ("1 year change", "1-year change"),
+    "ytd_change_pct": ("ytd change", "ytd"),
+    "market_cap": ("market cap", "market capitalization"),
+    # range keys are filled by _RANGE_TARGETS, never by a single value
+    "high": ("day high",),
+    "low": ("day low",),
     "high_52w": ("52 week high",),
     "low_52w": ("52 week low",),
     "circuit_high": ("circuit high",),
     "circuit_low": ("circuit low",),
-    "day_high": ("high",),
-    "day_low": ("low",),
-    "open": ("open",),
-    "volume": ("volume",),
-    "prev_close": ("ldcp",),
-    "price": ("close",),
-    "year_change_pct": ("1 year change", "1-year change", "year change"),
-    "ytd_change_pct": ("ytd change", "ytd"),
 }
 
 #: labels the portal renders as "low — high" pairs; one label yields two numbers.
@@ -521,7 +540,7 @@ _RANGE_LABELS = {
 #: ``_RANGE_LABELS`` group -> (low key, high key)
 _RANGE_TARGETS = {
     "52_week": ("low_52w", "high_52w"),
-    "day": ("day_low", "day_high"),
+    "day": ("low", "high"),
     "circuit": ("circuit_low", "circuit_high"),
 }
 
@@ -604,8 +623,8 @@ def parse_company_stats(html: str) -> dict[str, float | None]:
         if parsed is None:
             # the DAY RANGE row also feeds the High/Low cells on some layouts
             match = _RANGE_RE.search(value_text)
-            if match and key in {"day_high", "day_low"}:
-                parsed = to_float(match.group(2)) if key == "day_high" else to_float(match.group(1))
+            if match and key in {"high", "low"}:
+                parsed = to_float(match.group(2)) if key == "high" else to_float(match.group(1))
         if parsed is not None and stats.get(key) is None:
             stats[key] = parsed
     return stats
@@ -769,6 +788,7 @@ __all__ = [
     "parse_indices",
     "parse_latest_trade_date",
     "parse_screener",
+    "parse_sector_codes",
     "rows",
     "summarise_parse_gap",
     "symbol_of",
