@@ -1,0 +1,103 @@
+name: PSX portal ingest
+
+# Pulls KSE100 / KMI30 data straight from the PSX Data Portal
+# (https://dps.psx.com.pk) into a SQLite database and uploads it as an artifact.
+# The portal is the only data source; this runner is only the machine that
+# happens to have outbound internet access.
+
+on:
+  workflow_dispatch:
+    inputs:
+      indices:
+        description: "Comma-separated index codes"
+        default: "KSE100,KMI30"
+        required: false
+      days:
+        description: "History window in days"
+        default: "400"
+        required: false
+      company_pages:
+        description: "Fetch /company/{symbol} pages too (true/false)"
+        default: "true"
+        required: false
+  schedule:
+    # Daily at 13:30 UTC (18:30 PKT), after the PSX close.
+    - cron: "30 13 * * 1-5"
+
+permissions:
+  contents: read
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install httpx
+
+      - name: Initialise database
+        run: python -m strata_research.psxdb init --db data/psx.db
+
+      - name: Ingest from the PSX Data Portal
+        id: ingest
+        env:
+          INDICES: ${{ github.event.inputs.indices || 'KSE100,KMI30' }}
+          DAYS: ${{ github.event.inputs.days || '400' }}
+          COMPANY: ${{ github.event.inputs.company_pages || 'true' }}
+        run: |
+          set -o pipefail
+          FLAGS=""
+          if [ "$COMPANY" = "false" ]; then FLAGS="--no-company"; fi
+          python -m strata_research.psxdb ingest \
+            --db data/psx.db \
+            --indices "$INDICES" \
+            --days "$DAYS" \
+            --workers 3 \
+            --interval 0.25 \
+            --capture-dir captures/latest \
+            --json $FLAGS | tee ingest-report.json
+          echo "exit=$?"
+
+      - name: Summarise
+        if: always()
+        run: |
+          echo "### PSX ingest" >> "$GITHUB_STEP_SUMMARY"
+          python -m strata_research.psxdb stats --db data/psx.db >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          python -m strata_research.psxdb constituents KSE100 --db data/psx.db | head -20 >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          python -m strata_research.psxdb constituents KMI30 --db data/psx.db | head -20 >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+
+      - name: Package database
+        if: always()
+        run: |
+          ls -la data || true
+          gzip -9 -c data/psx.db > data/psx.db.gz 2>/dev/null || true
+          du -h data/psx.db* || true
+
+      - name: Upload database artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: psx-db
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            data/psx.db
+            data/psx.db.gz
+            ingest-report.json
+            captures/latest/
+
+      - name: Upload diagnostic HTML
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: psx-diagnostics
+          retention-days: 7
+          path: captures/latest/
