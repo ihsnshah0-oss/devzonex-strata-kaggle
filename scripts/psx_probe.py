@@ -102,6 +102,24 @@ def main() -> int:
                     {value for value in re.findall(r'data-[a-z-]+="(1[6-9]\d{8,12})"', body)}
                 )[:10]
                 entry["tables"] = len(re.findall(r"<table\b", body, re.IGNORECASE))
+                entry["stats_labels"] = [
+                    " ".join(re.sub(r"<[^>]+>", " ", label).split())
+                    for label in re.findall(r'class="stats_label"[^>]*>(.*?)</div>', body, re.DOTALL)
+                ][:60]
+                # first cell of every row of every financial table: the line items
+                label_rows: list[list[str]] = []
+                for table in re.findall(r"<table\b.*?</table>", body, re.IGNORECASE | re.DOTALL):
+                    labels = [
+                        " ".join(re.sub(r"<[^>]+>", " ", cell).split())
+                        for cell in re.findall(
+                            r"<tr\b[^>]*>\s*<t[dh]\b[^>]*>(.*?)</t[dh]>", table, re.DOTALL
+                        )
+                    ]
+                    if labels:
+                        label_rows.append(labels[:30])
+                entry["table_row_labels"] = label_rows[:8]
+                # symbols the page advertises as its own index membership
+                entry["index_tokens"] = sorted(set(re.findall(r"\b(KSE100|KMI30|ALLSHR|KSE30)\b", body)))[:6]
             pages[path] = entry
 
     out = Path(args.out)
