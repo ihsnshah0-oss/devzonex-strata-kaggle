@@ -111,6 +111,7 @@ def main() -> int:
         html_accept = {"Accept": "text/html, application/xhtml+xml, */*; q=0.01"}
 
         probes: dict[str, object] = {}
+        history_body = ""
         matrix = (
             # label, method, path, body, extra headers
             ("history_plain", "POST", "/historical", {"symbol": SYMBOL}, {}),
@@ -137,6 +138,8 @@ def main() -> int:
                 "content_type": response.headers.get("content-type"),
             }
             entry["_body"] = response.text
+            if label == "history_token_xhr":
+                history_body = response.text
             if response.status_code == 200:
                 if "json" in (response.headers.get("content-type") or ""):
                     entry["json_head"] = response.text[:300]
@@ -220,7 +223,7 @@ def main() -> int:
     # Keep a small, real sample of the history markup in the repo so the parser
     # can be written against reality instead of a guess.
     sample_entry = probes.get("history_token_xhr") or {}
-    body = sample_entry.get("_body") or ""
+    body = history_body
     rows = re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)
     sample_path = Path(args.out).parent / "history-sample.html"
     if len(rows) > 2:
