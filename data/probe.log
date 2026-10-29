@@ -4,13 +4,11 @@ page /indices           200 56763
 page /screener          200 703174
 page /historical        200 49901
 page /downloads         200 48103
-routes: 64 tried, 9 answered 200
-   200 GET /historical?symbol=OGDC&month=09&year=2026 [browser]
-   200 GET /historical?symbol=OGDC&month=09&year=2026 [plain]
-   200 GET /historical?symbol=OGDC&month=09&year=2026 [xhr]
-   200 GET /historical?symbol=OGDC [browser]
-   200 GET /historical?symbol=OGDC [plain]
-   200 GET /historical?symbol=OGDC [xhr]
+routes: 228 tried, 7 answered 200
    200 GET /company/OGDC [browser]
    200 GET /company/OGDC [plain]
-   200 GET /company/OGDC [xhr]
+   200 GET /company/OGDC [json]
+   200 GET /company/OGDC [json-xrw]
+   200 GET /company/OGDC [doc-nav]
+   200 GET /company/OGDC [referer-company]
+   200 GET /company/OGDC [jquery-json]
