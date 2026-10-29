@@ -1,14 +1,23 @@
 wrote data/probe.json
-page /                  200 96487
-page /indices           200 56763
-page /screener          200 703174
-page /historical        200 49901
-page /downloads         200 48103
-routes: 228 tried, 7 answered 200
-   200 GET /company/OGDC [browser]
-   200 GET /company/OGDC [plain]
-   200 GET /company/OGDC [json]
-   200 GET /company/OGDC [json-xrw]
-   200 GET /company/OGDC [doc-nav]
-   200 GET /company/OGDC [referer-company]
-   200 GET /company/OGDC [jquery-json]
+404  GET /timeseries/eod/OGDC  (47743 bytes)
+404  GET /timeseries/int/OGDC  (47743 bytes)
+404  GET /symbols  (47731 bytes)
+404  GET /market-watch  (47736 bytes)
+200  GET /indices/KSE100  (74749 bytes)
+200  GET /indices/KMI30  (23023 bytes)
+404  GET /performers  (47734 bytes)
+404  GET /listings-table/all  (47742 bytes)
+404  GET /trading-board/OGDC  (47742 bytes)
+404  POST /daily-downloads ['date']  (47739 bytes)
+404  POST /historical-downloads  (47744 bytes)
+404  GET /other-downloads  (47739 bytes)
+404  GET /data/top-10-symbols  (47743 bytes)
+client httpx-http1.1 /: 200 
+client curl-http1.1 /timeseries/eod/{symbol}: 404 nginx/1.20.2
+client curl-http2 /timeseries/eod/{symbol}: 404 nginx/1.20.2
+client curl-http1.1 /symbols: 404 nginx/1.20.2
+client curl-http2 /symbols: 404 nginx/1.20.2
+client curl-http1.1 /indices/KSE100: 200 nginx/1.20.2
+client curl-http2 /indices/KSE100: 200 nginx/1.20.2
+client httpx-http2 /timeseries/eod/{symbol}: 404 
+client httpx-http2 /symbols: 404 
