@@ -111,7 +111,8 @@ def _header_map(cells: list[Cell]) -> dict[str, int]:
     """Map normalised header names to column indexes."""
     mapping: dict[str, int] = {}
     for index, cell in enumerate(cells):
-        name = re.sub(r"[^a-z0-9]+", " ", cell.text.lower()).strip()
+        # keep "%" — "Change" and "Change %" are different columns
+        name = re.sub(r"[^a-z0-9%]+", " ", cell.text.lower()).strip()
         if name:
             mapping[name] = index
     return mapping
@@ -361,19 +362,32 @@ def _label_value_pairs(html: str) -> list[tuple[str, str]]:
     return pairs
 
 
+def _best_label(label: str, table: dict[str, tuple[str, ...]]) -> str | None:
+    """Pick the key whose needle is the *longest* match, not the first one.
+
+    Without this, "free float %" is captured as ``free_float`` and
+    "profit after tax" is captured as ``income_tax_expense``.
+    """
+    best_key: str | None = None
+    best_score = 0
+    for key, needles in table.items():
+        for needle in needles:
+            if needle in label and len(needle) > best_score:
+                best_key, best_score = key, len(needle)
+    return best_key
+
+
 def parse_company_stats(html: str) -> dict[str, float | None]:
     """Best-effort company statistics (market cap, P/E, free float, 52w range)."""
     stats: dict[str, float | None] = {key: None for key in _STAT_LABELS}
     for label, value in _label_value_pairs(html):
         lowered = re.sub(r"[^a-z0-9%. /-]+", " ", label.lower())
-        for key, needles in _STAT_LABELS.items():
-            if stats[key] is not None:
-                continue
-            if any(needle in lowered for needle in needles):
-                parsed = to_float(value)
-                if parsed is not None:
-                    stats[key] = parsed
-                    break
+        key = _best_label(lowered, _STAT_LABELS)
+        if key is None or stats[key] is not None:
+            continue
+        parsed = to_float(value)
+        if parsed is not None:
+            stats[key] = parsed
     return stats
 
 
@@ -387,8 +401,8 @@ def parse_company_financials(html: str, max_years: int = 5) -> list[dict[str, An
     table_rows = rows(html)
     for cells in table_rows:
         year_columns: list[tuple[int, int]] = []
-        for index, text in enumerate(cells[1:], start=1):
-            match = re.search(r"(?:fy\s*)?(20\d{2})", text, re.IGNORECASE)
+        for index, cell in enumerate(cells[1:], start=1):
+            match = re.search(r"(?:fy\s*)?(20\d{2})", cell.text, re.IGNORECASE)
             if match:
                 year_columns.append((index, int(match.group(1))))
         if len(year_columns) < 2:
@@ -400,14 +414,13 @@ def parse_company_financials(html: str, max_years: int = 5) -> list[dict[str, An
             label = re.sub(r"[^a-z0-9 ]+", " ", row[0].text.lower()).strip()
             if not label:
                 continue
-            for key, needles in _FIN_LABELS.items():
-                if not any(needle in label for needle in needles):
-                    continue
-                for index, year in year_columns:
-                    value = to_float(row[index].text)
-                    if value is not None and years[year].get(key) is None:
-                        years[year][key] = value
-                break
+            key = _best_label(label, _FIN_LABELS)
+            if key is None:
+                continue
+            for index, year in year_columns:
+                value = to_float(row[index].text)
+                if value is not None and years[year].get(key) is None:
+                    years[year][key] = value
         usable = [record for record in years.values() if len(record) > 1]
         if usable:
             usable.sort(key=lambda item: item["fiscal_year"], reverse=True)

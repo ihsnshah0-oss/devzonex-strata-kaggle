@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from contextlib import contextmanager
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -39,14 +40,23 @@ class PsxDatabase:
     def __init__(self, path: Path | str = DEFAULT_DB_PATH) -> None:
         self.path = Path(path).expanduser()
         self._conn: sqlite3.Connection | None = None
+        #: The ingester writes from several worker threads, and one SQLite
+        #: connection may only run one transaction at a time.
+        self._lock = threading.RLock()
 
     # ------------------------------------------------------------------
     @property
     def conn(self) -> sqlite3.Connection:
+        with self._lock:
+            return self._connection()
+
+    def _connection(self) -> sqlite3.Connection:
         if self._conn is None:
             if self.path.parent and str(self.path.parent) not in {"", "."}:
                 self.path.parent.mkdir(parents=True, exist_ok=True)
-            self._conn = sqlite3.connect(str(self.path), timeout=30.0)
+            self._conn = sqlite3.connect(
+                str(self.path), timeout=30.0, check_same_thread=False
+            )
             self._conn.row_factory = sqlite3.Row
             self._conn.execute("PRAGMA journal_mode=WAL")
             self._conn.execute("PRAGMA synchronous=NORMAL")
@@ -54,10 +64,11 @@ class PsxDatabase:
         return self._conn
 
     def close(self) -> None:
-        if self._conn is not None:
-            self._conn.commit()
-            self._conn.close()
-            self._conn = None
+        with self._lock:
+            if self._conn is not None:
+                self._conn.commit()
+                self._conn.close()
+                self._conn = None
 
     def __enter__(self) -> "PsxDatabase":
         return self
@@ -67,14 +78,16 @@ class PsxDatabase:
 
     @contextmanager
     def transaction(self) -> Iterator[sqlite3.Connection]:
-        connection = self.conn
-        try:
-            yield connection
-        except Exception:
-            connection.rollback()
-            raise
-        else:
-            connection.commit()
+        """Serialise a write transaction; safe to call from worker threads."""
+        with self._lock:
+            connection = self._connection()
+            try:
+                yield connection
+            except Exception:
+                connection.rollback()
+                raise
+            else:
+                connection.commit()
 
     # ------------------------------------------------------------------
     def initialise(self) -> "PsxDatabase":
@@ -367,6 +380,7 @@ class PsxDatabase:
         *,
         max_bytes: int = 400_000,
     ) -> None:
+        body = body or ""
         stored = body if len(body) <= max_bytes else body[:max_bytes] + "…[truncated]"
         with self.transaction() as connection:
             connection.execute(

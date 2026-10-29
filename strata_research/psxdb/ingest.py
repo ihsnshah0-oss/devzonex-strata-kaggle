@@ -86,6 +86,11 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+#: Raw HTML is stored truncated: the sha256 is the audit trail, and the full
+#: response body is kept in the capture directory instead of bloating the database.
+RAW_BODY_LIMIT = 8_000
+
+
 def _log_raw(db: PsxDatabase, run_id: int, response: Any, *, keep_body: bool) -> None:
     try:
         db.log_raw(
@@ -95,10 +100,16 @@ def _log_raw(db: PsxDatabase, run_id: int, response: Any, *, keep_body: bool) ->
             getattr(response, "status", None),
             response.body if keep_body else "",
             response.sha256,
-            max_bytes=200_000 if keep_body else 0,
+            max_bytes=RAW_BODY_LIMIT if keep_body else 0,
         )
     except Exception:  # provenance must never break ingestion
         pass
+
+
+def _log_raw_last(db: PsxDatabase, run_id: int, client: Any, *, keep_body: bool) -> None:
+    responses = getattr(client, "responses", None) or []
+    if responses:
+        _log_raw(db, run_id, responses[-1], keep_body=keep_body)
 
 
 def ingest(
@@ -127,13 +138,14 @@ def ingest(
     target_date = as_of or date.today()
 
     def note(message: str) -> None:
-        report.errors.append(message) if message.startswith("ERROR ") else None
+        if message.startswith("ERROR "):
+            report.errors.append(message)
         log(message)
 
     # 1 ---------------------------------------------------------- universe
     try:
         symbols = client.symbols()
-        _log_raw(db, report.run_id, client.responses[-1], keep_body=False)
+        _log_raw_last(db, report.run_id, client, keep_body=False)
         report.rows["symbols"] = db.upsert_symbols(symbols, SOURCE)
         log(f"symbols: {report.rows['symbols']} listed instruments")
     except (PortalError, ParseError) as exc:
@@ -207,7 +219,7 @@ def ingest(
     # 3/4 ------------------------------------------------ daily price series
     cutoff = target_date - timedelta(days=max(30, history_days))
     constituent_set = sorted({symbol for symbols_for_code in membership.values() for symbol in symbols_for_code})
-    index_codes_in_universe = sorted(set(codes) | set(membership.keys()) & set(codes))
+    index_codes_in_universe = sorted(set(codes))
     price_targets = sorted(set(constituent_set) | set(index_codes_in_universe))
 
     lock = threading.Lock()
@@ -218,6 +230,8 @@ def ingest(
             series = parse_eod_series(client.eod(symbol).json(), symbol)
         except (PortalError, PortalSchemaError, ParseError) as exc:
             return symbol, f"{symbol}: {exc}"
+        except Exception as exc:  # a broken symbol must not kill the run
+            return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
         bars = [bar for bar in series if bar["trade_date"] >= cutoff]
         if not bars:
             return symbol, f"{symbol}: no bars on/after {cutoff.isoformat()}"
@@ -311,8 +325,10 @@ def ingest(
             try:
                 stats = parse_company_stats(page.body)
                 financials = parse_company_financials(page.body)
-            except ParseError as exc:
+            except (ParseError, PortalSchemaError) as exc:
                 return symbol, f"{symbol}: {exc}"
+            except Exception as exc:  # pragma: no cover - defensive
+                return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
             with lock:
                 _log_raw(db, report.run_id, page, keep_body=True)
                 db.upsert_snapshot(
