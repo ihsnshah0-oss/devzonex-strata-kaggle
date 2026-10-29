@@ -301,18 +301,23 @@ def expand_mirror(path: Path) -> Path | None:
 class PsxQuoteClient:
     """PSX Data Portal quote client: the mirror database first, then the portal.
 
-    The portal's old JSON routes (``/symbols``, ``/market-watch``,
-    ``/timeseries/eod/{symbol}``) return 404 from the current deployment, and the
-    form-based ``POST /historical`` no longer serves rows. Quotes therefore come
-    from, in order:
+    Quotes come from, in order:
 
     1. **the local mirror** (``data/psx.db``) built by
        ``python -m strata_research.psxdb ingest`` — exact, offline, and the same
-       bytes the portal served;
-    2. the **company page** ``/company/{SYMBOL}``, which publishes the close,
-       LDCP and volume for the current session;
-    3. nothing at all — ``None`` values, because a missing quote must never stop
+       bytes the portal served (the committed ``data/psx.db.gz`` is expanded on
+       first use);
+    2. the portal's **chart feed** ``/timeseries/eod/{SYMBOL}``, which returns
+       ``[epoch, close, volume, open]`` rows for the whole listing history;
+    3. the **company page** ``/company/{SYMBOL}``, which publishes the session's
+       close, LDCP and volume;
+    4. nothing at all — ``None`` values, because a missing quote must never stop
        a research report.
+
+    Routes 2 and 3 need the portal's short-lived ``X-Req-Id`` token *and*
+    ``X-Requested-With: XMLHttpRequest``; without them the portal answers 404 and
+    they look withdrawn. :class:`strata_research.psxdb.client.PsxPortalClient`
+    handles that, so this class just asks it.
     """
 
     def __init__(
