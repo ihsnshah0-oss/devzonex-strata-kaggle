@@ -219,23 +219,27 @@ def main() -> int:
         print(f"   {pair['label']!r:32s} -> {pair['value']!r}")
     # Keep a small, real sample of the history markup in the repo so the parser
     # can be written against reality instead of a guess.
-    sample = report.get("data_routes", {}).get("history_token_xhr", {})
-    if sample.get("status") == 200:
-        body = sample.pop("_body", "")
-        rows = re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)
-        head = re.findall(r"<th\b.*?</th>", body, re.DOTALL)
-        if rows:
-            trimmed = (
-                "<table class=\"tbl\">\n<thead><tr>"
-                + "".join(re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)[0])
-                + "</tr></thead>\n<tbody>\n"
-                + "\n".join(rows[1:6] + rows[-2:])
-                + "\n</tbody>\n</table>\n"
-            )
-            sample_path = Path(args.out).parent / "history-sample.html"
-            sample_path.write_text(trimmed, encoding="utf-8")
-            print(f"wrote {sample_path} ({len(trimmed)} bytes, {len(rows) - 1} data rows on the portal)")
-        del head
+    sample_entry = probes.get("history_token_xhr") or {}
+    body = sample_entry.get("_body") or ""
+    rows = re.findall(r"<tr\b.*?</tr>", body, re.DOTALL)
+    sample_path = Path(args.out).parent / "history-sample.html"
+    if len(rows) > 2:
+        trimmed = (
+            "<table class=\"tbl\">\n<thead>"
+            + rows[0]
+            + "</thead>\n<tbody>\n"
+            + "\n".join(rows[1:6] + rows[-2:])
+            + "\n</tbody>\n</table>\n"
+        )
+        sample_path.write_text(trimmed, encoding="utf-8")
+        print(f"wrote {sample_path} ({len(trimmed)} bytes; the portal returned {len(rows) - 1} data rows)")
+    else:
+        sample_path.write_text(
+            f"<!-- no history sample: status={sample_entry.get('status')} "
+            f"rows={len(rows)} bytes={len(body)} -->\n",
+            encoding="utf-8",
+        )
+        print(f"no history sample (status={sample_entry.get('status')}, rows={len(rows)})")
 
     print("token:", report["token"])
     for label, entry in report["data_routes"].items():
