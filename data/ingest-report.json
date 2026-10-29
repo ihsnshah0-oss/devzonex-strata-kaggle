@@ -1,5 +1,5 @@
 {
-  "run_id": 1,
+  "run_id": 2,
   "mode": "live",
   "source": "dps.psx.com.pk",
   "indices": [
@@ -7,7 +7,7 @@
     "KMI30"
   ],
   "trade_date": "2026-10-29",
-  "requests": 110,
+  "requests": 317,
   "rows": {
     "symbols": 754,
     "memberships": 130,
@@ -15,9 +15,11 @@
     "index_bars": 18,
     "index_levels": 18,
     "snapshots": 857,
-    "financials": 3992
+    "financials": 3992,
+    "history_bars": 235583,
+    "timeseries_bars": 125531
   },
-  "rows_written": 5975,
+  "rows_written": 367089,
   "errors": [],
   "warnings": [],
   "constituents": {
@@ -40,11 +42,11 @@
     ],
     "capture": {
       "directory": "captures/latest",
-      "files": 109
+      "files": 217
     }
   },
-  "started_at": "2026-10-29T21:12:11+00:00",
-  "finished_at": "2026-10-29T21:13:21+00:00",
-  "duration_s": 70.06
+  "started_at": "2026-10-29T21:29:27+00:00",
+  "finished_at": "2026-10-29T21:33:59+00:00",
+  "duration_s": 272.51
 }
-run 1: 5975 rows, 110 requests, 0 error(s) for trade date 2026-10-29
+run 2: 367089 rows, 317 requests, 0 error(s) for trade date 2026-10-29

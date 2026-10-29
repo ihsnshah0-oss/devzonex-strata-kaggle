@@ -2,7 +2,9 @@ screener: 754 listed symbols
 indices: 18 levels stored
 indices/KSE100: 100 constituents
 indices/KMI30: 30 constituents
+history backfill: 103 of 103 symbols
+daily bars: 103 symbols
 company pages: 103
-capture saved: captures/latest (109 files)
-done: 5975 rows, 110 requests, 0 error(s) in 70.1s
+capture saved: captures/latest (217 files)
+done: 367089 rows, 317 requests, 0 error(s) in 272.5s
 ingest_exit=0
