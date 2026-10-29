@@ -1,8 +1,38 @@
 wrote data/probe.json
-/                      200 96487 tables=0 cols=0
-/screener              200 703174 tables=1 cols=11
-/indices               200 56763 tables=2 cols=7
-/indices/KSE100        200 74749 tables=1 cols=11
-/indices/KMI30         200 23023 tables=1 cols=11
-/company/OGDC          200 75567 tables=7 cols=24
-/historical            200 49901 tables=0 cols=0
+company pairs: 60
+   'Open'                           -> '306.00'
+   'High'                           -> '307.99'
+   'Low'                            -> '303.00'
+   'Volume'                         -> '2,584,565'
+   'CIRCUIT BREAKER'                -> '273.31 — 334.05'
+   'DAY RANGE'                      -> '303.00 — 307.99'
+   '52-WEEK RANGE ^'                -> '238.20 — 352.00'
+   'Ask Price'                      -> '0.00'
+   'Ask Volume'                     -> '0'
+   'Bid Price'                      -> '0.00'
+   'Bid Volume'                     -> '0'
+   'LDCP'                           -> '303.68'
+   'VAR'                            -> '12.00'
+   'HAIRCUT'                        -> '15.00'
+   'P/E Ratio (TTM) **'             -> '5.43'
+   '1-Year Change * ^'              -> '19.34%'
+   'YTD Change * ^'                 -> '8.94%'
+   'Open'                           -> '303.90'
+   'High'                           -> '307.95'
+   'Low'                            -> '303.90'
+   'Close'                          -> '306.47'
+   'Change'                         -> '0.64%'
+   'LDCP'                           -> '304.52'
+   'Volume'                         -> '1,149,000'
+   'Total Trades'                   -> '414'
+screener selects: 5 options: 68
+   option {'value': 'symbols', 'text': 'Symbols'}
+   option {'value': 'website', 'text': 'Website'}
+   option {'value': '', 'text': 'Select...'}
+   option {'value': '0801', 'text': 'AUTOMOBILE ASSEMBLER'}
+   option {'value': '0802', 'text': 'AUTOMOBILE PARTS & ACCESSORIES'}
+   option {'value': '0803', 'text': 'CABLE & ELECTRICAL GOODS'}
+   option {'value': '0804', 'text': 'CEMENT'}
+   option {'value': '0805', 'text': 'CHEMICAL'}
+   option {'value': '0806', 'text': 'CLOSE - END MUTUAL FUND'}
+   option {'value': '0807', 'text': 'COMMERCIAL BANKS'}

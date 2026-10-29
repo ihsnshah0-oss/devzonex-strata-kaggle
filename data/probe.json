@@ -1,544 +1,771 @@
 {
-  "probed_at": "2026-10-29T20:40:08+00:00",
+  "probed_at": "2026-10-29T20:56:59+00:00",
   "base": "https://dps.psx.com.pk",
-  "pages": {
-    "/": {
-      "status": 200,
-      "bytes": 96487,
-      "snippets": {
-        "thead": null,
-        "first_row": null,
-        "stats_block": "<div class=\"stats_label\">High</div><div class=\"stats_value\">167,483.48</div></div><div class=\"stats_item\"><div class=\"stats_label\">Low</div><div class=\"stats_value\">165,907.29</div></div><div class=\"stats_item\"><div class=\"stats_label\">Volume</div><div class=\"stats_value\">366,121,541</div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">1-Year Change</div><div class=\"stats_value change__text--pos\"><i class=\"icon-up-dir\"></i>  5.51%</div></div><div class=\"stats_item\"><div class=\"stats_label\">YTD Change</div><div class=\"stats_value change__text--neg\"><i class=\"icon-down-dir\"></i>  -3.94%</div></div><div class=\"stats_item\"><div class=\"stats_label\">Previous Close</div><div class=\"stats_value\">165,736.75</div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">DAY RANGE</div><div class=\"stats_value\">165,907.29 \u2014 167,483.48<div class=\"numRange\" data-low=\"165907.29\" data-high=\"167483.48\" data-current=\"167193.43\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">52-WEEK RANGE</div><div class=\"stats_value\">144,119.44 \u2014 191,032.73<div class=\"numRange\" data-low=\"144119.4395\" data-high=\"191032.7344\" data-current=\"167193.43\"></div></div></div>",
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
+  "company": {
+    "status": 200,
+    "pairs": [
+      {
+        "label": "Open",
+        "value": "306.00"
       },
-      "columns": [],
-      "epoch_values": [],
-      "tables": 0,
-      "stats_labels": [
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change",
-        "YTD Change",
-        "Previous Close",
-        "DAY RANGE",
-        "52-WEEK RANGE",
-        "High",
-        "Low",
-        "Volume",
-        "1-Year Change"
-      ],
-      "table_row_labels": [],
-      "index_tokens": [
-        "ALLSHR",
-        "KMI30",
-        "KSE100",
-        "KSE30"
-      ]
-    },
-    "/screener": {
-      "status": 200,
-      "bytes": 703174,
-      "snippets": {
-        "thead": "<thead class=\"tbl__head\"><tr><th data-name=\"symbol\">SYMBOL</th><th data-name=\"sector\">SECTOR</th><th data-name=\"listed\">LISTED IN</th><th class=\"right\" data-name=\"marketCap\">MARKET CAP.</th><th class=\"right\" data-name=\"close\">PRICE</th><th class=\"right\" data-name=\"percentChange\">CHANGE (%)</th><th class=\"right\" data-name=\"changeYear\">1-YEAR CH. (%) *</th><th class=\"right\" data-name=\"peRatio\">PE RATIO (TTM)</th><th class=\"right\" data-name=\"dividendYield\">DIVIDEND YIELD (%)</th><th class=\"right\" data-name=\"freeFloat\">FREE FLOAT</th><th class=\"right\" data-name=\"volume30Avg\">30D VOLUME AVG.</th></tr></thead>",
-        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"786\"><a class=\"tbl__symbol\" href=\"/company/786\" data-title=\"786 Investments Limited\"><strong>786</strong></a></td><td>0813</td><td>ALLSHR</td><td class=\"right\" data-order=\"399489665.01000005\" data-filter=\"399489665.01000005\">399.5M</td><td class=\"right\" data-order=\"20.01\" data-filter=\"20.01\">20.01</td><td class=\"right change__text--pos\" data-order=\"0.251\" data-filter=\"0.251\"><i class=\"icon-up-dir\"></i> 0.25%</td><td class=\"right change__text--pos\" data-order=\"54.04157043879908\" data-filter=\"54.04157043879908\"><i class=\"icon-up-dir\"></i> 54.04%</td><td class=\"right\" data-order=\"90.95454545454542\" data-filter=\"90.95454545454542\">90.95</td><td class=\"right\" data-order=\"0\" data-filter=\"0\">0.00</td><td class=\"right\" data-order=\"6987575\" data-filter=\"6987575\">7.0M</td><td class=\"right\" data-order=\"96066.93\" data-filter=\"96066.93\">96,067</td></tr>",
-        "stats_block": null,
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
+      {
+        "label": "High",
+        "value": "307.99"
       },
-      "columns": [
-        "SYMBOL",
-        "SECTOR",
-        "LISTED IN",
-        "MARKET CAP.",
-        "PRICE",
-        "CHANGE (%)",
-        "1-YEAR CH. (%) *",
-        "PE RATIO (TTM)",
-        "DIVIDEND YIELD (%)",
-        "FREE FLOAT",
-        "30D VOLUME AVG."
-      ],
-      "epoch_values": [
-        "1604647000",
-        "1611891981",
-        "16345378225",
-        "1642500000",
-        "1651500000",
-        "169334324577",
-        "1698796400",
-        "1728000000",
-        "1731600000",
-        "173679480000"
-      ],
-      "tables": 1,
-      "stats_labels": [],
-      "table_row_labels": [
+      {
+        "label": "Low",
+        "value": "303.00"
+      },
+      {
+        "label": "Volume",
+        "value": "2,584,565"
+      },
+      {
+        "label": "CIRCUIT BREAKER",
+        "value": "273.31 \u2014 334.05"
+      },
+      {
+        "label": "DAY RANGE",
+        "value": "303.00 \u2014 307.99"
+      },
+      {
+        "label": "52-WEEK RANGE ^",
+        "value": "238.20 \u2014 352.00"
+      },
+      {
+        "label": "Ask Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Ask Volume",
+        "value": "0"
+      },
+      {
+        "label": "Bid Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Bid Volume",
+        "value": "0"
+      },
+      {
+        "label": "LDCP",
+        "value": "303.68"
+      },
+      {
+        "label": "VAR",
+        "value": "12.00"
+      },
+      {
+        "label": "HAIRCUT",
+        "value": "15.00"
+      },
+      {
+        "label": "P/E Ratio (TTM) **",
+        "value": "5.43"
+      },
+      {
+        "label": "1-Year Change * ^",
+        "value": "19.34%"
+      },
+      {
+        "label": "YTD Change * ^",
+        "value": "8.94%"
+      },
+      {
+        "label": "Open",
+        "value": "303.90"
+      },
+      {
+        "label": "High",
+        "value": "307.95"
+      },
+      {
+        "label": "Low",
+        "value": "303.90"
+      },
+      {
+        "label": "Close",
+        "value": "306.47"
+      },
+      {
+        "label": "Change",
+        "value": "0.64%"
+      },
+      {
+        "label": "LDCP",
+        "value": "304.52"
+      },
+      {
+        "label": "Volume",
+        "value": "1,149,000"
+      },
+      {
+        "label": "Total Trades",
+        "value": "414"
+      },
+      {
+        "label": "CIRCUIT BREAKER",
+        "value": "274.07 \u2014 334.97"
+      },
+      {
+        "label": "DAY RANGE",
+        "value": "303.90 \u2014 307.95"
+      },
+      {
+        "label": "Ask Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Ask Volume",
+        "value": "0"
+      },
+      {
+        "label": "Bid Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Bid Volume",
+        "value": "0"
+      },
+      {
+        "label": "Open",
+        "value": "304.55"
+      },
+      {
+        "label": "High",
+        "value": "308.90"
+      },
+      {
+        "label": "Low",
+        "value": "304.50"
+      },
+      {
+        "label": "Close",
+        "value": "307.16"
+      },
+      {
+        "label": "Change",
+        "value": "0.76%"
+      },
+      {
+        "label": "LDCP",
+        "value": "304.85"
+      },
+      {
+        "label": "Volume",
+        "value": "1,150,500"
+      },
+      {
+        "label": "Total Trades",
+        "value": "294"
+      },
+      {
+        "label": "CIRCUIT BREAKER",
+        "value": "274.37 \u2014 335.34"
+      },
+      {
+        "label": "DAY RANGE",
+        "value": "304.50 \u2014 308.90"
+      },
+      {
+        "label": "Ask Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Ask Volume",
+        "value": "0"
+      },
+      {
+        "label": "Bid Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Bid Volume",
+        "value": "0"
+      },
+      {
+        "label": "Open",
+        "value": "0.00"
+      },
+      {
+        "label": "High",
+        "value": "0.00"
+      },
+      {
+        "label": "Low",
+        "value": "0.00"
+      },
+      {
+        "label": "Close",
+        "value": "0.00"
+      },
+      {
+        "label": "Change",
+        "value": "0.00%"
+      },
+      {
+        "label": "LDCP",
+        "value": "307.66"
+      },
+      {
+        "label": "Volume",
+        "value": "0"
+      },
+      {
+        "label": "Total Trades",
+        "value": "0"
+      },
+      {
+        "label": "CIRCUIT BREAKER",
+        "value": "276.89 \u2014 338.43"
+      },
+      {
+        "label": "DAY RANGE",
+        "value": "0.00 \u2014 0.00"
+      },
+      {
+        "label": "Ask Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Ask Volume",
+        "value": "0"
+      },
+      {
+        "label": "Bid Price",
+        "value": "0.00"
+      },
+      {
+        "label": "Bid Volume",
+        "value": "0"
+      },
+      {
+        "label": "Open",
+        "value": "0.00"
+      }
+    ]
+  },
+  "financial_tables": [
+    {
+      "head_row": [],
+      "sample": [
         [
-          "SYMBOL",
-          "786",
-          "786R",
-          "AABS",
-          "AAL NC",
-          "AASM NC",
-          "AATM",
-          "ABL",
-          "ABOT",
-          "ABSON NC",
-          "ACPL",
-          "ADAMS",
-          "ADMM",
-          "ADOS",
-          "ADTM",
-          "AEL",
-          "AGHA",
-          "AGIC",
-          "AGICR2",
-          "AGIL XD",
-          "AGL",
-          "AGP",
-          "AGSML",
-          "AGTL",
-          "AHCL XD",
-          "AHL",
-          "AHTM XD",
-          "AICL",
-          "AIRLINK",
-          "AKBL"
-        ]
-      ],
-      "index_tokens": [
-        "ALLSHR",
-        "KMI30",
-        "KSE100",
-        "KSE30"
-      ]
-    },
-    "/indices": {
-      "status": 200,
-      "bytes": 56763,
-      "snippets": {
-        "thead": "<thead class=\"tbl__head\"><tr><th>Index</th><th class=\"right\">High</th><th class=\"right\">Low</th><th class=\"right\">Current</th><th class=\"right\">Change</th><th class=\"right\">% Change</th></tr></thead>",
-        "first_row": "<tbody class=\"tbl__body\"><tr><td><a class=\"link\" href=\"javascript:;\" data-code=\"KSE100\"><b>KSE100</b></a></td><td class=\"right\" data-order=\"167483.48\">167,483.48</td><td class=\"right\" data-order=\"165907.29\">165,907.29</td><td class=\"right\" data-order=\"167193.43\">167,193.43</td><td class=\"right change__text--pos\" data-order=\"1456.679999999993\"><i class=\"icon-up-dir\"></i> 1456.68</td><td class=\"right change__text--pos\" data-order=\"0.8789118888840243\"><i class=\"icon-up-dir\"></i> 0.88%</td></tr>",
-        "stats_block": null,
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
-      },
-      "columns": [
-        "Index",
-        "High",
-        "Low",
-        "Current",
-        "Change",
-        "% Change",
-        "Sector Indices"
-      ],
-      "epoch_values": [],
-      "tables": 2,
-      "stats_labels": [],
-      "table_row_labels": [
-        [
-          "Index",
-          "KSE100",
-          "KSE100PR",
-          "ALLSHR",
-          "KSE30",
-          "KMI30",
-          "BKTI",
-          "OGTI",
-          "KMIALLSHR",
-          "PSXDIV20",
-          "UPP9",
-          "NITPGI",
-          "NBPPGI",
-          "MZNPI",
-          "JSMFI",
-          "ACI",
-          "JSGBKTI",
-          "HBLTTI (28-10-2026 18:30:00)",
-          "MII30"
+          "Ahmed Hayat Lak",
+          "CEO"
         ],
         [
-          "Sector Indices"
+          "Zafar Masud",
+          "Chairperson"
+        ],
+        [
+          "Wasim Ahmad",
+          "Company Secretary"
         ]
-      ],
-      "index_tokens": [
-        "ALLSHR",
-        "KMI30",
-        "KSE100",
-        "KSE30"
       ]
     },
-    "/indices/KSE100": {
-      "status": 200,
-      "bytes": 74749,
-      "snippets": {
-        "thead": "<thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right\">CHANGE (%)</th><th class=\"right\">IDX WTG (%)</th><th class=\"right\">IDX POINT </th><th class=\"right\">VOLUME</th><th class=\"right\">FREEFLOAT (M)</th><th class=\"right\">MARKET CAP (M)</th></tr></thead>",
-        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"ABL\"><a class=\"tbl__symbol\" href=\"/company/ABL\" data-title=\"Allied Bank Limited\" target=\"_blank\"><strong>ABL</strong></a></td><td>Allied Bank Limited</td><td class=\"right\" data-order=\"170.11\">170.11</td><td class=\"right\" data-order=\"170.5\">170.50</td><td class=\"right change__text--pos\" data-order=\"0.39\"><i class=\"icon-up-dir\"></i> 0.39</td><td class=\"right change__text--pos\" data-order=\"0.22899999999999998\"><i class=\"icon-up-dir\"></i> 0.23%</td><td class=\"right\">0.42%</td><td class=\"right change__text--pos\" data-order=\"1.5924\">1.59</td><td class=\"right\" data-order=\"18465\">18,465</td><td class=\"right\" data-order=\"114507383\">115</td><td class=\"right\" data-order=\"19523508801.5\">19,524</td></tr>",
-        "stats_block": null,
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
-      },
-      "columns": [
-        "SYMBOL",
-        "NAME",
-        "LDCP",
-        "CURRENT",
-        "CHANGE",
-        "CHANGE (%)",
-        "IDX WTG (%)",
-        "IDX POINT",
-        "VOLUME",
-        "FREEFLOAT (M)",
-        "MARKET CAP (M)"
+    {
+      "head_row": [
+        "Date",
+        "Title",
+        "Document"
       ],
-      "epoch_values": [
-        "16458655773",
-        "1651500000",
-        "16878274560",
-        "174485895000",
-        "18081015074",
-        "19956300000"
-      ],
-      "tables": 1,
-      "stats_labels": [],
-      "table_row_labels": [
+      "sample": [
         [
-          "SYMBOL",
-          "ABL",
-          "ABOT",
-          "AGP",
-          "AHCL XD",
-          "AICL",
-          "AIRLINK",
-          "AKBL",
-          "APL",
-          "ATLH",
-          "ATRL",
-          "BAFL",
-          "BAHL",
-          "BML",
-          "BNWM",
-          "BOP",
-          "BWCL",
-          "CHCC XD",
-          "CNERGY",
-          "COLG",
-          "CPHL",
-          "DCR XD",
-          "DGKC XD",
-          "EFERT",
-          "ENGROH",
-          "FABL",
-          "FATIMA",
-          "FCCL",
-          "FFC",
-          "FFL"
-        ]
-      ],
-      "index_tokens": []
-    },
-    "/indices/KMI30": {
-      "status": 200,
-      "bytes": 23023,
-      "snippets": {
-        "thead": "<thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right\">CHANGE (%)</th><th class=\"right\">IDX WTG (%)</th><th class=\"right\">IDX POINT </th><th class=\"right\">VOLUME</th><th class=\"right\">FREEFLOAT (M)</th><th class=\"right\">MARKET CAP (M)</th></tr></thead>",
-        "first_row": "<tbody class=\"tbl__body\"><tr><td data-order=\"AIRLINK\"><a class=\"tbl__symbol\" href=\"/company/AIRLINK\" data-title=\"Air Link Communication Limited\" target=\"_blank\"><strong>AIRLINK</strong></a></td><td>Air Link Communication Limited</td><td class=\"right\" data-order=\"115.96\">115.96</td><td class=\"right\" data-order=\"115.11\">115.11</td><td class=\"right change__text--neg\" data-order=\"-0.85\"><i class=\"icon-down-dir\"></i> -0.85</td><td class=\"right change__text--neg\" data-order=\"-0.733\"><i class=\"icon-down-dir\"></i> -0.73%</td><td class=\"right\">0.58%</td><td class=\"right change__text--neg\" data-order=\"-10.2908\">-10.29</td><td class=\"right\" data-order=\"452239\">452,239</td><td class=\"right\" data-order=\"125403390\">125</td><td class=\"right\" data-order=\"14435184222.9\">14,435</td></tr>",
-        "stats_block": null,
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
-      },
-      "columns": [
-        "SYMBOL",
-        "NAME",
-        "LDCP",
-        "CURRENT",
-        "CHANGE",
-        "CHANGE (%)",
-        "IDX WTG (%)",
-        "IDX POINT",
-        "VOLUME",
-        "FREEFLOAT (M)",
-        "MARKET CAP (M)"
-      ],
-      "epoch_values": [
-        "17578353740",
-        "18143107952"
-      ],
-      "tables": 1,
-      "stats_labels": [],
-      "table_row_labels": [
+          "Date",
+          "Title",
+          "Document"
+        ],
         [
-          "SYMBOL",
-          "AIRLINK",
-          "ATRL",
-          "CPHL",
-          "DGKC XD",
-          "EFERT",
-          "ENGROH",
-          "FCCL",
-          "FFC",
-          "FFL",
-          "GAL",
-          "GHNI",
-          "HCAR",
-          "HUBC XD",
-          "LUCK",
-          "MARI",
-          "MEBL",
-          "MLCF",
-          "NML XD",
-          "NRL",
-          "OGDC XD",
-          "PAEL",
-          "PPL XD",
-          "PRL",
-          "PSO XD",
-          "SAZEW",
-          "SEARL XD",
-          "SNGP",
-          "SSGC",
-          "SYS"
+          "Sep 25, 2026",
+          "Transmission of Annual Report for the Year Ended June 30, 2026",
+          "View PDF"
+        ],
+        [
+          "Sep 4, 2026",
+          "FINANCIAL RESULTS FOR THE YEAR ENDED JUNE 30, 2026",
+          "View PDF"
+        ],
+        [
+          "Apr 30, 2026",
+          "Transmission of Quarterly Report for the Period Ended March 31, 2026",
+          "View PDF"
         ]
-      ],
-      "index_tokens": []
+      ]
     },
-    "/company/OGDC": {
-      "status": 200,
-      "bytes": 75567,
-      "snippets": {
-        "thead": "<thead class=\"tbl__head\"><tr><th style=\"width:140px;\">Date</th><th>Title</th><th style=\"width:140px;\">Document</th></tr></thead>",
-        "first_row": "<tbody class=\"tbl__body\"><tr><td><strong>Ahmed Hayat Lak</strong></td><td>CEO</td></tr>",
-        "stats_block": "<div class=\"stats_label\">Open</div><div class=\"stats_value\">306.00</div></div><div class=\"stats_item\"><div class=\"stats_label\">High</div><div class=\"stats_value\">307.99</div></div><div class=\"stats_item\"><div class=\"stats_label\">Low</div><div class=\"stats_value\">303.00</div></div><div class=\"stats_item\"><div class=\"stats_label\">Volume</div><div class=\"stats_value\">2,584,565</div></div></div><div class=\"stats company__quote__rangeStats\"><div class=\"stats_item\"><div class=\"stats_label\">CIRCUIT BREAKER</div><div class=\"stats_value\">273.31 \u2014 334.05<div class=\"numRange\" data-low=\"273.31\" data-high=\"334.05\" data-current=\"306.21\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">DAY RANGE</div><div class=\"stats_value\">303.00 \u2014 307.99<div class=\"numRange\" data-low=\"303\" data-high=\"307.99\" data-current=\"306.21\"></div></div></div><div class=\"stats_item\"><div class=\"stats_label\">52-WEEK RANGE ^</div><div class=\"stats_value\">238.20 \u2014 352.00<div class=\"numRange\" data-low=\"238.2\" data-high=\"352\" data-current=\"306.21\"></div></div></div></div><div class=\"stats\"><div class=\"stats_item\"><div class=\"stats_label\">Ask Price</div><div class=\"stats_value\">0.00</div></div><div class=\"stats_item\"><div class=\"stat",
-        "latest_date": null,
-        "date_picker": null,
-        "page_header": null
-      },
-      "columns": [
+    {
+      "head_row": [
         "Date",
         "Title",
-        "Document",
+        "Document"
+      ],
+      "sample": [
+        [
+          "Date",
+          "Title",
+          "Document"
+        ],
+        [
+          "Oct 29, 2026",
+          "Board Meeting Rescheduled (Change in Time)",
+          "View PDF"
+        ],
+        [
+          "Oct 23, 2026",
+          "NOTICE OF BOARD MEETING",
+          "View PDF"
+        ],
+        [
+          "Oct 16, 2026",
+          "RESOLUTIONS PASSED BY THE SHAREHOLDERS AT THE 29th ANNUAL GENERAL MEETING HELD ON OCTOBER 16, 2026",
+          "View PDF"
+        ]
+      ]
+    },
+    {
+      "head_row": [
         "Date",
         "Title",
-        "Document",
-        "Date",
-        "Title",
-        "Document",
+        "Document"
+      ],
+      "sample": [
+        [
+          "Date",
+          "Title",
+          "Document"
+        ],
+        [
+          "Oct 29, 2026",
+          "CREDIT OF FINAL CASH DIVIDEND",
+          "View PDF"
+        ],
+        [
+          "Oct 22, 2026",
+          "COMMENCEMENT OF GAS AND CONDENSATE PRODUCTION FROM BITRISM EAST-1, BITRISM EXPLORATION LICENCE",
+          "View PDF"
+        ],
+        [
+          "Sep 9, 2026",
+          "Material Information",
+          "View PDF"
+        ]
+      ]
+    },
+    {
+      "head_row": [
         "",
         "2026",
         "2025",
         "2024",
         "2023",
+        "Sales",
+        "449,190,752",
+        "401,177,969",
+        "463,697,861",
+        "413,594,009"
+      ],
+      "sample": [
+        [
+          "",
+          "2026",
+          "2025",
+          "2024",
+          "2023"
+        ],
+        [
+          "Sales",
+          "449,190,752",
+          "401,177,969",
+          "463,697,861",
+          "413,594,009"
+        ],
+        [
+          "Profit after Taxation",
+          "242,373,646",
+          "169,903,614",
+          "208,975,771",
+          "224,617,797"
+        ],
+        [
+          "EPS",
+          "56.35",
+          "39.50",
+          "48.59",
+          "52.23"
+        ]
+      ]
+    },
+    {
+      "head_row": [
         "",
         "Q3 2026",
         "Q2 2026",
         "Q1 2026",
         "Q3 2025",
+        "Sales",
+        "107,297,009",
+        "96,637,926",
+        "96,191,968",
+        "104,483,920"
+      ],
+      "sample": [
+        [
+          "",
+          "Q3 2026",
+          "Q2 2026",
+          "Q1 2026",
+          "Q3 2025"
+        ],
+        [
+          "Sales",
+          "107,297,009",
+          "96,637,926",
+          "96,191,968",
+          "104,483,920"
+        ],
+        [
+          "Profit after Taxation",
+          "42,243,957",
+          "34,714,402",
+          "38,304,846",
+          "47,149,242"
+        ],
+        [
+          "EPS",
+          "9.82",
+          "8.07",
+          "8.91",
+          "10.96"
+        ]
+      ]
+    },
+    {
+      "head_row": [
         "",
         "2026",
         "2025",
         "2024",
         "2023"
       ],
-      "epoch_values": [],
-      "tables": 7,
-      "stats_labels": [
-        "Open",
-        "High",
-        "Low",
-        "Volume",
-        "CIRCUIT BREAKER",
-        "DAY RANGE",
-        "52-WEEK RANGE ^",
-        "Ask Price",
-        "Ask Volume",
-        "Bid Price",
-        "Bid Volume",
-        "LDCP",
-        "VAR",
-        "HAIRCUT",
-        "P/E Ratio (TTM) **",
-        "1-Year Change * ^",
-        "YTD Change * ^",
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Change",
-        "LDCP",
-        "Volume",
-        "Total Trades",
-        "CIRCUIT BREAKER",
-        "DAY RANGE",
-        "Ask Price",
-        "Ask Volume",
-        "Bid Price",
-        "Bid Volume",
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Change",
-        "LDCP",
-        "Volume",
-        "Total Trades",
-        "CIRCUIT BREAKER",
-        "DAY RANGE",
-        "Ask Price",
-        "Ask Volume",
-        "Bid Price",
-        "Bid Volume",
-        "Open",
-        "High",
-        "Low",
-        "Close",
-        "Change",
-        "LDCP",
-        "Volume",
-        "Total Trades",
-        "CIRCUIT BREAKER",
-        "DAY RANGE",
-        "Ask Price",
-        "Ask Volume",
-        "Bid Price",
-        "Bid Volume",
-        "Open"
-      ],
-      "table_row_labels": [
-        [
-          "Ahmed Hayat Lak",
-          "Zafar Masud",
-          "Wasim Ahmad"
-        ],
-        [
-          "Date",
-          "Sep 25, 2026",
-          "Sep 4, 2026",
-          "Apr 30, 2026",
-          "Apr 29, 2026",
-          "Feb 26, 2026"
-        ],
-        [
-          "Date",
-          "Oct 29, 2026",
-          "Oct 23, 2026",
-          "Oct 16, 2026",
-          "Sep 24, 2026",
-          "Aug 27, 2026"
-        ],
-        [
-          "Date",
-          "Oct 29, 2026",
-          "Oct 22, 2026",
-          "Sep 9, 2026",
-          "Aug 17, 2026",
-          "Jul 9, 2026"
-        ],
+      "sample": [
         [
           "",
-          "Sales",
-          "Profit after Taxation",
-          "EPS"
+          "2026",
+          "2025",
+          "2024",
+          "2023"
         ],
         [
-          "",
-          "Sales",
-          "Profit after Taxation",
-          "EPS"
-        ],
-        [
-          "",
           "Gross Profit Margin (%)",
+          "54.94",
+          "57.73",
+          "61.10",
+          "65.22"
+        ],
+        [
           "Net Profit Margin (%)",
+          "53.96",
+          "42.35",
+          "45.07",
+          "54.31"
+        ],
+        [
           "EPS Growth (%)",
-          "PEG"
+          "42.66",
+          "(18.71)",
+          "(6.97)",
+          "67.89"
         ]
-      ],
-      "index_tokens": [
-        "ALLSHR",
-        "KMI30",
-        "KSE100",
-        "KSE30"
-      ]
-    },
-    "/historical": {
-      "status": 200,
-      "bytes": 49901,
-      "snippets": {
-        "thead": null,
-        "first_row": null,
-        "stats_block": null,
-        "latest_date": "<input type=\"text\" name=\"date\" autocomplete=\"new-password\" id=\"historicalDatePicker\" data-latest=\"1793273641000\">",
-        "date_picker": "id=\"historicalDatePicker\" data-latest=\"1793273641000\"></div></div><div class=\"form__field\"><button class=\"form__button\" id=\"historicalSearchBtn\">SEARCH</button></div><div class=\"form__field\"></div><div class=\"form__field\"></div></div></div><div class=\"form__ruler form__ruler--vertical\"></div><div class=\"form\"><div class=\"form__fields form__fields--widthAuto\"><div class=\"form__field\"><div class=\"form__field__label\">SEARCH ",
-        "page_header": null
-      },
-      "columns": [],
-      "epoch_values": [
-        "1793273641000"
-      ],
-      "tables": 0,
-      "stats_labels": [],
-      "table_row_labels": [],
-      "index_tokens": [
-        "ALLSHR",
-        "KMI30",
-        "KSE100",
-        "KSE30"
       ]
     }
-  }
+  ],
+  "screener": {
+    "status": 200,
+    "select_count": 5,
+    "options": [
+      {
+        "value": "symbols",
+        "text": "Symbols"
+      },
+      {
+        "value": "website",
+        "text": "Website"
+      },
+      {
+        "value": "",
+        "text": "Select..."
+      },
+      {
+        "value": "0801",
+        "text": "AUTOMOBILE ASSEMBLER"
+      },
+      {
+        "value": "0802",
+        "text": "AUTOMOBILE PARTS & ACCESSORIES"
+      },
+      {
+        "value": "0803",
+        "text": "CABLE & ELECTRICAL GOODS"
+      },
+      {
+        "value": "0804",
+        "text": "CEMENT"
+      },
+      {
+        "value": "0805",
+        "text": "CHEMICAL"
+      },
+      {
+        "value": "0806",
+        "text": "CLOSE - END MUTUAL FUND"
+      },
+      {
+        "value": "0807",
+        "text": "COMMERCIAL BANKS"
+      },
+      {
+        "value": "0808",
+        "text": "ENGINEERING"
+      },
+      {
+        "value": "0809",
+        "text": "FERTILIZER"
+      },
+      {
+        "value": "0810",
+        "text": "FOOD & PERSONAL CARE PRODUCTS"
+      },
+      {
+        "value": "0811",
+        "text": "GLASS & CERAMICS"
+      },
+      {
+        "value": "0812",
+        "text": "INSURANCE"
+      },
+      {
+        "value": "0813",
+        "text": "INV. BANKS / INV. COS. / SECURITIES COS."
+      },
+      {
+        "value": "0814",
+        "text": "JUTE"
+      },
+      {
+        "value": "0815",
+        "text": "LEASING COMPANIES"
+      },
+      {
+        "value": "0816",
+        "text": "LEATHER & TANNERIES"
+      },
+      {
+        "value": "0818",
+        "text": "MISCELLANEOUS"
+      },
+      {
+        "value": "0819",
+        "text": "MODARABAS"
+      },
+      {
+        "value": "0820",
+        "text": "OIL & GAS EXPLORATION COMPANIES"
+      },
+      {
+        "value": "0821",
+        "text": "OIL & GAS MARKETING COMPANIES"
+      },
+      {
+        "value": "0822",
+        "text": "PAPER, BOARD & PACKAGING"
+      },
+      {
+        "value": "0823",
+        "text": "PHARMACEUTICALS"
+      },
+      {
+        "value": "0824",
+        "text": "POWER GENERATION & DISTRIBUTION"
+      },
+      {
+        "value": "0825",
+        "text": "REFINERY"
+      },
+      {
+        "value": "0826",
+        "text": "SUGAR & ALLIED INDUSTRIES"
+      },
+      {
+        "value": "0827",
+        "text": "SYNTHETIC & RAYON"
+      },
+      {
+        "value": "0828",
+        "text": "TECHNOLOGY & COMMUNICATION"
+      },
+      {
+        "value": "0829",
+        "text": "TEXTILE COMPOSITE"
+      },
+      {
+        "value": "0830",
+        "text": "TEXTILE SPINNING"
+      },
+      {
+        "value": "0831",
+        "text": "TEXTILE WEAVING"
+      },
+      {
+        "value": "0832",
+        "text": "TOBACCO"
+      },
+      {
+        "value": "0833",
+        "text": "TRANSPORT"
+      },
+      {
+        "value": "0834",
+        "text": "VANASPATI & ALLIED INDUSTRIES"
+      },
+      {
+        "value": "0835",
+        "text": "WOOLLEN"
+      },
+      {
+        "value": "0836",
+        "text": "REAL ESTATE INVESTMENT TRUST"
+      },
+      {
+        "value": "0837",
+        "text": "EXCHANGE TRADED FUNDS"
+      },
+      {
+        "value": "0838",
+        "text": "PROPERTY"
+      },
+      {
+        "value": "0839",
+        "text": "APPAREL"
+      },
+      {
+        "value": "",
+        "text": "Select..."
+      },
+      {
+        "value": "KSE100",
+        "text": "KSE100"
+      },
+      {
+        "value": "KSE100PR",
+        "text": "KSE100PR"
+      },
+      {
+        "value": "ALLSHR",
+        "text": "ALLSHR"
+      },
+      {
+        "value": "KSE30",
+        "text": "KSE30"
+      },
+      {
+        "value": "KMI30",
+        "text": "KMI30"
+      },
+      {
+        "value": "BKTI",
+        "text": "BKTI"
+      },
+      {
+        "value": "OGTI",
+        "text": "OGTI"
+      },
+      {
+        "value": "KMIALLSHR",
+        "text": "KMIALLSHR"
+      },
+      {
+        "value": "PSXDIV20",
+        "text": "PSXDIV20"
+      },
+      {
+        "value": "UPP9",
+        "text": "UPP9"
+      },
+      {
+        "value": "NITPGI",
+        "text": "NITPGI"
+      },
+      {
+        "value": "NBPPGI",
+        "text": "NBPPGI"
+      },
+      {
+        "value": "MZNPI",
+        "text": "MZNPI"
+      },
+      {
+        "value": "JSMFI",
+        "text": "JSMFI"
+      },
+      {
+        "value": "ACI",
+        "text": "ACI"
+      },
+      {
+        "value": "JSGBKTI",
+        "text": "JSGBKTI"
+      },
+      {
+        "value": "HBLTTI",
+        "text": "HBLTTI"
+      },
+      {
+        "value": "MII30",
+        "text": "MII30"
+      },
+      {
+        "value": "",
+        "text": "Select..."
+      },
+      {
+        "value": "Report an Error",
+        "text": "Report an Error"
+      },
+      {
+        "value": "General Query",
+        "text": "General Query"
+      },
+      {
+        "value": "Suggestion",
+        "text": "Suggestion"
+      },
+      {
+        "value": "",
+        "text": "Select..."
+      },
+      {
+        "value": "Laptop",
+        "text": "Laptop"
+      },
+      {
+        "value": "Tablet",
+        "text": "Tablet"
+      },
+      {
+        "value": "Mobile",
+        "text": "Mobile"
+      }
+    ],
+    "sector_cell_samples": [
+      "<td>0813</td>",
+      "<td>0813</td>",
+      "<td>0826</td>",
+      "<td>0830</td>",
+      "<td>0827</td>"
+    ]
+  },
+  "kse100_first_rows": [
+    "<tr><td data-order=\"ABL\"><a class=\"tbl__symbol\" href=\"/company/ABL\" data-title=\"Allied Bank Limited\" target=\"_blank\"><strong>ABL</strong></a></td><td>Allied Bank Limited</td><td class=\"right\" data-order=\"170.11\">170.11</td><td class=\"right\" data-order=\"170.5\">170.50</td><td class=\"right change__text--pos\" data-order=\"0.39\"><i class=\"icon-up-dir\"></i> 0.39</td><td class=\"right change__text--pos\" data-order=\"0.22899999999999998\"><i class=\"icon-up-dir\"></i> 0.23%</td><td class=\"right\">0.42%</td><td class=\"right change__text--pos\" data-order=\"1.5924\">1.59</td><td class=\"right\" data-order=\"18465\">18,465</td><td class=\"right\" data-order=\"114507383\">115</td><td class=\"right\" data-order=\"19523508801.5\">19,524</td></tr>",
+    "<tr><td data-order=\"ABOT\"><a class=\"tbl__symbol\" href=\"/company/ABOT\" data-title=\"Abbott Laboratories (Pakistan) Limited\" target=\"_blank\"><strong>ABOT</strong></a></td><td>Abbott Laboratories (Pakistan) Limited</td><td class=\"right\" data-order=\"960.74\">960.74</td><td class=\"right\" data-order=\"971.75\">971.75</td><td class=\"right change__text--pos\" data-order=\"11.01\"><i class=\"icon-up-dir\"></i> 11.01</td><td class=\"right change__text--pos\" data-order=\"1.146\"><i class=\"icon-up-dir\"></i> 1.15%</td><td class=\"right\">0.44%</td><td class=\"right change__text--pos\" data-order=\"8.3168\">8.32</td><td class=\"right\" data-order=\"15744\">15,744</td><td class=\"right\" data-order=\"21183943\">21</td><td class=\"right\" data-order=\"20585496610.25\">20,585</td></tr>"
+  ]
 }
