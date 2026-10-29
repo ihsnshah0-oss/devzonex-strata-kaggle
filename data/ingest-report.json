@@ -11,13 +11,13 @@
   "rows": {
     "symbols": 754,
     "memberships": 130,
-    "market_bars": 103,
+    "market_bars": 206,
     "index_bars": 18,
     "index_levels": 18,
     "snapshots": 857,
     "financials": 3992
   },
-  "rows_written": 5872,
+  "rows_written": 5975,
   "errors": [],
   "warnings": [],
   "constituents": {
@@ -43,8 +43,8 @@
       "files": 109
     }
   },
-  "started_at": "2026-10-29T21:02:43+00:00",
-  "finished_at": "2026-10-29T21:03:52+00:00",
-  "duration_s": 68.56
+  "started_at": "2026-10-29T21:06:36+00:00",
+  "finished_at": "2026-10-29T21:07:46+00:00",
+  "duration_s": 70.53
 }
-run 1: 5872 rows, 109 requests, 0 error(s) for trade date 2026-10-29
+run 1: 5975 rows, 109 requests, 0 error(s) for trade date 2026-10-29
