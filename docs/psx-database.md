@@ -184,10 +184,13 @@ python -m strata_research.psxdb export --table eod_bars --out /tmp/eod.csv
 ## Using the mirror in the desk
 
 `strata_research.psx.PsxQuoteClient` reads closes from `data/psx.db` when it
-exists (offline, exact), then falls back to `/company/{SYMBOL}` for a live
-quote — the old `/historical` form route is gone. `run_fundamentals(symbol)`
-returns one symbol's snapshot, memberships and published financials for the
-analyst to consume.
+exists (offline, exact) — expanding the committed `data/psx.db.gz` on first use —
+then falls back to `/company/{SYMBOL}` for a live quote. The old `/historical`
+form route is gone, and `symbols()` likewise prefers the mirror over `/screener`.
+
+For the analyst, `psxdb.query.run_fundamentals(symbol)` returns one symbol's
+profile, snapshot, index memberships and published financial periods as plain
+dicts; `psxdb.query.database_stats()` powers `stats`.
 
 ## Tests
 
