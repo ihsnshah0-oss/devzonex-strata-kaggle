@@ -38,6 +38,8 @@ from strata_research.psxdb.parsers import (
     parse_company_financials,
     parse_company_meta,
     parse_company_stats,
+    parse_history,
+    parse_history_date,
     parse_index_constituents,
     parse_indices,
     parse_latest_trade_date,
@@ -71,8 +73,11 @@ def build_capture(directory: Path) -> Path:
         shutil.copy(FIXTURES / "indices" / f"{index_code}.html", target)
     company_dir = directory / "company"
     company_dir.mkdir(exist_ok=True)
+    history_dir = directory / "history"
+    history_dir.mkdir(exist_ok=True)
     for symbol in ("OGDC", "PPL", "MEBL", "FFC"):
         shutil.copy(FIXTURES / "company" / f"{symbol}.html", company_dir / f"{symbol}.html")
+        shutil.copy(FIXTURES / "history" / f"{symbol}.html", history_dir / f"{symbol}.html")
     return directory
 
 
@@ -128,6 +133,45 @@ def test_parse_sector_codes_reads_the_filter_dropdown():
 def test_parse_screener_rejects_a_page_without_a_table():
     with pytest.raises(ParseError):
         parse_screener("<html><body><p>maintenance</p></body></html>")
+
+
+# ------------------------------------------------------------ history table
+def test_parse_history_reads_full_ohlcv_rows():
+    bars = parse_history(
+        (FIXTURES / "history" / "OGDC.html").read_text(encoding="utf-8"), "OGDC"
+    )
+    assert len(bars) == 5
+    # oldest first, so upserts and charts both read naturally
+    assert [bar["trade_date"].isoformat() for bar in bars][-1] == "2026-10-29"
+    latest = bars[-1]
+    assert latest["close"] == pytest.approx(218.75)
+    assert latest["open"] == pytest.approx(216.0, abs=2.0)
+    assert latest["high"] >= latest["close"] >= latest["low"]
+    assert latest["volume"] == pytest.approx(2_584_565)
+
+
+def test_parse_history_ignores_extra_columns_and_bad_rows():
+    page = (
+        "<table><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th>"
+        "<th>Close</th><th>Volume</th><th>Change</th></tr>"
+        '<tr><td>2026-10-29</td><td>306.00</td><td>307.99</td><td>303.00</td>'
+        '<td>306.21</td><td>2,584,565</td><td>0.83%</td></tr>'
+        "<tr><td>—</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"
+        '<tr><td>28-Oct-2026</td><td>305.00</td><td>306.00</td><td>304.00</td>'
+        '<td>305.50</td><td>1,000</td><td>-0.2%</td></tr>'
+        "</table>"
+    )
+    bars = parse_history(page, "TEST")
+    assert len(bars) == 2
+    assert bars[0]["close"] == pytest.approx(305.50)   # the alt date spelling parsed
+    assert bars[1]["close"] == pytest.approx(306.21)
+
+
+def test_parse_history_rejects_a_page_that_is_not_a_history_table():
+    with pytest.raises(ParseError):
+        parse_history("<html><body>maintenance</body></html>", "OGDC")
+    with pytest.raises(ParseError):
+        parse_history("<table><tr><th>Date</th><th>Close</th></tr></table>", "OGDC")
 
 
 # ---------------------------------------------------- index constituents
@@ -405,7 +449,8 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     assert ogdc_bar["open"] == pytest.approx(216.00)
     # a bar assembled from two pages records both contributors
     assert ogdc_bar["source"] == (
-        "dps.psx.com.pk/indices + dps.psx.com.pk/company/OGDC"
+        "dps.psx.com.pk/indices + dps.psx.com.pk/historical "
+        "+ dps.psx.com.pk/company/OGDC"
     )
 
     # ---- company pages add the intraday range the constituent table lacks
@@ -580,7 +625,9 @@ def test_client_recovers_when_the_portal_drops_a_keep_alive_socket(monkeypatch):
             200, text="<html><table></table></html>", request=httpx_module.Request("GET", url)
         )
 
-    monkeypatch.setattr(httpx_module.Client, "get", flaky_get)
+    monkeypatch.setattr(
+        httpx_module.Client, "request", lambda self, method, url, **kw: flaky_get(self, url)
+    )
     client = PsxPortalClient(min_interval=0, retries=3)
     try:
         response = client.screener()
@@ -589,6 +636,94 @@ def test_client_recovers_when_the_portal_drops_a_keep_alive_socket(monkeypatch):
     assert response.status == 200
     assert attempts["count"] == 2          # one failure, one retry
     assert response.body.startswith("<html>")
+
+
+def _client_with(handler) -> PsxPortalClient:
+    """A portal client wired to a fake transport instead of the network."""
+    import httpx
+
+    client = PsxPortalClient(min_interval=0, retries=2)
+    client._client = httpx.Client(
+        transport=httpx.MockTransport(handler), headers=dict(client.headers)
+    )
+    return client
+
+
+def test_extract_portal_token_reads_window_ps():
+    from strata_research.psxdb.client import extract_portal_token
+
+    page = '<script>window.__ps = {"_k":"AbC123xyz789QWERTY","x":1};</script>'
+    assert extract_portal_token(page) == "AbC123xyz789QWERTY"
+    assert extract_portal_token("<html>no token here</html>") is None
+    assert extract_portal_token('window.__ps = {"_k":"short"};') is None
+    assert extract_portal_token("window.__ps = {not json};") is None
+
+
+def test_client_sends_the_token_and_recovers_from_a_stale_one():
+    """The portal 404s data routes without ``X-Req-Id``; a stale token gets refreshed."""
+    import httpx
+
+    seen: list[tuple[str, str, str | None]] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        token = request.headers.get("X-Req-Id")
+        seen.append((request.method, request.url.path, token))
+        if request.url.path == "/":
+            return httpx.Response(
+                200,
+                text='<script>window.__ps = {"_k":"fresh-token-1234567"};</script>',
+            )
+        if request.url.path == "/screener":
+            # the first attempt carries a dead token; the refreshed one works
+            if token == "fresh-token-1234567":
+                return httpx.Response(200, text="<html>ok</html>")
+            return httpx.Response(404, text="not found")
+        return httpx.Response(404, text="not found")
+
+    client = _client_with(handler)
+    client._token, client._token_at = "stale-token-7654321", 1e18  # cached, never expires
+    try:
+        response = client.screener()
+    finally:
+        client.close()
+
+    assert response.status == 200
+    assert ("GET", "/", None) in seen                      # token fetched without the header
+    assert seen[0][2] == "stale-token-7654321"             # stale token was sent first
+    assert seen[-1][2] == "fresh-token-1234567"            # refreshed, then retried
+
+
+def test_history_posts_the_symbol_as_form_data():
+    import httpx
+
+    captured: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["method"] = request.method
+        captured["path"] = request.url.path
+        captured["body"] = request.content.decode()
+        captured["token"] = request.headers.get("X-Req-Id")
+        return httpx.Response(
+            200,
+            text='<script>window.__ps = {"_k":"tok-1234567890ab"};</script>'
+            '<table><tr><th>Date</th><th>Close</th></tr>'
+            '<tr><td>2026-10-29</td><td>218.75</td></tr></table>',
+        )
+
+    client = _client_with(handler)
+    try:
+        response = client.history("ogdc")
+        assert captured["method"] == "POST"
+        assert captured["path"] == "/historical"
+        assert captured["body"] == "symbol=OGDC"
+        assert response.endpoint == "history/OGDC"
+
+        # the token is learned from the page and reused on every later request
+        assert client._current_token() == "tok-1234567890ab"
+        client.history("OGDC")
+        assert captured["token"] == "tok-1234567890ab"
+    finally:
+        client.close()
 
 
 def test_client_exposes_only_routes_the_portal_still_serves():

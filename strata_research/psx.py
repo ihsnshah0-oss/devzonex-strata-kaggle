@@ -277,7 +277,7 @@ def parse_historical_table(html: str) -> list[dict[str, Any]]:
     return rows
 
 
-def _expand_mirror(path: Path) -> Path | None:
+def expand_mirror(path: Path) -> Path | None:
     """Return ``path``, expanding the committed ``<path>.gz`` mirror when needed.
 
     The repository ships ``data/psx.db.gz`` because SQLite files compress well and
@@ -352,7 +352,7 @@ class PsxQuoteClient:
 
             path = Path(self.mirror_path or DEFAULT_DB_PATH)
             if not path.exists():
-                path = _expand_mirror(path)
+                path = expand_mirror(path)
                 if path is None:
                     return None
             database = PsxDatabase(path)

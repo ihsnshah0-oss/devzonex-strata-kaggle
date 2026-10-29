@@ -15,14 +15,18 @@ route                what it returns
                      change, weight, index points, volume, free float, market cap
 ``/company/{SYM}``   company page: quote stats, ranges, ratios, announcements,
                      published financial line items
-``/historical``      the portal's own "latest trading date" stamp
+``/historical``      the portal's own "latest trading date" stamp (GET) and, as a
+                     ``POST`` with ``symbol=``, the **full OHLCV history** of that
+                     symbol
+``/symbols``         every listed symbol as JSON (needs the request token)
 ===================  =========================================================
 
-Routes that the deployment used to serve — ``/symbols``, ``/market-watch``,
-``/timeseries/eod/{symbol}`` — currently answer ``404`` from nginx (checked with
-curl HTTP/1.1, curl HTTP/2 and httpx). They are deliberately **not** wrapped
-here: pretending they exist would encourage silent failures. See
-``scripts/psx_probe.py`` for the probe that established this.
+**The request token.** Since 2026-09-24 the portal answers ``404``/``403`` to data
+requests that do not carry an ``X-Req-Id`` header matching ``window.__ps._k`` —
+a short-lived token embedded in every HTML page (rotated roughly every five
+minutes). That is why ``POST /historical`` looked withdrawn. This client now reads
+the token out of any page it fetches, sends it on every request, and refreshes it
+once when a data route answers 403/404.
 
 The client is polite: one connection pool, a minimum interval between requests,
 jittered backoff on 408/425/429/469/5xx and browser-shaped headers (the portal's
@@ -34,6 +38,7 @@ from __future__ import annotations
 import hashlib
 import json
 import random
+import re
 import threading
 import time
 from dataclasses import dataclass, field
@@ -54,8 +59,37 @@ BROWSER_HEADERS = {
     "Upgrade-Insecure-Requests": "1",
 }
 
+#: The header the portal expects on data requests since 2026-09-24.
+TOKEN_HEADER = "X-Req-Id"
+
+#: ``window.__ps = {"_k": "..."};`` — the token lives in that JSON blob.
+TOKEN_PATTERN = re.compile(r"window\.__ps\s*=\s*(\{.*?\})\s*(?:;|</script>)", re.DOTALL)
+
+#: The portal rotates the token every few minutes; refetch a little before that.
+TOKEN_TTL_SECONDS = 240.0
+
 #: Statuses worth another attempt (429/469 are the portal's rate-limit answers).
 RETRY_STATUSES = frozenset({408, 425, 429, 469, 500, 502, 503, 504})
+
+
+def extract_portal_token(html: str) -> str | None:
+    """Return ``window.__ps._k`` from a portal page, or ``None``.
+
+    The token is a short opaque string; anything that does not look like one is
+    treated as absent so a markup change degrades to "no token" instead of
+    sending garbage.
+    """
+    match = TOKEN_PATTERN.search(html)
+    if not match:
+        return None
+    try:
+        payload = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return None
+    token = payload.get("_k") if isinstance(payload, dict) else None
+    if isinstance(token, str) and len(token) >= 16 and re.fullmatch(r"[A-Za-z0-9_\-]+", token):
+        return token
+    return None
 
 
 class PortalError(RuntimeError):
@@ -112,8 +146,12 @@ class PsxPortalClient:
     headers: dict[str, str] = field(default_factory=lambda: dict(BROWSER_HEADERS))
     requests_made: int = 0
     responses: list[PortalResponse] = field(default_factory=list)
+    token_ttl: float = TOKEN_TTL_SECONDS
+    use_token: bool = True
     _client: httpx.Client | None = None
     _last_request: float = 0.0
+    _token: str | None = None
+    _token_at: float = 0.0
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def __post_init__(self) -> None:
@@ -151,17 +189,62 @@ class PsxPortalClient:
         if wait > 0:
             time.sleep(wait)
 
-    def _request(self, endpoint: str, path: str) -> PortalResponse:
+    def _remember_token(self, body: str) -> None:
+        token = extract_portal_token(body)
+        if token:
+            with self._lock:
+                self._token, self._token_at = token, time.monotonic()
+
+    def _current_token(self) -> str | None:
+        if not self.use_token:
+            return None
+        with self._lock:
+            fresh = (
+                self._token is not None
+                and time.monotonic() - self._token_at < self.token_ttl
+            )
+            token = self._token
+        return token if fresh else None
+
+    def _refresh_token(self) -> str | None:
+        """Fetch ``/`` and read the request token out of it."""
+        try:
+            self._request("home", "/", token=False, attempts=1, record=False)
+        except PortalError:
+            return None
+        return self._current_token()
+
+    def _request(
+        self,
+        endpoint: str,
+        path: str,
+        *,
+        method: str = "GET",
+        data: dict[str, str] | None = None,
+        token: bool = True,
+        attempts: int | None = None,
+        record: bool = True,
+    ) -> PortalResponse:
         url = f"{self.base_url}{path}"
-        attempts = max(1, self.retries)
+        tries = max(1, self.retries if attempts is None else attempts)
         last_error: PortalError | None = None
-        for attempt in range(attempts):
+        can_retry_token = token and self.use_token
+        attempt = 0
+        while attempt < tries:
+            attempt += 1
             self._throttle()
+            headers: dict[str, str] = {}
+            if token:
+                value = self._current_token()
+                if value:
+                    headers[TOKEN_HEADER] = value
             started = time.perf_counter()
             try:
                 with self._lock:
                     self.requests_made += 1
-                response = self._http().get(url)
+                response = self._http().request(
+                    method, url, data=data, headers=headers or None
+                )
             except httpx.HTTPError as exc:
                 last_error = PortalError(
                     f"{endpoint}: {type(exc).__name__}: {exc}", url=url
@@ -172,26 +255,37 @@ class PsxPortalClient:
             else:
                 elapsed = time.perf_counter() - started
                 if response.status_code == 200:
+                    body = response.text
+                    self._remember_token(body)
                     payload = PortalResponse(
                         endpoint=endpoint,
                         url=url,
                         status=response.status_code,
-                        body=response.text,
+                        body=body,
                         elapsed_s=elapsed,
                     )
-                    with self._lock:
-                        self.responses.append(payload)
+                    if record:
+                        with self._lock:
+                            self.responses.append(payload)
                     return payload
                 last_error = PortalError(
                     f"{endpoint}: HTTP {response.status_code} from {url}",
                     url=url,
                     status=response.status_code,
                 )
-                if response.status_code in {403, 404}:
-                    break  # a WAF block or a withdrawn route: do not hammer it
+                if response.status_code in {401, 403, 404}:
+                    # Most likely a stale request token: refresh it once and retry.
+                    if can_retry_token:
+                        can_retry_token = False
+                        with self._lock:
+                            self._token, self._token_at = None, 0.0
+                        if self._refresh_token() is not None:
+                            attempt -= 1  # the retry is on the token, not the route
+                            continue
+                    break  # no token, or the route is genuinely gone: do not hammer it
                 if response.status_code not in RETRY_STATUSES:
                     break
-            if attempt + 1 < attempts:
+            if attempt < tries:
                 backoff = min(15.0, 1.5 * (2**attempt)) + random.uniform(0, 0.5)
                 time.sleep(backoff)
         if last_error is not None:
@@ -235,6 +329,22 @@ class PsxPortalClient:
         """``GET /historical`` — carries the portal's latest trading date."""
         return self._request("historical", "/historical")
 
+    def history(self, symbol: str) -> PortalResponse:
+        """``POST /historical`` — every published daily bar for one symbol.
+
+        The form body is just ``symbol=<TICKER>``; the portal returns an HTML table
+        of Date / Open / High / Low / Close / Volume rows, oldest first, covering
+        the symbol's whole listing history.
+        """
+        code = symbol.strip().upper()
+        return self._request(
+            f"history/{code}", "/historical", method="POST", data={"symbol": code}
+        )
+
+    def symbols_json(self) -> PortalResponse:
+        """``GET /symbols`` — the portal's JSON symbol directory."""
+        return self._request("symbols", "/symbols")
+
 
 def request_summary(client: Any) -> dict[str, Any]:
     """Best-effort counters for the ingest report."""
@@ -247,6 +357,10 @@ def request_summary(client: Any) -> dict[str, Any]:
 __all__ = [
     "BROWSER_HEADERS",
     "DEFAULT_BASE_URL",
+    "TOKEN_HEADER",
+    "TOKEN_PATTERN",
+    "TOKEN_TTL_SECONDS",
+    "extract_portal_token",
     "PortalError",
     "PortalResponse",
     "PortalSchemaError",

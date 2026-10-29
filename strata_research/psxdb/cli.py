@@ -84,6 +84,8 @@ def cmd_ingest(args: argparse.Namespace) -> int:
             indices=codes,
             include_company_pages=not args.no_company,
             company_limit=args.company_limit,
+            include_history=not getattr(args, "no_history", False),
+            history_limit=getattr(args, "history_limit", None),
             workers=args.workers,
             capture_dir=Path(args.capture_dir) if args.capture_dir else None,
             # progress goes to stderr so `--json > report.json` stays valid JSON
@@ -121,6 +123,7 @@ def cmd_from_capture(args: argparse.Namespace) -> int:
         db,
         indices=codes,
         include_company_pages=not args.no_company,
+        include_history=not getattr(args, "no_history", False),
         log=lambda message: print(message, file=sys.stderr, flush=True),
     )
     if args.json:
@@ -328,6 +331,12 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_parser.add_argument("--base-url", default="https://dps.psx.com.pk")
     ingest_parser.add_argument("--no-company", action="store_true", help="skip /company pages")
     ingest_parser.add_argument("--company-limit", type=int, default=None)
+    ingest_parser.add_argument(
+        "--no-history",
+        action="store_true",
+        help="skip POST /historical (the full per-symbol daily history)",
+    )
+    ingest_parser.add_argument("--history-limit", type=int, default=None)
     ingest_parser.add_argument("--capture-dir", default=None, help="save raw responses here")
     ingest_parser.add_argument("--max-errors", type=int, default=15)
     ingest_parser.add_argument("--json", action="store_true")
@@ -339,6 +348,7 @@ def build_parser() -> argparse.ArgumentParser:
     capture.add_argument("capture_dir")
     capture.add_argument("--days", type=int, default=None, help=argparse.SUPPRESS)
     capture.add_argument("--no-company", action="store_true")
+    capture.add_argument("--no-history", action="store_true")
     capture.add_argument("--json", action="store_true")
     capture.set_defaults(handler=cmd_from_capture)
 

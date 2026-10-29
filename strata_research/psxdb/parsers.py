@@ -466,6 +466,84 @@ class IndexRow:
     volume: float | None = None
 
 
+#: PSX prints history dates as ``2026-10-29`` (and, on some pages, ``29-Oct-2026``).
+_DATE_FORMATS = ("%Y-%m-%d", "%d-%b-%Y", "%d %b %Y", "%d/%m/%Y", "%b %d, %Y")
+
+
+def parse_history_date(text: str) -> date | None:
+    """Parse a history-table date cell, tolerating the portal's spellings."""
+    cleaned = clean_text(text)
+    if not cleaned:
+        return None
+    for fmt in _DATE_FORMATS:
+        try:
+            return datetime.strptime(cleaned, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def parse_history(html: str, symbol: str = "?") -> list[dict[str, Any]]:
+    """Parse the ``POST /historical`` table into daily bars.
+
+    The portal answers the form post with an HTML table of
+    ``Date | Open | High | Low | Close | Volume`` rows — the whole listing
+    history, oldest first. Columns are matched by header text, so an extra
+    column (the portal sometimes adds ``Change`` fields) is ignored rather than
+    shifting every number by one.
+    """
+    table_rows = rows(html)
+    if not table_rows:
+        raise ParseError(f"history/{symbol}: the portal returned no table rows")
+
+    header_index: int | None = None
+    headers: dict[str, int] = {}
+    for position, cells in enumerate(table_rows):
+        candidate = _header_map(cells)
+        if _find(candidate, "date") is not None and _find(candidate, "close") is not None:
+            header_index, headers = position, candidate
+            break
+    if header_index is None:
+        raise ParseError(
+            f"history/{symbol}: no header row with 'date' and 'close' "
+            f"(saw: {summarise_parse_gap(html)})"
+        )
+
+    col_date = _find(headers, "date")
+    col_open = _find(headers, "open")
+    col_high = _find(headers, "high")
+    col_low = _find(headers, "low")
+    col_close = _find(headers, "close")
+    col_volume = _find(headers, "volume", "turnover")
+
+    def cell(cells: list[Cell], index: int | None) -> float | None:
+        if index is None or index >= len(cells):
+            return None
+        return to_float(cells[index].attrs.get("data-order") or cells[index].text)
+
+    bars: dict[date, dict[str, Any]] = {}
+    for cells in table_rows[header_index + 1 :]:
+        if col_date is None or col_date >= len(cells):
+            continue
+        day = parse_history_date(cells[col_date].text)
+        if day is None:
+            continue
+        bar = {
+            "trade_date": day,
+            "open": cell(cells, col_open),
+            "high": cell(cells, col_high),
+            "low": cell(cells, col_low),
+            "close": cell(cells, col_close),
+            "volume": cell(cells, col_volume),
+        }
+        if bar["close"] is None and bar["open"] is None:
+            continue
+        bars[day] = bar  # a repeated date keeps the last (most complete) row
+    if not bars:
+        raise ParseError(f"history/{symbol}: the table had no parsable date rows")
+    return [bars[day] for day in sorted(bars)]
+
+
 def parse_indices(html: str) -> list[IndexRow]:
     """Parse ``/indices``: current level, day high/low and change per index."""
     table_rows = rows(html)
@@ -786,6 +864,8 @@ __all__ = [
     "parse_company_financials",
     "parse_company_meta",
     "parse_company_stats",
+    "parse_history",
+    "parse_history_date",
     "parse_index_constituents",
     "parse_indices",
     "parse_latest_trade_date",

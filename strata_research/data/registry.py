@@ -4,8 +4,10 @@ Priority in ``auto`` mode:
 
 1. ``psx``     — statements you supply (``STRATA_RESEARCH_PSX_DIR``), priced from
                  the live PSX Data Portal when quotes are enabled.
-2. ``yfinance``— live ``<SYMBOL>.KA`` listings on Yahoo Finance.
-3. ``demo``    — the fictional offline PSX universe.
+2. ``portal``  — the PSX Data Portal mirror (``data/psx.db``): real companies with
+                 the Sales / Profit after Taxation / EPS rows the portal publishes.
+3. ``yfinance``— live ``<SYMBOL>.KA`` listings on Yahoo Finance.
+4. ``demo``    — the fictional offline PSX universe.
 
 Nothing outside PSX is accepted: every ticker is normalised to a PSX symbol
 (``PSX:OGDC``, ``ogdc.KA`` and ``OGDC`` are the same company) and reports are
@@ -23,6 +25,7 @@ from ..schemas import CompanyFundamentals
 from .base import DataProviderError, FundamentalsProvider
 from .demo import DemoProvider
 from .json_provider import JsonProvider
+from .portal_provider import PortalStatementsProvider
 from .psx_provider import PsxStatementsProvider
 from .yfinance_provider import YFinanceProvider
 
@@ -59,6 +62,7 @@ def build_providers(settings: Settings) -> list[FundamentalsProvider]:
         quote_client=_quote_client(settings),
         use_quotes=settings.psx_quotes,
     )
+    portal = PortalStatementsProvider(settings.psx_db)
     live = YFinanceProvider()
     demo = DemoProvider()
     generic_json = JsonProvider(settings.data_dir)
@@ -68,6 +72,8 @@ def build_providers(settings: Settings) -> list[FundamentalsProvider]:
         return [demo]
     if explicit == "psx":
         return [psx]
+    if explicit == "portal":
+        return [portal]
     if explicit == "json":
         return [generic_json]
     if explicit == "yfinance":
@@ -76,6 +82,8 @@ def build_providers(settings: Settings) -> list[FundamentalsProvider]:
     chain: list[FundamentalsProvider] = []
     if psx.available():
         chain.append(psx)
+    if portal.available():
+        chain.append(portal)
     if live.available():
         chain.append(live)
     chain.append(demo)
@@ -94,6 +102,13 @@ def provider_status(settings: Settings) -> list[dict[str, object]]:
             "detail": "Local PSX statements"
             + (f" in {settings.psx_dir}" if settings.psx_dir else " (set STRATA_RESEARCH_PSX_DIR)")
             + (", priced from the PSX Data Portal" if settings.psx_quotes else ""),
+        },
+        {
+            "name": "portal",
+            "available": PortalStatementsProvider(settings.psx_db).available(),
+            "requires_network": False,
+            "detail": f"PSX Data Portal mirror ({settings.psx_db}): sales, profit, EPS and "
+            "published margins for every KSE100/KMI30 company",
         },
         {
             "name": "yfinance",

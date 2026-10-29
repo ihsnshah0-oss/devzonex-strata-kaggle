@@ -19,7 +19,7 @@ DEFAULT_BASE_URL = "http://127.0.0.1:8000/v1"
 DEFAULT_PSX_BASE_URL = "https://dps.psx.com.pk"
 
 LLMKind = Literal["auto", "openai", "template"]
-DataProvider = Literal["auto", "demo", "psx", "json", "yfinance"]
+DataProvider = Literal["auto", "demo", "psx", "portal", "json", "yfinance"]
 
 #: Files the notebook / OpenCode setup writes the Strata key into.
 KEY_FILE_CANDIDATES = (
@@ -102,6 +102,7 @@ class Settings:
     data_provider: DataProvider = "auto"
     data_dir: Path | None = None
     psx_dir: Path | None = None
+    psx_db: Path | None = None
     psx_quotes: bool = True
     psx_base_url: str = DEFAULT_PSX_BASE_URL
     psx_quote_timeout: float = 12.0
@@ -128,7 +129,7 @@ class Settings:
             kind = "auto"
 
         provider = (_env("STRATA_RESEARCH_PROVIDER") or "auto").lower()
-        if provider not in {"auto", "demo", "psx", "json", "yfinance"}:
+        if provider not in {"auto", "demo", "psx", "portal", "json", "yfinance"}:
             provider = "auto"
 
         data_dir_raw = _env("STRATA_RESEARCH_DATA_DIR")
@@ -139,6 +140,9 @@ class Settings:
             if psx_dir_raw
             else (default_psx_dir if default_psx_dir.is_dir() else None)
         )
+        psx_db_raw = _env("STRATA_RESEARCH_PSX_DB")
+        default_psx_db = Path("data/psx.db")
+        psx_db = Path(psx_db_raw).expanduser() if psx_db_raw else default_psx_db
         return cls(
             llm_kind=kind,  # type: ignore[arg-type]
             base_url=_env("STRATA_BASE_URL", "OPENAI_BASE_URL") or DEFAULT_BASE_URL,
@@ -152,6 +156,7 @@ class Settings:
             data_provider=provider,  # type: ignore[arg-type]
             data_dir=Path(data_dir_raw).expanduser() if data_dir_raw else None,
             psx_dir=psx_dir,
+            psx_db=psx_db,
             psx_quotes=_env_bool(True, "STRATA_RESEARCH_PSX_QUOTES"),
             psx_base_url=_env("STRATA_RESEARCH_PSX_BASE_URL") or DEFAULT_PSX_BASE_URL,
             psx_quote_timeout=_env_float(12.0, "STRATA_RESEARCH_PSX_TIMEOUT"),
@@ -190,6 +195,7 @@ class Settings:
             "data_provider": self.data_provider,
             "data_dir": str(self.data_dir) if self.data_dir else None,
             "psx_dir": str(self.psx_dir) if self.psx_dir else None,
+            "psx_db": str(self.psx_db) if self.psx_db else None,
             "psx_quotes": self.psx_quotes,
             "allow_deterministic_fallback": self.allow_deterministic_fallback,
             "enable_tools": self.enable_tools,

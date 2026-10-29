@@ -5,8 +5,9 @@ PSX-only desk. Examples::
     python -m strata_research status
     python -m strata_research psx                       # universe + sectors
     python -m strata_research agents
-    python -m strata_research analyze DMEPL             # demo universe
-    python -m strata_research analyze OGDC              # needs PSX statements or .KA
+    python -m strata_research watchlist                 # what can the portal answer?
+    python -m strata_research analyze OGDC              # real portal data, no key
+    python -m strata_research analyze DMEPL             # fictional demo universe
     python -m strata_research brief DMFRT --json
     python -m strata_research serve --port 8000
 """
@@ -112,6 +113,67 @@ def cmd_psx(args: argparse.Namespace, team: ResearchTeam) -> int:
     return 0
 
 
+def cmd_watchlist(args: argparse.Namespace, team: ResearchTeam) -> int:
+    """Show what the portal can actually answer for every watchlist symbol."""
+    from .data import fetch_fundamentals
+    from .watchlist import load_watchlist
+
+    symbols = load_watchlist(args.file)
+    rows: list[dict[str, Any]] = []
+    for symbol in symbols:
+        entry: dict[str, Any] = {"ticker": symbol, "ok": False}
+        try:
+            company = fetch_fundamentals(team.settings, symbol)
+        except DataProviderError as exc:
+            entry["error"] = str(exc)
+            rows.append(entry)
+            continue
+        latest = company.latest
+        entry.update(
+            ok=True,
+            name=company.profile.name,
+            sector=company.profile.sector,
+            price=company.profile.price,
+            years=len(company.fiscal_years),
+            latest_year=latest.fiscal_year,
+            revenue=latest.revenue,
+            net_income=latest.net_income,
+            eps=latest.eps,
+            dividend_per_share=company.profile.dividend_per_share,
+            source=company.profile.data_source,
+            quality=company.profile.data_quality,
+        )
+        rows.append(entry)
+
+    ok = sum(1 for row in rows if row["ok"])
+    payload = {"market": "PSX", "count": len(rows), "ready": ok, "symbols": rows}
+    if args.json:
+        print(_dump(payload))
+        return 0 if ok == len(rows) else 1
+
+    print(f"PSX watchlist · {len(rows)} symbols · {ok} ready for the fundamental analyst")
+    print()
+    print(f"{'SYMBOL':8} {'SECTOR':28} {'PRICE':>9} {'PE':>6} {'YRS':>4}  NAME")
+    for row in rows:
+        if not row["ok"]:
+            print(f"{row['ticker']:8} {'—':28} {'—':>9} {'—':>6} {'—':>4}  {row.get('error', '')}")
+            continue
+        price = row.get("price")
+        eps = row.get("eps")
+        price_text = f"{price:,.2f}" if price else "—"
+        pe_text = f"{price / eps:.1f}x" if price and eps else "—"
+        print(
+            f"{row['ticker']:8} {(row.get('sector') or 'n/a')[:28]:28} "
+            f"{price_text:>9} {pe_text:>6} {row['years']:>4}  "
+            f"{(row.get('name') or '')[:40]}"
+        )
+    if ok != len(rows):
+        print(f"\n{len(rows) - ok} symbol(s) have no portal financials; see the messages above.")
+        return 1
+    print(f"\nEvery symbol is sourced from {rows[0]['source']} ({rows[0]['quality']} data).")
+    return 0
+
+
 def cmd_providers(args: argparse.Namespace, team: ResearchTeam) -> int:
     payload = team.status()["providers"]
     print(_dump(payload))
@@ -194,6 +256,13 @@ def build_parser() -> argparse.ArgumentParser:
     psx = subparsers.add_parser("psx", help="show the PSX universe, sectors and market lens")
     psx.add_argument("--json", action="store_true")
     psx.set_defaults(handler=cmd_psx)
+
+    watchlist = subparsers.add_parser(
+        "watchlist", help="check every watchlist symbol against the PSX portal mirror"
+    )
+    watchlist.add_argument("--file", metavar="PATH", help="comma/newline separated tickers")
+    watchlist.add_argument("--json", action="store_true")
+    watchlist.set_defaults(handler=cmd_watchlist)
 
     providers = subparsers.add_parser("providers", help="show data provider readiness")
     providers.set_defaults(handler=cmd_providers)

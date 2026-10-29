@@ -2,13 +2,14 @@
 
 A capture is just the portal's own bytes, written to a directory with a manifest:
 
-    market-watch.html      was: /market-watch (withdrawn; kept for old captures)
     screener.html          /screener
     indices.html           /indices
     indices/KSE100.html    /indices/KSE100
     company/OGDC.html      /company/OGDC
-    historical.html        /historical
+    historical.html        GET  /historical (page shell + latest-trading-date stamp)
+    history/OGDC.html      POST /historical (symbol=) — full daily history
     home.html              /
+    symbols.json           /symbols
     manifest.json          endpoint, url, status, sha256 per file
 
 Replaying a capture through :class:`CaptureClient` runs the exact same parsers
@@ -37,8 +38,12 @@ def _endpoint_to_path(endpoint: str) -> Path:
         return Path("indices.html")
     if endpoint == "historical":
         return Path("historical.html")
+    if endpoint == "symbols":
+        return Path("symbols.json")
     if endpoint.startswith("indices/"):
         return Path("indices") / f"{endpoint.split('/', 1)[1]}.html"
+    if endpoint.startswith("history/"):
+        return Path("history") / f"{endpoint.split('/', 1)[1]}.html"
     if endpoint.startswith("company/"):
         return Path("company") / f"{endpoint.split('/', 1)[1]}.html"
     return Path(f"{endpoint.replace('/', '_')}.html")
@@ -137,6 +142,12 @@ class CaptureClient:
 
     def index_constituents(self, index_code: str) -> PortalResponse:
         return self._read(f"indices/{index_code.strip().upper()}")
+
+    def history(self, symbol: str) -> PortalResponse:
+        return self._read(f"history/{symbol.strip().upper()}")
+
+    def symbols_json(self) -> PortalResponse:
+        return self._read("symbols")
 
     def company(self, symbol: str) -> PortalResponse:
         return self._read(f"company/{symbol.strip().upper()}")

@@ -45,6 +45,7 @@ from .parsers import (
     parse_company_stats,
     parse_index_constituents,
     parse_indices,
+    parse_history,
     parse_latest_trade_date,
     parse_screener,
     parse_sector_codes,
@@ -146,6 +147,8 @@ def ingest(
     indices: Sequence[str] = DEFAULT_INDICES,
     include_company_pages: bool = True,
     company_limit: int | None = None,
+    include_history: bool = True,
+    history_limit: int | None = None,
     workers: int = 3,
     as_of: date | None = None,
     capture_dir: Path | None = None,
@@ -168,6 +171,7 @@ def ingest(
             "index_levels",
             "snapshots",
             "financials",
+            "history_bars",
         )
     }
     lock = threading.Lock()
@@ -350,6 +354,41 @@ def ingest(
             continue
         report.rows["market_bars"] += db.upsert_bars(symbol, [bar], f"{SOURCE}/indices")
 
+    # 3b ------------------------------------------------- full daily history
+    # ``POST /historical`` returns every published daily bar for one symbol. This is
+    # the only route that carries real history — the constituent table has one day
+    # and no intraday range — so it is what turns the mirror into a time series.
+    history_targets = list(constituent_set)
+    if history_limit is not None:
+        history_targets = history_targets[: max(0, history_limit)]
+    if include_history and history_targets:
+        log(f"daily history: {len(history_targets)} symbols")
+
+        def fetch_history(symbol: str) -> tuple[str, str | None]:
+            try:
+                page = client.history(symbol)
+            except PortalError as exc:
+                return symbol, f"{symbol}: {exc}"
+            try:
+                bars = parse_history(page.body, symbol)
+            except ParseError as exc:
+                return symbol, f"{symbol}: {exc}"
+            except Exception as exc:  # pragma: no cover - defensive
+                return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
+            with lock:
+                _log_raw(db, report.run_id, page, keep_body=False)
+                report.rows["history_bars"] += db.upsert_bars(
+                    symbol, bars, f"{SOURCE}/historical"
+                )
+            return symbol, None
+
+        with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+            futures = {pool.submit(fetch_history, symbol): symbol for symbol in history_targets}
+            for future in as_completed(futures):
+                symbol, error = future.result()
+                if error:
+                    fail(f"history: {error}")
+
     # 4 -------------------------------------------------- company snapshots
     company_targets = list(constituent_set)
     if company_limit is not None:
@@ -471,6 +510,7 @@ def ingest_from_capture(
     *,
     indices: Sequence[str] = DEFAULT_INDICES,
     include_company_pages: bool = True,
+    include_history: bool = True,
     log: Callable[[str], None] = print,
 ) -> IngestReport:
     """Ingest from a saved capture directory (no network access at all)."""
@@ -482,6 +522,7 @@ def ingest_from_capture(
         db,
         indices=indices,
         include_company_pages=include_company_pages,
+        include_history=include_history,
         workers=1,
         log=log,
     )
