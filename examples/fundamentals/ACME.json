@@ -1,0 +1,89 @@
+{
+  "_comment": "Example input for the JSON fundamentals provider. Fictional company. All figures in millions of USD except eps/price/dividend_per_share. Copy this file (or an aggregate companies.json) into STRATA_RESEARCH_DATA_DIR.",
+  "companies": [
+    {
+      "profile": {
+        "ticker": "ACME",
+        "name": "Acme Industrial Systems",
+        "sector": "Industrials",
+        "industry": "Machinery",
+        "country": "United States",
+        "currency": "USD",
+        "description": "Makes factory automation equipment and aftermarket service contracts for mid-size manufacturers.",
+        "price": 22.5,
+        "shares_outstanding": 100.0,
+        "dividend_per_share": 0.4,
+        "beta": 1.1,
+        "as_of": "2025-12-31",
+        "data_source": "example-file",
+        "data_quality": "reported"
+      },
+      "fiscal_years": [
+        {
+          "fiscal_year": 2025,
+          "revenue": 1000.0,
+          "gross_profit": 400.0,
+          "operating_income": 120.0,
+          "pretax_income": 110.0,
+          "income_tax_expense": 22.0,
+          "net_income": 88.0,
+          "eps": 0.88,
+          "interest_expense": 12.0,
+          "depreciation_amortization": 40.0,
+          "total_assets": 1500.0,
+          "total_equity": 700.0,
+          "total_debt": 300.0,
+          "cash_and_equivalents": 150.0,
+          "current_assets": 600.0,
+          "current_liabilities": 400.0,
+          "inventory": 200.0,
+          "operating_cash_flow": 140.0,
+          "capex": 50.0
+        },
+        {
+          "fiscal_year": 2024,
+          "revenue": 930.0,
+          "gross_profit": 380.0,
+          "operating_income": 108.0,
+          "pretax_income": 99.0,
+          "income_tax_expense": 20.0,
+          "net_income": 79.0,
+          "eps": 0.79,
+          "interest_expense": 13.0,
+          "depreciation_amortization": 38.0,
+          "total_assets": 1420.0,
+          "total_equity": 660.0,
+          "total_debt": 310.0,
+          "cash_and_equivalents": 140.0,
+          "current_assets": 570.0,
+          "current_liabilities": 390.0,
+          "inventory": 185.0,
+          "operating_cash_flow": 128.0,
+          "capex": 46.0
+        },
+        {
+          "fiscal_year": 2023,
+          "revenue": 870.0,
+          "gross_profit": 362.0,
+          "operating_income": 96.0,
+          "pretax_income": 88.0,
+          "income_tax_expense": 18.0,
+          "net_income": 70.0,
+          "eps": 0.70,
+          "interest_expense": 14.0,
+          "depreciation_amortization": 36.0,
+          "total_assets": 1360.0,
+          "total_equity": 620.0,
+          "total_debt": 320.0,
+          "cash_and_equivalents": 130.0,
+          "current_assets": 540.0,
+          "current_liabilities": 380.0,
+          "inventory": 170.0,
+          "operating_cash_flow": 118.0,
+          "capex": 44.0
+        }
+      ],
+      "peers": ["ROK", "EMR"]
+    }
+  ]
+}

@@ -10,6 +10,42 @@
 
 This project turns our Strata + Qwen3.8-Flash-Next Gyro-S setup into a guided notebook. The default example is `gyro / gyro-s`; other choices must be supported by the installed Strata release.
 
+---
+
+## 🧑‍💼 Strata Research Desk — a team of LLM research agents
+
+This repository also ships **`strata_research`**, a Python backend that runs a team of research
+agents against any OpenAI-compatible model endpoint — including the Strata server this notebook
+starts. **Agent 1, the Fundamental Analyst, is implemented end to end.** The other five
+specialists are declared with their inputs, outputs and tools so the roadmap is explicit.
+
+```bash
+python -m pip install -e ".[api,dev]"
+python -m strata_research --offline analyze NOVA     # no keys needed
+python -m strata_research serve --port 8000          # UI at /ui/, API docs at /docs
+```
+
+| # | Agent | Status | What it does |
+|---|---|---|---|
+| 1 | **Fundamental Analyst** | ✅ available | Statements → deterministic ratios + quality score → LLM note with verdict, thesis, red flags, grounding check |
+| 2 | News & Sentiment Analyst | 🗺️ planned | RAG over filings/transcripts, cited catalysts and tone |
+| 3 | Technical & Market Structure | 🗺️ planned | Trend, volatility, liquidity levels from OHLCV |
+| 4 | Risk & Compliance | 🗺️ planned | Stress tests, position sizing, constraint checks |
+| 5 | Quant & Backtest | 🗺️ planned | Factor construction with walk-forward validation |
+| 6 | Portfolio Manager | 🗺️ planned | Reconciles specialist reports, records dissent |
+
+The design principle: **Python owns the numbers, the LLM owns the narrative.** Ratios, scores and
+red flags are computed deterministically; the model receives them as an evidence pack with five
+read-only tools, must answer in a strict JSON contract, and every figure it writes is re-checked
+against the computed evidence before the report is returned. If the endpoint is unavailable the
+desk still returns the deterministic note instead of failing.
+
+- Full guide: **[docs/research-desk.md](docs/research-desk.md)**
+- Example JSON fundamentals: [examples/fundamentals/ACME.json](examples/fundamentals/ACME.json)
+- Tests: `python -m pytest -q tests/test_research_desk.py` (offline, no credentials)
+
+---
+
 ## 🧠 Which model are we running, and why is it hard to run?
 
 The default example is **Qwen3.8-Flash-Next — Gyro-S**, using Strata's `gyro / gyro-s` model family and variant. It is a large **125-billion-parameter sparse Mixture-of-Experts (MoE) model**, with about **6 billion parameters active for each token**. “6B active” does **not** mean the whole model only occupies the memory of a 6B model: its full weights and supporting data still need to be stored and accessed.
@@ -77,6 +113,7 @@ Opening the notebook imports its code; it does **not** grant access to anyone el
 - **[Open the Kaggle launcher notebook](notebooks/Strata_Kaggle_Launcher.ipynb)**
 - [Kaggle setup checklist](docs/kaggle-setup.md)
 - [OpenCode connection guide](docs/opencode-setup.md)
+- [Strata Research Desk guide](docs/research-desk.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Security policy](SECURITY.md)
 - [Strata official setup guide](https://github.com/Niko1221/Strata/blob/main/docs/AI_SETUP.md)
@@ -301,6 +338,8 @@ Keep the Kaggle runtime and tunnel running while using OpenCode. Quick Tunnel UR
 | Tunnel unavailable | Confirm local health, `cloudflared` is running, and the URL is current. |
 | OpenCode 401 | Check the local key file and provider config without printing the key. |
 | OpenCode hangs | Test authenticated `/v1/models` and `/v1/chat/completions`, inspect logs, and check model context limits. |
+| Research desk says `template_llm` | No `STRATA_API_KEY` (or key file) was found, so the offline rules engine answered. Export the key or point `STRATA_BASE_URL` at your Strata tunnel. |
+| Research desk returns `INSUFFICIENT_DATA` | Evidence coverage is below 35% or price/share count is missing, so valuation cannot be grounded. Add a JSON fundamentals provider for that ticker. |
 
 ## 🧪 Development and tests
 
@@ -309,7 +348,12 @@ Run the helper tests locally:
 ```bash
 python -m pip install --upgrade pytest
 python -m compileall -q scripts tests
-python -m pytest -q
+python -m pytest -q tests/test_strata_kaggle.py
+
+# Research desk (agents + API). No API key or network required.
+python -m pip install -e ".[api,dev]"
+python -m pytest -q tests/test_research_desk.py
+python -m strata_research --offline brief HELX
 ```
 
 Unit tests do not replace a clean Kaggle integration test. Validate first run, private uploads, fresh-session restore, no-key rejection, authenticated generation, six-hour monitoring, and OpenCode connectivity.

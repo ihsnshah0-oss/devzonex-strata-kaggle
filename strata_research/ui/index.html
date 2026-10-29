@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Strata Research Desk — Fundamental Analyst</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131a2e;
+    --panel-2: #1a2338;
+    --border: #26314d;
+    --text: #e8edf7;
+    --muted: #93a1bd;
+    --accent: #46e0b0;
+    --accent-2: #6aa9ff;
+    --warn: #ffb020;
+    --danger: #ff6b6b;
+    --radius: 14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 600px at 15% -10%, #16233f 0%, var(--bg) 55%) no-repeat, var(--bg);
+    color: var(--text);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  a { color: var(--accent-2); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 26px 20px 60px; }
+  header.top { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(140deg, var(--accent) 0%, var(--accent-2) 100%);
+    display: grid; place-items: center; color: #061018; font-weight: 800; font-size: 18px;
+  }
+  h1 { font-size: 19px; margin: 0; letter-spacing: .2px; }
+  .sub { color: var(--muted); font-size: 12.5px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    border: 1px solid var(--border); background: var(--panel);
+    padding: 5px 11px; border-radius: 999px; font-size: 12px; color: var(--muted);
+  }
+  .pill b { color: var(--text); font-weight: 600; }
+  .pill.ok { border-color: #1f6f57; color: #8ef0cf; }
+  .pill.warn { border-color: #6b511b; color: #ffcf7a; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 20px; align-items: start; }
+  @media (max-width: 980px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 18px; margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; }
+  .panel h3 { font-size: 14px; margin: 18px 0 6px; color: var(--text); }
+  .panel h3:first-of-type { margin-top: 4px; }
+  form.run { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  label.field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--muted); }
+  input, select {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px; font-size: 14px; min-width: 150px;
+    font-family: inherit;
+  }
+  input#ticker { text-transform: uppercase; width: 130px; font-family: var(--mono); letter-spacing: .06em; }
+  button {
+    background: linear-gradient(140deg, var(--accent) 0%, #35c9a1 100%);
+    color: #04120d; border: 0; border-radius: 10px; padding: 11px 20px;
+    font-weight: 700; font-size: 14px; cursor: pointer; transition: transform .08s ease, opacity .2s;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:disabled { opacity: .55; cursor: progress; transform: none; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+  .hint code, code { font-family: var(--mono); background: #0d1527; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--border); }
+  .verdict-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+  .verdict { font-size: 30px; font-weight: 800; letter-spacing: .5px; }
+  .verdict.BUY { color: var(--accent); }
+  .verdict.SELL { color: var(--danger); }
+  .verdict.HOLD { color: var(--warn); }
+  .verdict.INSUFFICIENT_DATA { color: var(--muted); font-size: 22px; }
+  .company { font-size: 17px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 12.5px; }
+  .bignum { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 12px; }
+  .bignum div { min-width: 88px; }
+  .bignum .k { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .bignum .v { font-size: 20px; font-weight: 700; font-family: var(--mono); }
+  ul.clean { margin: 6px 0 0; padding-left: 18px; }
+  ul.clean li { margin: 4px 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #202a44; }
+  th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; }
+  td.num, th.num { text-align: right; font-family: var(--mono); }
+  tr:hover td { background: #16203a; }
+  .bars { display: flex; flex-direction: column; gap: 9px; }
+  .bar { display: grid; grid-template-columns: 150px 1fr 48px; gap: 10px; align-items: center; font-size: 13px; }
+  .track { background: #0e1729; border-radius: 999px; height: 9px; overflow: hidden; border: 1px solid #1e293f; }
+  .fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+  .flags li { color: #ffd0d0; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .badge.ok { border-color: #1f6f57; color: #8ef0cf; }
+  .badge.bad { border-color: #7a2b2b; color: #ffb3b3; }
+  .agents { display: flex; flex-direction: column; gap: 10px; }
+  .agent { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--panel-2); }
+  .agent .t { font-size: 13.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .agent .d { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .agent.planned { opacity: .72; }
+  .error { border: 1px solid #7a2b2b; background: #241318; color: #ffc9c9; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 13.5px; white-space: pre-wrap; }
+  details.raw { margin-top: 6px; }
+  details.raw summary { cursor: pointer; color: var(--muted); font-size: 12.5px; }
+  pre { background: #0a1222; border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow: auto; font-size: 12px; max-height: 420px; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 26px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid #04120d55; border-top-color: #04120d; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 7px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">SR</div>
+      <div>
+        <h1>Strata Research Desk</h1>
+        <div class="sub">Python backend · agent #1: Fundamental Analyst · LLM-narrated, deterministic maths</div>
+      </div>
+    </div>
+    <div class="pills" id="statusPills">
+      <span class="pill">connecting…</span>
+    </div>
+  </header>
+
+  <div class="panel">
+    <h2>Run an analysis</h2>
+    <form class="run" id="runForm">
+      <label class="field">Ticker
+        <input id="ticker" value="NOVA" maxlength="12" autocomplete="off" spellcheck="false" />
+      </label>
+      <label class="field">Focus
+        <select id="focus">
+          <option>balanced fundamental view</option>
+          <option>margin durability</option>
+          <option>growth quality</option>
+          <option>balance sheet risk</option>
+          <option>valuation vs quality</option>
+          <option>cash conversion</option>
+        </select>
+      </label>
+      <label class="field">Horizon
+        <select id="horizon">
+          <option>12-24 months</option>
+          <option>6-12 months</option>
+          <option>3-5 years</option>
+        </select>
+      </label>
+      <button id="runBtn" type="submit">Analyse</button>
+      <button id="previewBtn" type="button" style="background:#1d2a45;color:var(--text);border:1px solid var(--border)">Deterministic preview</button>
+    </form>
+    <div class="hint">
+      Offline demo universe: <code>NOVA</code> (quality compounder), <code>HELX</code> (defensive cash generator),
+      <code>ARCL</code> (leveraged retailer). These companies are fictional. Add a real data provider or
+      <code>STRATA_API_KEY</code> for live tickers.
+    </div>
+  </div>
+
+  <div id="error" class="error hidden"></div>
+
+  <div class="grid">
+    <main id="results">
+      <div class="panel" id="placeholder">
+        <h2>Waiting</h2>
+        <p class="meta">Choose a ticker and run the analyst. The backend fetches statements, computes ratios and a
+        quality score, drafts a deterministic view, then asks the LLM to write the note. Every number in the
+        narrative is checked against the computed evidence.</p>
+      </div>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h2>Agent roster</h2>
+        <div class="agents" id="agentList"><div class="meta">loading…</div></div>
+      </div>
+      <div class="panel">
+        <h2>Analyst tools</h2>
+        <div id="toolList" class="meta">loading…</div>
+      </div>
+      <div class="panel">
+        <h2>Data providers</h2>
+        <div id="providerList" class="meta">loading…</div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    Automated research output for educational purposes only — not investment advice. Deterministic metrics are
+    computed server-side; the narrative is generated by a language model and validated for numeric grounding.
+  </footer>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (v, d = 1) => (v === null || v === undefined) ? "n/a" : (v * 100).toFixed(d) + "%";
+const mult = (v, d = 1) => (v === null || v === undefined) ? "n/a" : v.toFixed(d) + "x";
+const num = (v, d = 0) => (v === null || v === undefined) ? "n/a" : Number(v).toLocaleString(undefined, {maximumFractionDigits: d, minimumFractionDigits: d});
+const money = (v, ccy = "", d = 0) => (v === null || v === undefined) ? "n/a" : (ccy ? ccy + " " : "") + num(v, d) + "M";
+const score = (v) => (v === null || v === undefined) ? "n/a" : Math.round(v) + "/100";
+
+function showError(message) {
+  const box = $("error");
+  box.textContent = message;
+  box.classList.remove("hidden");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function clearError() { $("error").classList.add("hidden"); }
+
+async function api(path, options) {
+  const response = await fetch(path, options);
+  const text = await response.text();
+  let payload = null;
+  try { payload = text ? JSON.parse(text) : null; } catch (e) { payload = { detail: text }; }
+  if (!response.ok) {
+    const detail = payload && payload.detail ? payload.detail : response.statusText;
+    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+  }
+  return payload;
+}
+
+async function loadStatus() {
+  try {
+    const status = await api("/api/v1/status");
+    const s = status.settings;
+    const pills = [
+      `<span class="pill ok">LLM: <b>${esc(s.llm_kind === "template" ? "offline rules" : s.llm_kind)}</b></span>`,
+      `<span class="pill">model: <b>${esc(s.model)}</b></span>`,
+      `<span class="pill${s.api_key === "<unset>" ? " warn" : ""}">key: <b>${esc(s.api_key)}</b></span>`,
+      `<span class="pill">provider: <b>${esc(s.data_provider)}</b></span>`,
+      `<span class="pill">v${esc(status.version)}</span>`
+    ];
+    $("statusPills").innerHTML = pills.join("");
+    $("providerList").innerHTML = status.providers.map((p) =>
+      `<div>${esc(p.name)} — ${p.available ? '<span class="badge ok">ready</span>' : '<span class="badge">unavailable</span>'}${p.requires_network ? ' <span class="badge">network</span>' : ""}</div>`
+    ).join("");
+  } catch (error) {
+    $("statusPills").innerHTML = `<span class="pill warn">backend unreachable</span>`;
+  }
+}
+
+async function loadAgents() {
+  try {
+    const data = await api("/api/v1/agents");
+    $("agentList").innerHTML = data.agents.map((agent) => `
+      <div class="agent ${agent.status === "available" ? "" : "planned"}">
+        <div class="t"><span>${esc(agent.title)}</span>
+          <span class="badge ${agent.status === "available" ? "ok" : ""}">${esc(agent.status)}</span></div>
+        <div class="d">${esc(agent.description)}</div>
+      </div>`).join("");
+    $("toolList").innerHTML = data.tools.map((tool) =>
+      `<div><code>${esc(tool.name)}</code> — ${esc(tool.description)}</div>`).join("");
+  } catch (error) {
+    $("agentList").innerHTML = `<div class="meta">unavailable</div>`;
+  }
+}
+
+function ratioRows(report) {
+  const r = report.ratios;
+  const ccy = report.profile.currency;
+  const rows = [
+    ["Market cap", money(r.market_cap, ccy)],
+    ["Enterprise value", money(r.enterprise_value, ccy)],
+    ["Net debt", money(r.net_debt, ccy)],
+    ["EBITDA", money(r.ebitda, ccy)],
+    ["Revenue growth YoY", pct(r.revenue_growth_yoy)],
+    ["EPS growth YoY", pct(r.eps_growth_yoy)],
+    ["Revenue CAGR", pct(r.revenue_cagr)],
+    ["EPS CAGR", pct(r.eps_cagr)],
+    ["Gross margin", pct(r.gross_margin)],
+    ["Operating margin", pct(r.operating_margin)],
+    ["Net margin", pct(r.net_margin)],
+    ["ROE", pct(r.roe)],
+    ["ROIC", pct(r.roic)],
+    ["Current ratio", mult(r.current_ratio, 2)],
+    ["Debt / equity", mult(r.debt_to_equity, 2)],
+    ["Net debt / EBITDA", mult(r.net_debt_to_ebitda)],
+    ["Interest coverage", mult(r.interest_coverage)],
+    ["Free cash flow", money(r.fcf, ccy)],
+    ["FCF margin", pct(r.fcf_margin)],
+    ["FCF conversion", pct(r.fcf_conversion)],
+    ["P/E", mult(r.pe)],
+    ["P/S", mult(r.ps)],
+    ["P/B", mult(r.pb)],
+    ["EV/EBITDA", mult(r.ev_ebitda)],
+    ["FCF yield", pct(r.fcf_yield)],
+    ["Dividend yield", pct(r.dividend_yield)],
+    ["Payout ratio", pct(r.payout_ratio)]
+  ];
+  return rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${esc(v)}</td></tr>`).join("");
+}
+
+function pillarBars(report) {
+  return report.scores.pillars.map((p) => `
+    <div class="bar">
+      <div>${esc(p.label)}</div>
+      <div class="track"><div class="fill" style="width:${Math.max(2, Math.min(100, p.score))}%"></div></div>
+      <div class="num">${Math.round(p.score)}</div>
+    </div>`).join("");
+}
+
+function list(items) {
+  if (!items || !items.length) return `<div class="meta">none</div>`;
+  return `<ul class="clean">${items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>`;
+}
+
+function renderReport(report) {
+  const a = report.analysis;
+  const p = report.profile;
+  const ccy = p.currency;
+  const warnings = (report.warnings || []).map((w) => `<div class="meta">! ${esc(w)}</div>`).join("");
+  const toolRows = (report.tool_calls || []).length
+    ? `<table><thead><tr><th>Tool</th><th>Status</th><th class="num">ms</th><th>Summary</th></tr></thead><tbody>
+        ${report.tool_calls.map((t) => `<tr><td><code>${esc(t.tool)}</code></td>
+          <td><span class="badge ${t.ok ? "ok" : "bad"}">${t.ok ? "ok" : "failed"}</span></td>
+          <td class="num">${t.duration_ms}</td><td>${esc(t.summary || t.error || "")}</td></tr>`).join("")}
+      </tbody></table>`
+    : `<div class="meta">No tool calls — the evidence pack was sufficient.</div>`;
+  const grounding = report.grounding || { checked: 0, unverified: [], grounded: true };
+
+  $("results").innerHTML = `
+    <div class="panel">
+      <div class="verdict-head">
+        <div>
+          <div class="company">${esc(p.name)} <span class="meta">(${esc(p.ticker)})</span></div>
+          <div class="meta">${esc(p.sector || "n/a")} · ${esc(p.industry || "n/a")} · ${esc(p.currency)} ·
+            ${esc(p.data_quality)} data from ${esc(p.data_source)}</div>
+        </div>
+        <div class="verdict ${esc(a.verdict)}">${esc(a.verdict)}</div>
+      </div>
+      <div class="bignum">
+        <div><div class="k">Conviction</div><div class="v">${a.conviction.toFixed(2)}</div></div>
+        <div><div class="k">Data confidence</div><div class="v">${a.confidence.toFixed(2)}</div></div>
+        <div><div class="k">Quality score</div><div class="v">${Math.round(report.scores.overall)}</div></div>
+        <div><div class="k">Grade</div><div class="v">${esc(report.scores.grade)}</div></div>
+        <div><div class="k">Red flags</div><div class="v">${report.scores.red_flags.length}</div></div>
+        <div><div class="k">Price</div><div class="v">${p.price === null ? "n/a" : p.price.toFixed(2)}</div></div>
+      </div>
+      <div class="meta" style="margin-top:10px">mode <b>${esc(report.mode)}</b> · model <b>${esc(report.model)}</b> ·
+        ${report.request.llm_calls || 0} LLM call(s) · ${(report.duration_ms / 1000).toFixed(1)}s</div>
+      ${warnings}
+    </div>
+
+    <div class="panel">
+      <h2>Summary</h2>
+      <p>${esc(a.summary)}</p>
+      <h3>Investment thesis</h3>
+      <p>${esc(a.investment_thesis)}</p>
+      <h3>Valuation view</h3>
+      <p>${esc(a.valuation_view)}</p>
+      <h3>Growth view</h3>
+      <p>${esc(a.growth_view)}</p>
+      <h3>Moat / durability</h3>
+      <p>${esc(a.moat)}</p>
+    </div>
+
+    <div class="panel">
+      <h2>Case for and against</h2>
+      <div class="cols">
+        <div><h3>Strengths</h3>${list(a.strengths)}</div>
+        <div><h3>Risks</h3>${list(a.risks)}</div>
+      </div>
+      <h3>Red flags (rule engine)</h3>
+      <div class="flags">${list(a.red_flags && a.red_flags.length ? a.red_flags : report.scores.red_flags)}</div>
+      <h3>Watch list</h3>
+      ${list(a.watch_items)}
+    </div>
+
+    <div class="panel">
+      <h2>Deterministic ratios</h2>
+      <table><thead><tr><th>Metric</th><th class="num">Value</th></tr></thead>
+        <tbody>${ratioRows(report)}</tbody></table>
+      ${report.ratios.notes && report.ratios.notes.length ? `<div class="hint">${report.ratios.notes.map(esc).join(" ")}</div>` : ""}
+    </div>
+
+    <div class="panel">
+      <h2>Quality score · ${Math.round(report.scores.overall)}/100 — ${esc(report.scores.grade)} ${esc(report.scores.label)}</h2>
+      <div class="bars">${pillarBars(report)}</div>
+      <div class="hint">Rule-based prior computed before the LLM runs. Component coverage ${(report.scores.coverage * 100).toFixed(0)}%.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Audit trail</h2>
+      <div class="meta" style="margin-bottom:8px">
+        Grounding: <span class="badge ${grounding.grounded ? "ok" : "bad"}">${grounding.grounded ? "verified" : "unverified figures"}</span>
+        ${grounding.checked} figures checked${grounding.unverified.length ? " · " + esc(grounding.unverified.join(", ")) : ""}
+      </div>
+      ${toolRows}
+      <details class="raw"><summary>Raw report JSON</summary><pre>${esc(JSON.stringify(report, null, 2))}</pre></details>
+    </div>`;
+}
+
+async function runAnalysis(event) {
+  if (event) event.preventDefault();
+  clearError();
+  const button = $("runBtn");
+  const ticker = $("ticker").value.trim().toUpperCase();
+  if (!ticker) { showError("Enter a ticker."); return; }
+  button.disabled = true;
+  button.innerHTML = `<span class="spinner"></span>Working…`;
+  try {
+    const report = await api("/api/v1/agents/fundamental/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticker, focus: $("focus").value, horizon: $("horizon").value })
+    });
+    renderReport(report);
+  } catch (error) {
+    showError("Analysis failed: " + error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Analyse";
+  }
+}
+
+async function runPreview() {
+  clearError();
+  const active = $("previewBtn");
+  const ticker = $("ticker").value.trim().toUpperCase();
+  active.disabled = true;
+  try {
+    const data = await api(`/api/v1/companies/${encodeURIComponent(ticker)}/preview`);
+    const scores = data.scores;
+    $("results").innerHTML = `
+      <div class="panel">
+        <div class="verdict-head">
+          <div><div class="company">${esc(data.profile.name)} <span class="meta">(${esc(data.profile.ticker)})</span></div>
+          <div class="meta">Deterministic snapshot — no LLM call, no tokens spent.</div></div>
+          <div class="verdict">${Math.round(scores.overall)}/100</div>
+        </div>
+        <div class="bignum">
+          <div><div class="k">Grade</div><div class="v">${esc(scores.grade)}</div></div>
+          <div><div class="k">P/E</div><div class="v">${mult(data.ratios.pe)}</div></div>
+          <div><div class="k">ROIC</div><div class="v">${pct(data.ratios.roic)}</div></div>
+          <div><div class="k">Net margin</div><div class="v">${pct(data.ratios.net_margin)}</div></div>
+          <div><div class="k">Net debt/EBITDA</div><div class="v">${mult(data.ratios.net_debt_to_ebitda)}</div></div>
+        </div>
+      </div>
+      <div class="panel"><h2>Quality pillars</h2><div class="bars">${scores.pillars.map((p) => `
+        <div class="bar"><div>${esc(p.label)}</div>
+        <div class="track"><div class="fill" style="width:${Math.max(2, Math.min(100, p.score))}%"></div></div>
+        <div class="num">${Math.round(p.score)}</div></div>`).join("")}</div></div>
+      <div class="panel"><h2>Red flags</h2><div class="flags">${list(scores.red_flags)}</div></div>
+      <div class="panel"><h2>Ratios</h2>
+        <table><thead><tr><th>Metric</th><th class="num">Value</th></tr></thead><tbody>
+        ${Object.entries(data.ratios).filter(([k, v]) => typeof v === "number").map(([k, v]) =>
+          `<tr><td>${esc(k.replaceAll("_", " "))}</td><td class="num">${v.toFixed(3)}</td></tr>`).join("")}
+        </tbody></table></div>
+      <div class="panel"><h2>Raw</h2><details class="raw"><summary>Preview JSON</summary><pre>${esc(JSON.stringify(data, null, 2))}</pre></details></div>`;
+  } catch (error) {
+    showError("Preview failed: " + error.message);
+  } finally {
+    active.disabled = false;
+  }
+}
+
+$("runForm").addEventListener("submit", runAnalysis);
+$("previewBtn").addEventListener("click", runPreview);
+loadStatus();
+loadAgents();
+runPreview();   // free, deterministic: never spends model tokens on page load
+</script>
+</body>
+</html>

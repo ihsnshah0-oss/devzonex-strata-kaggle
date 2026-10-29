@@ -8,16 +8,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
+  kaggle-helpers:
+    name: Kaggle launcher helpers
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install test runner
-        run: python -m pip install --upgrade pip pytest
+      - name: Install launcher dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt pytest
       - name: Validate Python syntax
         run: python -m compileall -q scripts tests
-      - name: Run tests
-        run: python -m pytest -q
+      - name: Run launcher tests
+        run: python -m pytest -q tests/test_strata_kaggle.py
+
+  research-desk:
+    name: Research desk (agents + API)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install desk dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[api,dev]"
+      - name: Compile check
+        run: python -m compileall -q strata_research tests
+      - name: Run research desk tests (offline, no API keys)
+        run: python -m pytest -q tests/test_research_desk.py
+      - name: Offline CLI smoke test
+        run: |
+          python -m strata_research --offline status
+          python -m strata_research --offline analyze NOVA --json > /dev/null
+          python -m strata_research --offline brief HELX > /dev/null
