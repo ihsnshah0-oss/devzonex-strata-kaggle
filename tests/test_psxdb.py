@@ -516,6 +516,33 @@ def test_client_headers_look_like_a_browser():
         client.close()
 
 
+def test_client_recovers_when_the_portal_drops_a_keep_alive_socket(monkeypatch):
+    """The portal closes idle connections; the retry must dial a fresh one."""
+    import httpx as httpx_module
+
+    attempts = {"count": 0}
+
+    def flaky_get(self, url, *args, **kwargs):
+        attempts["count"] += 1
+        if attempts["count"] == 1:
+            raise httpx_module.RemoteProtocolError(
+                "Server disconnected without sending a response."
+            )
+        return httpx_module.Response(
+            200, text="<html><table></table></html>", request=httpx_module.Request("GET", url)
+        )
+
+    monkeypatch.setattr(httpx_module.Client, "get", flaky_get)
+    client = PsxPortalClient(min_interval=0, retries=3)
+    try:
+        response = client.screener()
+    finally:
+        client.close()
+    assert response.status == 200
+    assert attempts["count"] == 2          # one failure, one retry
+    assert response.body.startswith("<html>")
+
+
 def test_client_exposes_only_routes_the_portal_still_serves():
     """The withdrawn JSON routes must not be presented as an API."""
     for name in ("symbols", "market_watch", "eod", "intraday", "historical_month"):

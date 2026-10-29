@@ -52,7 +52,6 @@ BROWSER_HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": f"{DEFAULT_BASE_URL}/",
     "Upgrade-Insecure-Requests": "1",
-    "Connection": "keep-alive",
 }
 
 #: Statuses worth another attempt (429/469 are the portal's rate-limit answers).
@@ -137,7 +136,7 @@ class PsxPortalClient:
             self._client = httpx.Client(
                 timeout=self.timeout,
                 follow_redirects=True,
-                headers={**self.headers, "Origin": self.base_url},
+                headers=dict(self.headers),
             )
         return self._client
 
@@ -167,6 +166,9 @@ class PsxPortalClient:
                 last_error = PortalError(
                     f"{endpoint}: {type(exc).__name__}: {exc}", url=url
                 )
+                # The portal closes idle keep-alive sockets, and httpx will happily
+                # hand back the dead one: drop the pool so the retry dials afresh.
+                self.close()
             else:
                 elapsed = time.perf_counter() - started
                 if response.status_code == 200:
@@ -190,13 +192,23 @@ class PsxPortalClient:
                 if response.status_code not in RETRY_STATUSES:
                     break
             if attempt + 1 < attempts:
-                backoff = min(8.0, 0.6 * (2**attempt)) + random.uniform(0, 0.4)
+                backoff = min(15.0, 1.5 * (2**attempt)) + random.uniform(0, 0.5)
                 time.sleep(backoff)
         if last_error is not None:
             raise last_error
         raise PortalError(f"{endpoint}: request failed without a response", url=url)
 
     # ---------------------------------------------------------------- endpoints
+    def warmup(self) -> PortalResponse | None:
+        """Fetch ``/`` once so the portal's session cookie is in place.
+
+        Failure is not fatal: every later request reports its own error.
+        """
+        try:
+            return self.home()
+        except PortalError:
+            return None
+
     def home(self) -> PortalResponse:
         """``GET /`` — the portal home page."""
         return self._request("home", "/")

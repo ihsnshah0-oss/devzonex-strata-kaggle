@@ -167,6 +167,13 @@ def ingest(
         report.errors.append(message)
         log(f"error: {message}")
 
+    # -1 ----------------------------------------------------------- warm-up
+    # The portal sets its session cookie on the home page and closes idle
+    # keep-alive sockets; a single polite request first makes the rest reliable.
+    warm = getattr(client, "warmup", None)
+    if callable(warm):
+        warm()
+
     # 0 ------------------------------------------------------- trading date
     target_date = as_of
     if target_date is None:
