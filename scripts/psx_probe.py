@@ -39,11 +39,30 @@ BROWSER = {
     "Upgrade-Insecure-Requests": "1",
 }
 
+#: A modern Chrome sends Sec-Fetch-* and sec-ch-ua on XHR; several WAFs only
+#: let same-origin JSON through when they are present and consistent.
+SEC_FETCH = {
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin",
+    "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+}
+
 VARIANTS = {
     "browser": BROWSER,
     "plain": {k: v for k, v in BROWSER.items() if k not in {"Origin", "Referer"}},
-    "xhr": {**BROWSER, "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json, text/javascript, */*; q=0.01"},
+    "json": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01"},
+    "json-xrw": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01",
+                 "X-Requested-With": "XMLHttpRequest"},
+    "doc-nav": {**BROWSER, "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "same-origin"},
+    "referer-company": {**BROWSER, **SEC_FETCH, "Accept": "application/json",
+                        "Referer": f"{BASE}/company/{SAMPLE}"},
+    "jquery-json": {**BROWSER, **SEC_FETCH, "Accept": "application/json, text/javascript, */*; q=0.01",
+                    "X-Requested-With": "XMLHttpRequest", "Referer": f"{BASE}/",
+                    "Cache-Control": "no-cache", "Pragma": "no-cache"},
 }
 
 PAGES = ["/", "/indices", "/screener", "/historical", "/downloads"]
@@ -51,16 +70,22 @@ PAGES = ["/", "/indices", "/screener", "/historical", "/downloads"]
 #: paths to try, with {symbol} substituted; prefix variants cover the portal's
 #: own "/shariah" | "/sukuk" prefixes and a possible "/dps" mount point.
 ROUTES = [
-    "/symbols",
-    "/market-watch",
     "/timeseries/eod/{symbol}",
-    "/historical?symbol={symbol}&month=09&year=2026",
-    "/historical?symbol={symbol}",
+    "/timeseries/eod/{symbol}.json",
+    "/timeseries/eod/{symbol}?",
+    "/timeseries/eod/{symbol}?v=1.80",
+    "/timeseries/eod/{symbol}/1",
+    "/timeseries?type=eod&symbol={symbol}",
+    "/timeseries/eod",
+    "/timeseries/int/{symbol}",
+    "/symbols",
+    "/symbols.json",
+    "/symbols?",
+    "/market-watch",
+    "/market-watch?",
+    "/market-watch?type=stocks",
+    "/api/v1/symbols",
     "/company/{symbol}",
-    "/dps/timeseries/eod/{symbol}",
-    "/portal/timeseries/eod/{symbol}",
-    "/symbols/all",
-    "/market-watch/all",
 ]
 
 AJAX_RE = re.compile(r"\$\.(?:ajax|get|post|getJSON)\s*\(|\bfetch\s*\(|XMLHttpRequest")
@@ -182,15 +207,22 @@ def main() -> int:
 
         if script:
             calls = _ajax_calls(script)
+            extract = [
+                "### getUrl contexts\n" + "\n\n".join(_functions_named(script, "getUrl", window=600)),
+                "### psxPortal contexts\n" + "\n\n".join(_functions_named(script, "psxPortal", window=500)),
+                "### /timeseries/ contexts\n" + "\n\n".join(_functions_named(script, "/timeseries/", window=500)),
+            ]
             Path(args.calls).parent.mkdir(parents=True, exist_ok=True)
-            Path(args.calls).write_text("\n\n".join(calls), encoding="utf-8")
+            Path(args.calls).write_text(
+                "\n\n".join(extract) + "\n\n=== AJAX call sites ===\n\n" + "\n\n".join(calls),
+                encoding="utf-8",
+            )
             report["js"] = {
                 "bytes": len(script),
                 "ajax_calls": len(calls),
-                "getUrl_def": _functions_named(script, "getUrl:"),
-                "prefix_logic": _functions_named(script, "psxPortal.prefix"),
-                "timeseries_fn": _functions_named(script, "/timeseries/"),
-                "historical_fn": _functions_named(script, "psx.page.Historical"),
+                "getUrl_def": _functions_named(script, "getUrl", window=600),
+                "prefix_logic": _functions_named(script, "psxPortal", window=500),
+                "timeseries_fn": _functions_named(script, "/timeseries/", window=500),
             }
 
         for route in ROUTES:
