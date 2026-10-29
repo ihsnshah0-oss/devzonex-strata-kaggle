@@ -25,6 +25,7 @@ company pairs: 60
    'LDCP'                           -> '304.52'
    'Volume'                         -> '1,149,000'
    'Total Trades'                   -> '414'
+no history sample (status=200, rows=0)
 token: {'found': True, 'length': 43, 'home_bytes': 96487, 'home_has_window_ps': True}
    history_plain          404 bytes=47734 type=text/html; charset=utf-8 tables=None rows=None json_len=None
       says:    Not Found - Pakistan Stock Exchange (PSX) window.__ps = {"lc":"en","tz":"Asia/Karachi","_k":"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI","rv":"1"}; window.psxP
