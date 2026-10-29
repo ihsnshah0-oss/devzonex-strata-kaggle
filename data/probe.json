@@ -1,5 +1,5 @@
 {
-  "probed_at": "2026-10-29T21:22:29+00:00",
+  "probed_at": "2026-10-29T21:23:25+00:00",
   "base": "https://dps.psx.com.pk",
   "token": {
     "found": true,
@@ -8,34 +8,153 @@
     "home_has_window_ps": true
   },
   "data_routes": {
-    "history_without_token": {
+    "history_plain": {
       "method": "POST",
       "path": "/historical",
       "status": 404,
       "bytes": 47734,
-      "content_type": "text/html; charset=utf-8"
+      "content_type": "text/html; charset=utf-8",
+      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:23 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
     },
-    "history_with_token": {
+    "history_token": {
       "method": "POST",
       "path": "/historical",
       "status": 404,
       "bytes": 47734,
-      "content_type": "text/html; charset=utf-8"
+      "content_type": "text/html; charset=utf-8",
+      "body_head": "Not Found - Pakistan Stock Exchange (PSX) window.__ps = {\"lc\":\"en\",\"tz\":\"Asia/Karachi\",\"_k\":\"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI\",\"rv\":\"1\"}; window.psxPortal = {\"name\":\"dps\",\"prefix\":\"\"}; Oct 30, 2026 2:23 AM SHARIAH PORTAL SUKUK PORTAL KNOWLEDGE CENTER CORPORATE WEBSITE Symbols Website My P"
     },
-    "symbols_with_token": {
-      "method": "GET",
-      "path": "/symbols",
-      "status": 404,
-      "bytes": 47731,
-      "content_type": "text/html; charset=utf-8"
+    "history_token_xhr": {
+      "method": "POST",
+      "path": "/historical",
+      "status": 200,
+      "bytes": 497628,
+      "content_type": "text/html; charset=utf-8",
+      "table": {
+        "tables": 1,
+        "headers": [
+          "DATE",
+          "OPEN",
+          "HIGH",
+          "LOW",
+          "CLOSE",
+          "VOLUME"
+        ],
+        "first_row": [
+          "Oct 29, 2026",
+          "306.00",
+          "307.99",
+          "303.00",
+          "306.21",
+          "2,584,565"
+        ],
+        "rows": 2480,
+        "raw_first_row": "<tr><td data-order=\"1793271600\">Oct 29, 2026</td><td class=\"right\">306.00</td><td class=\"right\">307.99</td><td class=\"right\">303.00</td><td class=\"right\">306.21</td><td class=\"right\">2,584,565</td></tr>"
+      }
     },
-    "symbols_json_with_token": {
+    "history_xhr_only": {
+      "method": "POST",
+      "path": "/historical",
+      "status": 403,
+      "bytes": 0,
+      "content_type": null,
+      "body_head": ""
+    },
+    "symbols_token_xhr": {
       "method": "GET",
       "path": "/symbols",
       "status": 200,
       "bytes": 136853,
       "content_type": "application/json; charset=utf-8",
-      "json_head": "[{\"symbol\":\"AKBLTFC6\",\"name\":\"Askari Bank(TFC6)\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC6\",\"name\":\"Bank Al-Falah(TFC6\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC8\",\"name\":\"Bank Alfalah(TFC8)\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC9\",\"name\":\"Bank Alfalah Limited\",\"sectorName\":\"BILLS AN"
+      "json_head": "[{\"symbol\":\"AKBLTFC6\",\"name\":\"Askari Bank(TFC6)\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC6\",\"name\":\"Bank Al-Falah(TFC6\",\"sectorName\":\"BILLS AND BONDS\",\"isETF\":false,\"isDebt\":true},{\"symbol\":\"BAFLTFC8\",\"name\":\"Bank Alfalah(TFC8)\",\"sectorName\":\"BILLS AND BONDS\",\"i",
+      "json_type": "list",
+      "json_len": 1052,
+      "json_sample": {
+        "symbol": "AKBLTFC6",
+        "name": "Askari Bank(TFC6)",
+        "sectorName": "BILLS AND BONDS",
+        "isETF": false,
+        "isDebt": true
+      }
+    },
+    "timeseries_eod": {
+      "method": "GET",
+      "path": "/timeseries/eod/OGDC",
+      "status": 200,
+      "bytes": 41185,
+      "content_type": "application/json; charset=utf-8",
+      "json_head": "{\"status\":1,\"message\":\"\",\"data\":[[1793271600,306.2,2584565,306],[1793185200,303.68,2172474,302.46],[1793098800,302.45,857189,301],[1793012400,300.92,1229161,298],[1792753200,298.12,1401041,300.01],[1792666800,300.5,1526860,301],[1792580400,303.05,1324459,300.25],[1792494000,300.01,1247337,299.4],[17",
+      "json_type": "dict",
+      "json_len": 3,
+      "json_keys": [
+        "status",
+        "message",
+        "data"
+      ]
+    },
+    "trading_board": {
+      "method": "GET",
+      "path": "/trading-board/REG/MAIN",
+      "status": 200,
+      "bytes": 369238,
+      "content_type": "text/html; charset=utf-8",
+      "table": {
+        "tables": 1,
+        "headers": [
+          "SYMBOL",
+          "NAME",
+          "BID VOL.",
+          "BID PRICE",
+          "OFFER VOL.",
+          "OFFER PRICE",
+          "LDCP",
+          "CHANGE",
+          "VOLUME"
+        ],
+        "first_row": [
+          "CNERGY",
+          "Cnergyico PK Limited",
+          "0",
+          "0.00",
+          "0",
+          "0.00",
+          "12.80",
+          "1.28",
+          "184,011,163"
+        ],
+        "rows": 497,
+        "raw_first_row": "<tr><td data-search=\"CNERGY\" data-order=\"CNERGY\"><a class=\"tbl__symbol\" href=\"/company/CNERGY\" data-title=\"Cnergyico PK  Limited\" target=\"_blank\"><strong>CNERGY</strong></a></td><td data-search=\"Cnergyico PK  Limited\" data-order=\"Cnergyico PK  Limited\">Cnergyico PK  Limited</td><td class=\"right\" data-search=\"0\" data-order=\"0\">0</td><td class=\"right\" data-search=\"0\" data-order=\"0\">0.00</td><td class=\"right\" data-search=\"0\" data-order=\"0\">0</td><td class=\"right\" data-search=\"0\" data-order=\"0\">0.00</td><td class=\"right\" data-search=\"12.8\" data-order=\"12.8\">12.80</td><td class=\"right change__text-"
+      }
+    },
+    "sector_summary": {
+      "method": "GET",
+      "path": "/sector-summary/sectorwise",
+      "status": 200,
+      "bytes": 492697,
+      "content_type": "text/html; charset=utf-8",
+      "table": {
+        "tables": 39,
+        "headers": [
+          "Sector Code",
+          "Sector Name",
+          "Advance",
+          "Decline",
+          "Unchange",
+          "Turnover",
+          "Market Cap. (B)"
+        ],
+        "first_row": [
+          "0801",
+          "AUTOMOBILE ASSEMBLER",
+          "4",
+          "6",
+          "0",
+          "1,714,187",
+          "687.30"
+        ],
+        "rows": 39,
+        "raw_first_row": "<tr><td>0801</td><td data-order=\"AUTOMOBILE ASSEMBLER\"><a href=\"javascript:\" data-code=\"0801\"><strong>AUTOMOBILE ASSEMBLER</strong></a></td><td class=\"right\">4</td><td class=\"right\">6</td><td class=\"right\">0</td><!-- td.right=numeral(sector.open).format('0,0.00')--><!-- td.right=numeral(sector.close).format('0,0.00')--><!-- td.right(class='change__text--' + dir)!=changeIcon(dir)\n=numeral(sector.change).format('0.00')--><td class=\"right\" data-order=\"1714187\">1,714,187</td><td class=\"right\">687.30</td></tr>"
+      }
     }
   },
   "company": {

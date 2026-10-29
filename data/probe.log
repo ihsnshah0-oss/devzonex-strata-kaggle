@@ -26,10 +26,22 @@ company pairs: 60
    'Volume'                         -> '1,149,000'
    'Total Trades'                   -> '414'
 token: {'found': True, 'length': 43, 'home_bytes': 96487, 'home_has_window_ps': True}
-   history_without_token    404 bytes=47734 tables=None rows=None
-   history_with_token       404 bytes=47734 tables=None rows=None
-   symbols_with_token       404 bytes=47731 tables=None rows=None
-   symbols_json_with_token  200 bytes=136853 tables=None rows=None
+   history_plain          404 bytes=47734 type=text/html; charset=utf-8 tables=None rows=None json_len=None
+      says:    Not Found - Pakistan Stock Exchange (PSX) window.__ps = {"lc":"en","tz":"Asia/Karachi","_k":"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI","rv":"1"}; window.psxP
+   history_token          404 bytes=47734 type=text/html; charset=utf-8 tables=None rows=None json_len=None
+      says:    Not Found - Pakistan Stock Exchange (PSX) window.__ps = {"lc":"en","tz":"Asia/Karachi","_k":"90kJgdA6Yh9AtbXpvyP4CH6R8ZeeGTABUQChgXb9PPI","rv":"1"}; window.psxP
+   history_token_xhr      200 bytes=497628 type=text/html; charset=utf-8 tables=1 rows=2480 json_len=None
+      headers: ['DATE', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'VOLUME']
+      first:   ['Oct 29, 2026', '306.00', '307.99', '303.00', '306.21', '2,584,565']
+   history_xhr_only       403 bytes=0 type=None tables=None rows=None json_len=None
+   symbols_token_xhr      200 bytes=136853 type=application/json; charset=utf-8 tables=None rows=None json_len=1052
+   timeseries_eod         200 bytes=41185 type=application/json; charset=utf-8 tables=None rows=None json_len=3
+   trading_board          200 bytes=369238 type=text/html; charset=utf-8 tables=1 rows=497 json_len=None
+      headers: ['SYMBOL', 'NAME', 'BID VOL.', 'BID PRICE', 'OFFER VOL.', 'OFFER PRICE', 'LDCP', 'CHANGE', 'VOLUME']
+      first:   ['CNERGY', 'Cnergyico PK Limited', '0', '0.00', '0', '0.00', '12.80', '1.28', '184,011,163']
+   sector_summary         200 bytes=492697 type=text/html; charset=utf-8 tables=39 rows=39 json_len=None
+      headers: ['Sector Code', 'Sector Name', 'Advance', 'Decline', 'Unchange', 'Turnover', 'Market Cap. (B)']
+      first:   ['0801', 'AUTOMOBILE ASSEMBLER', '4', '6', '0', '1,714,187', '687.30']
 screener selects: 5 options: 68
    option {'value': 'symbols', 'text': 'Symbols'}
    option {'value': 'website', 'text': 'Website'}
