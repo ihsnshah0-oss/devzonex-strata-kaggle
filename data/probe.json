@@ -1,12 +1,12 @@
 {
-  "probed_at": "2026-10-29T20:34:23+00:00",
+  "probed_at": "2026-10-29T20:36:27+00:00",
   "base": "https://dps.psx.com.pk",
   "clients": {
     "httpx-http1.1 /": {
       "status": 200,
       "headers": {
         "server": "nginx/1.20.2",
-        "date": "Thu, 29 Oct 2026 20:34:25 GMT",
+        "date": "Thu, 29 Oct 2026 20:36:29 GMT",
         "content-type": "text/html; charset=utf-8",
         "transfer-encoding": "chunked",
         "connection": "keep-alive",
@@ -20,7 +20,7 @@
         "content-security-policy": "object-src 'self'; script-src 'self' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com data:;img-src 'self' https://www.capitalstake.com https://www.google-analytics.com https://www.google.com.pk/ads; frame-ancestors 'self';",
         "cache-control": "no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0",
         "x-xss-protection": "1; mode=block",
-        "x-dis-request-id": "b026112383718ae92e903f6b6e1c95f7",
+        "x-dis-request-id": "006c421e96ff724775d79d449ccaa3d5",
         "content-encoding": "gzip"
       },
       "cookies": {}
@@ -35,13 +35,13 @@
       "server": "nginx/1.20.2",
       "stderr": null
     },
-    "curl-http1.1 /symbols": {
-      "status": 404,
+    "curl-http1.1 /screener": {
+      "status": 200,
       "server": "nginx/1.20.2",
       "stderr": null
     },
-    "curl-http2 /symbols": {
-      "status": 404,
+    "curl-http2 /screener": {
+      "status": 200,
       "server": "nginx/1.20.2",
       "stderr": null
     },
@@ -60,42 +60,144 @@
       "http_version": "HTTP/1.1",
       "bytes": 47743
     },
-    "httpx-http2 /symbols": {
-      "status": 404,
+    "httpx-http2 /screener": {
+      "status": 200,
       "http_version": "HTTP/1.1",
-      "bytes": 47731
+      "bytes": 703174
     }
   },
   "targets": {
-    "GET /timeseries/eod/OGDC": {
-      "status": 404,
+    "GET /screener": {
+      "status": 200,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "bytes": 703174,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 8,
+        "financial": 12,
+        "KSE100": 207,
+        "KMI30": 33,
+        "data-search": 0,
+        "table": 1
+      },
+      "tables": [
+        {
+          "table": 0,
+          "rows": 755,
+          "headers": [
+            "SYMBOL",
+            "SECTOR",
+            "LISTED IN",
+            "MARKET CAP.",
+            "PRICE",
+            "CHANGE (%)",
+            "1-YEAR CH. (%) *",
+            "PE RATIO (TTM)",
+            "DIVIDEND YIELD (%)",
+            "FREE FLOAT",
+            "30D VOLUME AVG."
+          ],
+          "sample_rows": [
+            [
+              "786",
+              "0813",
+              "ALLSHR",
+              "399.5M",
+              "20.01",
+              "0.25%",
+              "54.04%",
+              "90.95",
+              "0.00",
+              "7.0M",
+              "96,067"
+            ],
+            [
+              "786R",
+              "0813",
+              "",
+              "12.3M",
+              "2.47",
+              "-6.44%",
+              "0.00%",
+              "0.00",
+              "0.00",
+              "499.1K",
+              "185,889"
+            ]
+          ]
+        }
+      ]
     },
-    "GET /timeseries/int/OGDC": {
-      "status": 404,
+    "GET /indices": {
+      "status": 200,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
-    },
-    "GET /symbols": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
-    },
-    "GET /market-watch": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "bytes": 56763,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 7,
+        "KMI30": 3,
+        "data-search": 0,
+        "table": 2
+      },
+      "tables": [
+        {
+          "table": 0,
+          "rows": 19,
+          "headers": [
+            "Index",
+            "High",
+            "Low",
+            "Current",
+            "Change",
+            "% Change"
+          ],
+          "sample_rows": [
+            [
+              "KSE100",
+              "167,483.48",
+              "165,907.29",
+              "167,193.43",
+              "1456.68",
+              "0.88%"
+            ],
+            [
+              "KSE100PR",
+              "50,022.66",
+              "49,551.89",
+              "49,936.03",
+              "435.07",
+              "0.88%"
+            ]
+          ]
+        },
+        {
+          "table": 1,
+          "rows": 1,
+          "headers": [
+            "Sector Indices"
+          ],
+          "sample_rows": []
+        }
+      ]
     },
     "GET /indices/KSE100": {
       "status": 200,
       "content_type": "text/html; charset=utf-8",
       "bytes": 74749,
       "snippet": "<h2 style=\"margin-top:0;\">KSE 100 INDEX Constituents</h2><div class=\"tbl__wrapper\"><table class=\"tbl\" data-page-length=\"25\"><thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"r",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 0,
+        "financial": 0,
+        "KSE100": 0,
+        "KMI30": 0,
+        "data-search": 0,
+        "table": 1
+      },
       "tables": [
         {
           "table": 0,
@@ -149,6 +251,15 @@
       "content_type": "text/html; charset=utf-8",
       "bytes": 23023,
       "snippet": "<h2 style=\"margin-top:0;\">KMI INDEX Constituents</h2><div class=\"tbl__wrapper\"><table class=\"tbl\" data-page-length=\"25\"><thead class=\"tbl__head\"><tr><th>SYMBOL</th><th style=\"width:180px;\">NAME</th><th class=\"right\">LDCP</th><th class=\"right\">CURRENT</th><th class=\"right\">CHANGE</th><th class=\"right",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 0,
+        "financial": 0,
+        "KSE100": 0,
+        "KMI30": 0,
+        "data-search": 0,
+        "table": 1
+      },
       "tables": [
         {
           "table": 0,
@@ -197,47 +308,278 @@
         }
       ]
     },
-    "GET /performers": {
-      "status": 404,
+    "GET /company/OGDC": {
+      "status": 200,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 47734,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "bytes": 75567,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"Get detailed information about the Oi",
+      "content_probe": {
+        "stats_label": 78,
+        "payout": 11,
+        "financial": 24,
+        "KSE100": 2,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 7
+      },
+      "tables": [
+        {
+          "table": 0,
+          "rows": 3,
+          "headers": [],
+          "sample_rows": [
+            [
+              "Zafar Masud",
+              "Chairperson"
+            ],
+            [
+              "Wasim Ahmad",
+              "Company Secretary"
+            ]
+          ]
+        },
+        {
+          "table": 1,
+          "rows": 6,
+          "headers": [
+            "Date",
+            "Title",
+            "Document"
+          ],
+          "sample_rows": [
+            [
+              "Sep 25, 2026",
+              "Transmission of Annual Report for the Year Ended June 30, 2026",
+              "View &nbsp;&nbsp;&nbsp; PDF"
+            ],
+            [
+              "Sep 4, 2026",
+              "FINANCIAL RESULTS FOR THE YEAR ENDED JUNE 30, 2026",
+              "View &nbsp;&nbsp;&nbsp; PDF"
+            ]
+          ]
+        },
+        {
+          "table": 2,
+          "rows": 6,
+          "headers": [
+            "Date",
+            "Title",
+            "Document"
+          ],
+          "sample_rows": [
+            [
+              "Oct 29, 2026",
+              "Board Meeting Rescheduled (Change in Time)",
+              "View &nbsp;&nbsp;&nbsp; PDF"
+            ],
+            [
+              "Oct 23, 2026",
+              "NOTICE OF BOARD MEETING",
+              "View &nbsp;&nbsp;&nbsp; PDF"
+            ]
+          ]
+        }
+      ]
     },
-    "GET /listings-table/all": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47742,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
-    },
-    "GET /trading-board/OGDC": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47742,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
-    },
-    "POST /daily-downloads ['date']": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47739,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
-    },
-    "POST /historical-downloads": {
+    "GET /company/OGDC/payouts": {
       "status": 404,
       "content_type": "text/html; charset=utf-8",
       "bytes": 47744,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 5,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
     },
-    "GET /other-downloads": {
+    "POST /payouts ['symbol', 'year']": {
       "status": 404,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 47739,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "bytes": 47731,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 5,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
     },
-    "GET /data/top-10-symbols": {
+    "GET /sitemap": {
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 50784,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 11,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      },
+      "tables": []
+    },
+    "GET /timeseries/eod/OGDC": {
       "status": 404,
       "content_type": "text/html; charset=utf-8",
       "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)"
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /symbols": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47731,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /market-watch": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47736,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /historical/OGDC": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47739,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /historical-data/OGDC": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47744,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /data/historical/OGDC": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47744,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /historical?symbol=OGDC&month=09&year=2026": {
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 49940,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      },
+      "tables": []
+    },
+    "GET /market-summary": {
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 47738,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      }
+    },
+    "GET /daily-downloads": {
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 48103,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      },
+      "tables": []
+    },
+    "GET /announcements/companies": {
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "bytes": 49544,
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited)",
+      "content_probe": {
+        "stats_label": 0,
+        "payout": 4,
+        "financial": 9,
+        "KSE100": 3,
+        "KMI30": 1,
+        "data-search": 0,
+        "table": 0
+      },
+      "tables": []
     }
   }
 }
