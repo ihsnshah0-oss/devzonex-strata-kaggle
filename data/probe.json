@@ -1,14 +1,11 @@
 {
-  "probed_at": "2026-10-29T20:25:34+00:00",
+  "probed_at": "2026-10-29T20:27:32+00:00",
   "base": "https://dps.psx.com.pk",
   "pages": {
     "/": {
       "status": 200,
       "bytes": 96487,
-      "tables": [],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
-      ]
+      "tables": []
     },
     "/indices": {
       "status": 200,
@@ -56,17 +53,6 @@
           "kse100_mentions": 0,
           "kmi30_mentions": 0
         }
-      ],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
-      ]
-    },
-    "/historical": {
-      "status": 200,
-      "bytes": 49901,
-      "tables": [],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
       ]
     },
     "/screener": {
@@ -100,7 +86,8 @@
               "54.04%",
               "90.95",
               "0.00",
-              "7.0M"
+              "7.0M",
+              "96,067"
             ],
             [
               "786R",
@@ -112,223 +99,210 @@
               "0.00%",
               "0.00",
               "0.00",
-              "499.1K"
+              "499.1K",
+              "185,889"
             ]
           ],
           "kse100_mentions": 200,
           "kmi30_mentions": 30
         }
-      ],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
       ]
+    },
+    "/historical": {
+      "status": 200,
+      "bytes": 49901,
+      "tables": []
     },
     "/downloads": {
       "status": 200,
       "bytes": 48103,
-      "tables": [],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
-      ]
-    },
-    "/daily-downloads": {
-      "status": 200,
-      "bytes": 48103,
-      "tables": [],
-      "psxPortal_var": [
-        "{\"name\":\"dps\",\"prefix\":\"\"}"
-      ]
+      "tables": []
     }
   },
   "routes": {
+    "POST /daily-downloads ['date']": {
+      "status": 404,
+      "bytes": 47739
+    },
+    "POST /daily-downloads []": {
+      "status": 469,
+      "bytes": 9032
+    },
+    "POST /historical-downloads []": {
+      "status": 404,
+      "bytes": 47744
+    },
+    "POST /historical ['month', 'symbol', 'year']": {
+      "status": 404,
+      "bytes": 47734
+    },
     "GET /symbols [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
     "POST /symbols [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /symbols [browser-no-origin]": {
+    "GET /symbols [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /symbols [browser-no-origin]": {
+    "POST /symbols [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47731,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /symbols [json-accept]": {
+    "GET /symbols [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
-    "POST /symbols [json-accept]": {
+    "POST /symbols [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
     "GET /market-watch [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
     "POST /market-watch [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /market-watch [browser-no-origin]": {
+    "GET /market-watch [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /market-watch [browser-no-origin]": {
+    "POST /market-watch [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /market-watch [json-accept]": {
+    "GET /market-watch [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
-    "POST /market-watch [json-accept]": {
+    "POST /market-watch [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
     "GET /timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
     "POST /timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /timeseries/eod/OGDC [browser-no-origin]": {
+    "GET /timeseries/eod/OGDC [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /timeseries/eod/OGDC [browser-no-origin]": {
+    "POST /timeseries/eod/OGDC [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /timeseries/eod/OGDC [json-accept]": {
+    "GET /timeseries/eod/OGDC [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
-    "POST /timeseries/eod/OGDC [json-accept]": {
+    "POST /timeseries/eod/OGDC [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
     },
-    "GET /timeseries/int/OGDC [browser]": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
-    },
-    "POST /timeseries/int/OGDC [browser]": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
-    },
-    "GET /timeseries/int/OGDC [browser-no-origin]": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
-    },
-    "POST /timeseries/int/OGDC [browser-no-origin]": {
-      "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47743,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
-    },
-    "GET /timeseries/int/OGDC [json-accept]": {
-      "status": 403,
-      "content_type": "",
-      "bytes": 0,
-      "snippet": ""
-    },
-    "POST /timeseries/int/OGDC [json-accept]": {
-      "status": 403,
-      "content_type": "",
-      "bytes": 0,
-      "snippet": ""
-    },
-    "GET /historical [browser]": {
+    "GET /historical?symbol=OGDC&month=09&year=2026 [browser]": {
       "status": 200,
+      "bytes": 49940,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 49901,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": []
     },
-    "POST /historical [browser]": {
+    "POST /historical?symbol=OGDC&month=09&year=2026 [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47734,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47773,
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /historical [browser-no-origin]": {
+    "GET /historical?symbol=OGDC&month=09&year=2026 [plain]": {
       "status": 200,
+      "bytes": 49940,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 49901,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": []
     },
-    "POST /historical [browser-no-origin]": {
+    "POST /historical?symbol=OGDC&month=09&year=2026 [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47734,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47773,
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /historical [json-accept]": {
+    "GET /historical?symbol=OGDC&month=09&year=2026 [xhr]": {
       "status": 200,
+      "bytes": 49940,
       "content_type": "text/html; charset=utf-8",
-      "bytes": 49901,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": []
     },
-    "POST /historical [json-accept]": {
+    "POST /historical?symbol=OGDC&month=09&year=2026 [xhr]": {
       "status": 403,
-      "content_type": "",
       "bytes": 0,
-      "snippet": ""
+      "content_type": ""
+    },
+    "GET /historical?symbol=OGDC [browser]": {
+      "status": 200,
+      "bytes": 49913,
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
+      "tables": []
+    },
+    "POST /historical?symbol=OGDC [browser]": {
+      "status": 404,
+      "bytes": 47746,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /historical?symbol=OGDC [plain]": {
+      "status": 200,
+      "bytes": 49913,
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
+      "tables": []
+    },
+    "POST /historical?symbol=OGDC [plain]": {
+      "status": 404,
+      "bytes": 47746,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /historical?symbol=OGDC [xhr]": {
+      "status": 200,
+      "bytes": 49913,
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
+      "tables": []
+    },
+    "POST /historical?symbol=OGDC [xhr]": {
+      "status": 403,
+      "bytes": 0,
+      "content_type": ""
     },
     "GET /company/OGDC [browser]": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 75567,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": [
         {
           "table": 0,
@@ -364,29 +338,6 @@
             [
               "Sep 4, 2026",
               "FINANCIAL RESULTS FOR THE YEAR ENDED JUNE 30, 2026",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ]
-          ],
-          "kse100_mentions": 0,
-          "kmi30_mentions": 0
-        },
-        {
-          "table": 2,
-          "rows": 6,
-          "headers": [
-            "Date",
-            "Title",
-            "Document"
-          ],
-          "sample_rows": [
-            [
-              "Oct 29, 2026",
-              "Board Meeting Rescheduled (Change in Time)",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ],
-            [
-              "Oct 23, 2026",
-              "NOTICE OF BOARD MEETING",
               "View &nbsp;&nbsp;&nbsp; PDF"
             ]
           ],
@@ -397,15 +348,14 @@
     },
     "POST /company/OGDC [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /company/OGDC [browser-no-origin]": {
+    "GET /company/OGDC [plain]": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 75567,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": [
         {
           "table": 0,
@@ -446,43 +396,19 @@
           ],
           "kse100_mentions": 0,
           "kmi30_mentions": 0
-        },
-        {
-          "table": 2,
-          "rows": 6,
-          "headers": [
-            "Date",
-            "Title",
-            "Document"
-          ],
-          "sample_rows": [
-            [
-              "Oct 29, 2026",
-              "Board Meeting Rescheduled (Change in Time)",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ],
-            [
-              "Oct 23, 2026",
-              "NOTICE OF BOARD MEETING",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ]
-          ],
-          "kse100_mentions": 0,
-          "kmi30_mentions": 0
         }
       ]
     },
-    "POST /company/OGDC [browser-no-origin]": {
+    "POST /company/OGDC [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /company/OGDC [json-accept]": {
+    "GET /company/OGDC [xhr]": {
       "status": 200,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 75567,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=",
+      "content_type": "text/html; charset=utf-8",
+      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZr",
       "tables": [
         {
           "table": 0,
@@ -523,138 +449,146 @@
           ],
           "kse100_mentions": 0,
           "kmi30_mentions": 0
-        },
-        {
-          "table": 2,
-          "rows": 6,
-          "headers": [
-            "Date",
-            "Title",
-            "Document"
-          ],
-          "sample_rows": [
-            [
-              "Oct 29, 2026",
-              "Board Meeting Rescheduled (Change in Time)",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ],
-            [
-              "Oct 23, 2026",
-              "NOTICE OF BOARD MEETING",
-              "View &nbsp;&nbsp;&nbsp; PDF"
-            ]
-          ],
-          "kse100_mentions": 0,
-          "kmi30_mentions": 0
         }
       ]
     },
-    "POST /company/OGDC [json-accept]": {
+    "POST /company/OGDC [xhr]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
       "bytes": 47736,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /data/timeseries/eod/OGDC [browser]": {
+    "GET /dps/timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /data/timeseries/eod/OGDC [browser]": {
+    "POST /dps/timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /data/timeseries/eod/OGDC [browser-no-origin]": {
+    "GET /dps/timeseries/eod/OGDC [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /data/timeseries/eod/OGDC [browser-no-origin]": {
+    "POST /dps/timeseries/eod/OGDC [plain]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "GET /data/timeseries/eod/OGDC [json-accept]": {
+    "GET /dps/timeseries/eod/OGDC [xhr]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /data/timeseries/eod/OGDC [json-accept]": {
+    "POST /dps/timeseries/eod/OGDC [xhr]": {
       "status": 404,
-      "content_type": "text/html; charset=utf-8",
-      "bytes": 47748,
-      "snippet": "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\"><meta name=\"google-site-verification\" content=\"ucGuScv6fdM8uhZru-aeXK4qsaPfO3HiuZFKB90UpPU\"><meta name=\"description\" content=\"PSX (Pakistan Stock Exchange Limited) - Stock/share market updates from Pakistan\u2019s premier stock exchange. Get all the current stock/shar"
+      "bytes": 47747,
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /historical ['month', 'symbol', 'year']": {
+    "GET /portal/timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "bytes": 47734
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
     },
-    "POST /historical ['month', 'symbol', 'type', 'year']": {
+    "POST /portal/timeseries/eod/OGDC [browser]": {
       "status": 404,
-      "bytes": 47734
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /portal/timeseries/eod/OGDC [plain]": {
+      "status": 404,
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /portal/timeseries/eod/OGDC [plain]": {
+      "status": 404,
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /portal/timeseries/eod/OGDC [xhr]": {
+      "status": 404,
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /portal/timeseries/eod/OGDC [xhr]": {
+      "status": 404,
+      "bytes": 47750,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /symbols/all [browser]": {
+      "status": 404,
+      "bytes": 47735,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /symbols/all [browser]": {
+      "status": 404,
+      "bytes": 47735,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /symbols/all [plain]": {
+      "status": 404,
+      "bytes": 47735,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /symbols/all [plain]": {
+      "status": 404,
+      "bytes": 47735,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /symbols/all [xhr]": {
+      "status": 403,
+      "bytes": 0,
+      "content_type": ""
+    },
+    "POST /symbols/all [xhr]": {
+      "status": 403,
+      "bytes": 0,
+      "content_type": ""
+    },
+    "GET /market-watch/all [browser]": {
+      "status": 404,
+      "bytes": 47740,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /market-watch/all [browser]": {
+      "status": 404,
+      "bytes": 47740,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /market-watch/all [plain]": {
+      "status": 404,
+      "bytes": 47740,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "POST /market-watch/all [plain]": {
+      "status": 404,
+      "bytes": 47740,
+      "content_type": "text/html; charset=utf-8"
+    },
+    "GET /market-watch/all [xhr]": {
+      "status": 403,
+      "bytes": 0,
+      "content_type": ""
+    },
+    "POST /market-watch/all [xhr]": {
+      "status": 403,
+      "bytes": 0,
+      "content_type": ""
     }
   },
   "js": {
-    "status": 200,
     "bytes": 2326263,
-    "contexts": {
-      "getUrl": [
-        "ent,psx),function(window,document,psx){\"use strict\";var container,xhr;function getDailyTable(date){var form={date:date};xhr=$.ajax({type:\"POST\",url:psx.helpers.getUrl(\"/daily-downloads\"),data:form,success:function(doc){var $input,mdate;$(container).html(doc),$input=$(\"#downloadsDatePicker\"),mdate=moment(),$input.daterangepicker({singleDatePicker:!0,maxDate:mdate.toDate(),minDate:mdate.subtract(10,",
-        "ss=\"loader\"><div class=\"spinner\"></div></div>'),xhr&&xhr.abort(),\"daily\"===type?getDailyTable(date):xhr=\"historical\"===type?$.ajax({type:\"POST\",url:psx.helpers.getUrl(\"/historical-downloads\"),success:function(doc){$(container).html(doc),xhr=null},dataType:\"html\"}):$.ajax({type:\"GET\",url:psx.helpers.getUrl(\"/other-downloads\"),success:function(doc){$(container).html(doc),xhr=null},dataType:\"html\"})}",
-        "ST\",url:psx.helpers.getUrl(\"/historical-downloads\"),success:function(doc){$(container).html(doc),xhr=null},dataType:\"html\"}):$.ajax({type:\"GET\",url:psx.helpers.getUrl(\"/other-downloads\"),success:function(doc){$(container).html(doc),xhr=null},dataType:\"html\"})}psx.page=psx.page||{},psx.page.Downloads=function(){psx.page.Layout(),psx.ui.PageHeader(),container=document.getElementsByClassName(\"downloa",
-        "loadConstituents(code){xhr&&xhr.abort(),$(tableContainer).html('<div class=\"loader\"><div class=\"spinner\"></div></div>'),xhr=$.ajax({type:\"GET\",url:psx.helpers.getUrl(\"/indices/\"+code),success:function(doc){$(tableContainer).html(doc),$(tableContainer).find(\"table\").DataTable({searching:!1,order:[[8,\"desc\"]]}),xhr=null}})}function onLinkClick(){loadConstituents($(this).attr(\"data-code\"))}psx.page="
-      ],
-      "prefix": [
-        "())return\"moment.invalid(/* \"+this._i+\" */)\";var func=\"moment\",zone=\"\";this.isLocal()||(func=0===this.utcOffset()?\"moment.utc\":\"moment.parseZone\",zone=\"Z\");var prefix=\"[\"+func+'(\"]',year=0<=this.year()&&this.year()<=9999?\"YYYY\":\"YYYYYY\",suffix=zone+'[\")]';return this.format(prefix+year+\"-MM-DD[T]HH:mm:ss.SSS\"+suffix)},proto.toJSON=function(){return this.isValid()?this.toISOString():null},proto.toS",
-        "moment.utc\":\"moment.parseZone\",zone=\"Z\");var prefix=\"[\"+func+'(\"]',year=0<=this.year()&&this.year()<=9999?\"YYYY\":\"YYYYYY\",suffix=zone+'[\")]';return this.format(prefix+year+\"-MM-DD[T]HH:mm:ss.SSS\"+suffix)},proto.toJSON=function(){return this.isValid()?this.toISOString():null},proto.toString=function(){return this.clone().locale(\"en\").format(\"ddd MMM DD YYYY HH:mm:ss [GMT]ZZ\")},proto.unix=function()",
-        "turn[1<coefficient.length?coefficient[0]+coefficient.slice(2):coefficient,+x.slice(i+1)]}function exponent(x){return(x=formatDecimal(Math.abs(x)))?x[1]:NaN}var prefixExponent,re=/^(?:(.)?([<>=^]))?([+\\-( ])?([$#])?(0)?(\\d+)?(,)?(\\.\\d+)?(~)?([a-z%])?$/i;function formatSpecifier(specifier){return new FormatSpecifier(specifier)}function FormatSpecifier(specifier){if(!(match=re.exec(specifier)))throw",
-        "n(x,p){return formatRounded(100*x,p)},r:formatRounded,s:function(x,p){var d=formatDecimal(x,p);if(!d)return x+\"\";var coefficient=d[0],exponent=d[1],i=exponent-(prefixExponent=3*Math.max(-8,Math.min(8,Math.floor(exponent/3))))+1,n=coefficient.length;return i===n?coefficient:n<i?coefficient+new Array(i-n+1).join(\"0\"):0<i?coefficient.slice(0,i)+\".\"+coefficient.slice(i):\"0.\"+new Array(1-i).join(\"0\")+f"
-      ],
-      "addRoute": [
-        "d(window.location.pathname)}}}(window,document,psx),function(window,document,psx){\"use strict\";document.addEventListener(\"DOMContentLoaded\",function(){function addRoute(pattern,handler){var regexPattern=pattern.replace(/^\\^/,\"^(\\\\/sukuk|\\\\/shariah)?\");psx.Router.add(new RegExp(regexPattern),handler)}function extractParam(path,prefix){return path.replace(new RegExp(\"^(\\\\/sukuk|\\\\/shariah)\"),\"\").rep",
-        "handler)}function extractParam(path,prefix){return path.replace(new RegExp(\"^(\\\\/sukuk|\\\\/shariah)\"),\"\").replace(prefix,\"\").replace(/^\\//,\"\").replace(/\\/$/,\"\")}addRoute(\"^/?$\",function(path){window.console.log(\"Router: Home - \"+path),psx.page.Market()}),addRoute(\"^/sectors/?\",function(path){window.console.log(\"Router: Sectors - \"+path),psx.page.Sectors()}),addRoute(\"^/sector-summary/?\",function(pa",
-        "iah)\"),\"\").replace(prefix,\"\").replace(/^\\//,\"\").replace(/\\/$/,\"\")}addRoute(\"^/?$\",function(path){window.console.log(\"Router: Home - \"+path),psx.page.Market()}),addRoute(\"^/sectors/?\",function(path){window.console.log(\"Router: Sectors - \"+path),psx.page.Sectors()}),addRoute(\"^/sector-summary/?\",function(path){window.console.log(\"Router: Sector Summary - \"+path),psx.page.SectorSummary()}),addRoute(\"",
-        "onsole.log(\"Router: Home - \"+path),psx.page.Market()}),addRoute(\"^/sectors/?\",function(path){window.console.log(\"Router: Sectors - \"+path),psx.page.Sectors()}),addRoute(\"^/sector-summary/?\",function(path){window.console.log(\"Router: Sector Summary - \"+path),psx.page.SectorSummary()}),addRoute(\"^/historical/?\",function(path){window.console.log(\"Router: Historical - \"+path),psx.page.Historical()}),a"
-      ],
-      "timeseries": [
-        "ern=/^(\\/sukuk|\\/shariah)(\\/|$)/,shariahPaths=[\"/performers\",\"/debt-performers\",\"/market-watch\",\"/market-watch-debt\",\"/trading-board\",\"/watchlist\",\"/symbols\",\"/timeseries\",\"/indices\",\"/trading-panel\",\"/eligible-scrips\",\"/downloads\",\"/daily-downloads\"];function getPortal(){if(window.psxPortal&&window.psxPortal.name)return window.psxPortal;var match=window.location.pathname.match(portalPattern);retu",
-        "<=to&&items.push(item)}return items.reverse()}function load(type,callback){if(this[type])callback(this[type]);else{var that=this;$.getJSON(psx.helpers.getUrl(\"/timeseries/\"+type+\"/\"+this.symbol),function(data){that[type]=function(results,isEOD){if(!results)return[];var data=results.map(function(d){var date=new Date(1e3*d[0]);return isEOD&&resetTime(date),{time:date,value:d[1],volume:d[2],open:d[3]"
-      ],
-      "Historical": [
-        "tion(path){window.console.log(\"Router: Sector Summary - \"+path),psx.page.SectorSummary()}),addRoute(\"^/historical/?\",function(path){window.console.log(\"Router: Historical - \"+path),psx.page.Historical()}),addRoute(\"^/company/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Router: Company - \"+path),psx.page.Company(extractParam(path,\"/company\"),!1)}),addRoute(\"^/debt/[A-Za-z0-9-]+/?$\",function",
-        "\"Router: Sector Summary - \"+path),psx.page.SectorSummary()}),addRoute(\"^/historical/?\",function(path){window.console.log(\"Router: Historical - \"+path),psx.page.Historical()}),addRoute(\"^/company/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Router: Company - \"+path),psx.page.Company(extractParam(path,\"/company\"),!1)}),addRoute(\"^/debt/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Rou",
-        "ld[data-type=\"'+formType+'\"]');selectedTab===formType?$fields.show():$fields.hide()}),0<tableHTML.length&&renderTable(tableHTML)}psx.page=psx.page||{},psx.page.Historical=function(){psx.page.Layout(),psx.ui.PageHeader();var defaultDate,$input,options,latestDate=new Date(parseInt($(\"#historicalDatePicker\").attr(\"data-latest\")));defaultDate=latestDate,$input=$(\"#historicalDatePicker\"),options={singl"
-      ],
-      "Screener": [
-        "dices/?$\",function(path){window.console.log(\"Router: Indices - \"+path),psx.page.Indices()}),addRoute(\"^/screener/?$\",function(path){window.console.log(\"Router: Screener - \"+path),psx.page.Screener()}),addRoute(\"^/listings/?$\",function(path){window.console.log(\"Router: Listings - \"+path),psx.page.Listings()}),addRoute(\"^/eligible-scrips/?$\",function(path){window.console.log(\"Router: Eligible Scrips",
-        "dow.console.log(\"Router: Indices - \"+path),psx.page.Indices()}),addRoute(\"^/screener/?$\",function(path){window.console.log(\"Router: Screener - \"+path),psx.page.Screener()}),addRoute(\"^/listings/?$\",function(path){window.console.log(\"Router: Listings - \"+path),psx.page.Listings()}),addRoute(\"^/eligible-scrips/?$\",function(path){window.console.log(\"Router: Eligible Scrips - \"+path),psx.page.Eligible",
-        "item.destroy()}),$(\"#screenerTable a.tbl__symbol\").each(function(){tippy(this,{content:$(this).attr(\"data-title\")})})},500),!0})}psx.page=psx.page||{},psx.page.Screener=function(){psx.page.Layout(),psx.ui.PageHeader();var elem=$(\"#screenerTable\")[0];initTableFilter(),$(\"#screenerSectorFilter select\").on(\"change\",function(e){0==this.value.length?delete filters.sector:filters.sector={value:this.valu"
-      ],
-      "pagination": [
-        "(),l=(b=(l=-1===i)?0:Math.ceil(b/i),i=l?1:Math.ceil(h/i),h=c(b,i),0);for(k=f.p.length;l<k;l++)Na(a,\"pageButton\")(a,f.p[l],l,h,b,i)}else c.fnUpdate(a,e)},sName:\"pagination\"})),b}function Ta(a,b,c){var d=a._iDisplayStart,e=a._iDisplayLength,f=a.fnRecordsDisplay();return 0===f||-1===e?d=0:\"number\"==typeof b?f<(d=b*e)&&(d=0):\"first\"==b?d=0:\"previous\"==b?(d=0<=e?d-e:0)<0&&(d=0):\"next\"==b?d+e<f&&(d+=e):"
-      ]
-    },
-    "timeseries_literals": [
-      ")),this.popover=psx.chart.Popover(this.body)}psx.chart=psx.chart||{},psx.chart.Timeseries=function(id){var chart=document.getElementById(id);if(chart){var body=chart.getElementsByClassName(",
-      "),chartData=data,chartSymbol=symbol}function getTimeseriesChange(data,addPadding){return data.map(function(d0,index){return{time:d0.time,value:0===index?0:(d0.value-data[0].value)/data[0].value*100}})}function onQuoteTabClick(name,panel,isFirst){var select;",
-      "),chartData=psx.data.Timeseries(symbol),updateChart()},100)}}(window,document,psx),function(window,document,psx){",
-      "),etfChart=psx.chart.Timeseries(",
-      "),etfChartData=psx.data.Timeseries(benchmark),etfNAVData=psx.data.Timeseries(symbol,",
-      "),options.forEach(function(option){symbols.push(option.value)}),options2.forEach(function(option){symbols.push(option.value)}),symbols).forEach(function(symbol){data[symbol]=psx.data.Timeseries(symbol)}),chart=psx.chart.Timeseries(",
-      ").html()),modal.open()}psx.page=psx.page||{},psx.page.Market=function(){psx.page.Layout(),psx.ui.PageHeader(),initMarketsSlider(),initIndicesTabSlider(),chart=psx.chart.Timeseries(",
-      ",function(d){})}(data)}function onRangeClick(name){selectedRange=name,updateChart()}function onTabClick(name,panel,isFirst){isFirst&&(!function(name,panel){indicesTabs[name]={data:null},psx.ui.NumRange(panel),chartData[name]=psx.data.Timeseries(name)}(name,panel),$(panel).find(",
-      ",onRangeClick),setTimeout(function(){chart=psx.chart.Timeseries(",
-      "/timeseries",
-      "/timeseries/",
-      ";function updateChart(){chart.loading(),chartData[chartSymbol].get(selectedRange,function(d){chart.update([{name:chartSymbol,values:d}])})}function updateETFChart(){etfChart.loading(),etfChartData.get(selectedBenchmarkRange,function(d0){etfNAVData.get(selectedBenchmarkRange,function(d1){var t0=getTimeseriesChange(d0),t1=getTimeseriesChange(d1);0<t0.length&&0<t1.length&&t0[t0.length-1].time>t1[t1.length-1].time&&t0.pop(),etfChart.update([{name:benchmark,values:t0},{name:symbol,values:t1}])})})}function onRangeClick(name){selectedRange=name,updateChart()}function switchChartRange(range){$(",
-      "})}function loadChart(){var symbols,options,options2,data={};data[symbol]=psx.data.Timeseries(symbol),(symbols=[],options=document.querySelectorAll("
+    "ajax_calls": 51,
+    "getUrl_def": [],
+    "prefix_logic": [],
+    "timeseries_fn": [
+      "erse()}function load(type,callback){if(this[type])callback(this[type]);else{var that=this;$.getJSON(psx.helpers.getUrl(\"/timeseries/\"+type+\"/\"+this.symbol),function(data){that[type]=function(results,isEOD){if(!results)return[];var data=results.map(function(d){var date=new Date(1e3*d[0]);return isEOD&&resetTime(date),{time:date,value:d[1],volume:d[2],open:d[3]}});return data.sort(function(a,b){return a.time-b.time}),data}(data.data,\"eod\"===type||\"nav\"===type),callback(that[type])})}}function get(duration,callback){var len=duration.toLowerCase().split(\"\")[1],count=parseInt(duration.toLowerCase().split(\"\")[0]);\"1d\"===duration.toLowerCase()?this.load(\"int\",function(data){callback(data)}):this.lo"
+    ],
+    "historical_fn": [
+      "h),psx.page.SectorSummary()}),addRoute(\"^/historical/?\",function(path){window.console.log(\"Router: Historical - \"+path),psx.page.Historical()}),addRoute(\"^/company/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Router: Company - \"+path),psx.page.Company(extractParam(path,\"/company\"),!1)}),addRoute(\"^/debt/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Router: Debt - \"+path),psx.page.Debt(extractParam(path,\"/debt\"),!1)}),addRoute(\"^/etf/[A-Za-z0-9-]+/?$\",function(path){window.console.log(\"Router: ETF - \"+path),psx.page.Company(extractParam(path,\"/etf\"),!0)}),addRoute(\"^/search/?$\",function(path){window.console.log(\"Router: Search Results - \"+path),psx.page.Search()}),addRoute(\"^/a",
+      "selectedTab===formType?$fields.show():$fields.hide()}),0<tableHTML.length&&renderTable(tableHTML)}psx.page=psx.page||{},psx.page.Historical=function(){psx.page.Layout(),psx.ui.PageHeader();var defaultDate,$input,options,latestDate=new Date(parseInt($(\"#historicalDatePicker\").attr(\"data-latest\")));defaultDate=latestDate,$input=$(\"#historicalDatePicker\"),options={singleDatePicker:!0,showDropdowns:!0,minDate:moment(defaultDate).subtract(5,\"years\").toDate(),maxDate:defaultDate,startDate:defaultDate,endDate:defaultDate,locale:{format:\"YYYY-MM-DD\"}},$input.daterangepicker(options),getTable({date:moment(latestDate).format(\"YYYY-MM-DD\")}),function(){var input=document.getElementById(\"historicalSymbo"
     ]
-  },
-  "notes": []
+  }
 }
