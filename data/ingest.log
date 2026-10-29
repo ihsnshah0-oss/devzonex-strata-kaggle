@@ -6,5 +6,5 @@ history backfill: 103 of 103 symbols
 daily bars: 103 symbols
 company pages: 103
 capture saved: captures/latest (217 files)
-done: 367089 rows, 317 requests, 0 error(s) in 272.5s
+done: 367089 rows, 317 requests, 0 error(s) in 227.0s
 ingest_exit=0

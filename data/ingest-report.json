@@ -45,8 +45,8 @@
       "files": 217
     }
   },
-  "started_at": "2026-10-29T21:29:27+00:00",
-  "finished_at": "2026-10-29T21:33:59+00:00",
-  "duration_s": 272.51
+  "started_at": "2026-10-29T21:34:27+00:00",
+  "finished_at": "2026-10-29T21:38:14+00:00",
+  "duration_s": 226.99
 }
 run 2: 367089 rows, 317 requests, 0 error(s) for trade date 2026-10-29
