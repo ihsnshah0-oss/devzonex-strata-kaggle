@@ -44,17 +44,33 @@ def _endpoint_to_path(endpoint: str) -> Path:
         return Path("indices") / f"{endpoint.split('/', 1)[1]}.html"
     if endpoint.startswith("history/"):
         return Path("history") / f"{endpoint.split('/', 1)[1]}.html"
+    if endpoint.startswith("timeseries/eod/"):
+        return Path("timeseries") / "eod" / f"{endpoint.rsplit('/', 1)[1]}.json"
     if endpoint.startswith("company/"):
         return Path("company") / f"{endpoint.split('/', 1)[1]}.html"
     return Path(f"{endpoint.replace('/', '_')}.html")
 
 
-def save_capture(responses: Iterable[PortalResponse], directory: Path) -> dict[str, Any]:
+#: Per-symbol history pages are ~0.5 MB each; keep a few as proof, not all of them.
+HISTORY_CAPTURE_LIMIT = 3
+
+
+def save_capture(
+    responses: Iterable[PortalResponse],
+    directory: Path,
+    *,
+    history_limit: int = HISTORY_CAPTURE_LIMIT,
+) -> dict[str, Any]:
     """Write recorded responses to ``directory`` and return the manifest."""
     root = Path(directory)
     root.mkdir(parents=True, exist_ok=True)
     files: list[dict[str, Any]] = []
+    kept_history = 0
     for response in responses:
+        if response.endpoint.startswith("history/"):
+            if kept_history >= history_limit:
+                continue
+            kept_history += 1
         relative = _endpoint_to_path(response.endpoint)
         target = root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -148,6 +164,9 @@ class CaptureClient:
 
     def symbols_json(self) -> PortalResponse:
         return self._read("symbols")
+
+    def timeseries_eod(self, symbol: str) -> PortalResponse:
+        return self._read(f"timeseries/eod/{symbol.strip().upper()}")
 
     def company(self, symbol: str) -> PortalResponse:
         return self._read(f"company/{symbol.strip().upper()}")

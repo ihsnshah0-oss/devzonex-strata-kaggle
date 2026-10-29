@@ -51,6 +51,15 @@ jobs:
       - name: Offline self-check (parsers, store, capture replay)
         run: python -m pytest tests/test_psxdb.py -q
 
+      - name: Restore the committed mirror (so history is not refetched)
+        run: |
+          if [ -f data/psx.db.gz ]; then
+            gunzip -c data/psx.db.gz > data/psx.db
+            echo "restored $(du -h data/psx.db | cut -f1) from the committed gzip"
+          else
+            echo "no committed mirror yet: this run builds one from scratch"
+          fi
+
       - name: Initialise database
         run: python -m strata_research.psxdb init --db data/psx.db
 

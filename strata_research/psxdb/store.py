@@ -227,6 +227,27 @@ class PsxDatabase:
         return len(payload)
 
     # --------------------------------------------------------------- bars
+    def has_bars(self, symbol: str, table: str = "eod_bars") -> bool:
+        """True when this symbol already has at least one stored daily bar."""
+        key = "index_code" if table == "index_bars" else "symbol"
+        row = self.conn.execute(
+            f"SELECT 1 FROM {table} WHERE {key} = ? LIMIT 1", (symbol,)
+        ).fetchone()
+        return row is not None
+
+    def has_history(self, symbol: str) -> bool:
+        """True when ``POST /historical`` already backfilled this symbol.
+
+        The constituent table writes today's bar first, so "has bars" would be
+        true before any backfill happened; the source column is what tells the
+        two apart.
+        """
+        row = self.conn.execute(
+            "SELECT 1 FROM eod_bars WHERE symbol = ? AND source LIKE '%/historical%' LIMIT 1",
+            (symbol,),
+        ).fetchone()
+        return row is not None
+
     def upsert_bars(
         self,
         symbol: str,

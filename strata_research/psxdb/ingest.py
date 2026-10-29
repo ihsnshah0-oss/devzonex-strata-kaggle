@@ -47,6 +47,7 @@ from .parsers import (
     parse_indices,
     parse_history,
     parse_latest_trade_date,
+    parse_timeseries_eod,
     parse_screener,
     parse_sector_codes,
 )
@@ -149,6 +150,8 @@ def ingest(
     company_limit: int | None = None,
     include_history: bool = True,
     history_limit: int | None = None,
+    include_timeseries: bool = True,
+    full_history: bool = False,
     workers: int = 3,
     as_of: date | None = None,
     capture_dir: Path | None = None,
@@ -172,6 +175,7 @@ def ingest(
             "snapshots",
             "financials",
             "history_bars",
+            "timeseries_bars",
         )
     }
     lock = threading.Lock()
@@ -354,40 +358,95 @@ def ingest(
             continue
         report.rows["market_bars"] += db.upsert_bars(symbol, [bar], f"{SOURCE}/indices")
 
-    # 3b ------------------------------------------------- full daily history
-    # ``POST /historical`` returns every published daily bar for one symbol. This is
-    # the only route that carries real history — the constituent table has one day
-    # and no intraday range — so it is what turns the mirror into a time series.
+    # 3b ------------------------------------------- history backfill (OHLCV)
+    # ``POST /historical`` returns every published bar for one symbol with a full
+    # open/high/low/close/volume range. It is ~0.5 MB per symbol, so it runs once
+    # per symbol (and again only if ``full_history`` asks for a refresh).
     history_targets = list(constituent_set)
     if history_limit is not None:
         history_targets = history_targets[: max(0, history_limit)]
     if include_history and history_targets:
-        log(f"daily history: {len(history_targets)} symbols")
+        pending = history_targets if full_history else [
+            symbol for symbol in history_targets if not db.has_history(symbol)
+        ]
+        if pending:
+            log(f"history backfill: {len(pending)} of {len(history_targets)} symbols")
 
-        def fetch_history(symbol: str) -> tuple[str, str | None]:
+            def fetch_history(symbol: str) -> tuple[str, str | None]:
+                try:
+                    page = client.history(symbol)
+                except PortalError as exc:
+                    return symbol, f"{symbol}: {exc}"
+                try:
+                    bars = parse_history(page.body, symbol)
+                except ParseError as exc:
+                    return symbol, f"{symbol}: {exc}"
+                except Exception as exc:  # pragma: no cover - defensive
+                    return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
+                with lock:
+                    _log_raw(db, report.run_id, page, keep_body=False)
+                    report.rows["history_bars"] += db.upsert_bars(
+                        symbol, bars, f"{SOURCE}/historical"
+                    )
+                return symbol, None
+
+            with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+                futures = {pool.submit(fetch_history, s): s for s in pending}
+                for future in as_completed(futures):
+                    symbol, error = future.result()
+                    if error:
+                        fail(f"history: {error}")
+
+    # 3b2 ------------------------------------------ index bars from the feed
+    index_series = [code for code in codes if include_timeseries]
+    if index_series:
+        for code in index_series:
             try:
-                page = client.history(symbol)
+                page = client.timeseries_eod(code)
+                bars = parse_timeseries_eod(page.body, code)
+            except (PortalError, ParseError) as exc:
+                fail(f"timeseries/{code}: {exc}")
+                continue
+            _log_raw(db, report.run_id, page, keep_body=False)
+            report.rows["timeseries_bars"] += db.upsert_bars(
+                code,
+                bars,
+                f"{SOURCE}/timeseries/eod/{code}",
+                table="index_bars",
+                key_column="index_code",
+            )
+
+    # 3c ---------------------------------------- daily bars from the chart feed
+    # ``/timeseries/eod/{SYM}`` is ~40 KB and carries [epoch, close, volume, open]:
+    # cheap enough to refresh every symbol every run. It never supplies high/low,
+    # so COALESCE keeps whatever the backfill or the company page already stored.
+    if include_timeseries and history_targets:
+        log(f"daily bars: {len(history_targets)} symbols")
+
+        def fetch_series(symbol: str) -> tuple[str, str | None]:
+            try:
+                page = client.timeseries_eod(symbol)
             except PortalError as exc:
                 return symbol, f"{symbol}: {exc}"
             try:
-                bars = parse_history(page.body, symbol)
+                bars = parse_timeseries_eod(page.body, symbol)
             except ParseError as exc:
                 return symbol, f"{symbol}: {exc}"
             except Exception as exc:  # pragma: no cover - defensive
                 return symbol, f"{symbol}: {type(exc).__name__}: {exc}"
             with lock:
                 _log_raw(db, report.run_id, page, keep_body=False)
-                report.rows["history_bars"] += db.upsert_bars(
-                    symbol, bars, f"{SOURCE}/historical"
+                report.rows["timeseries_bars"] += db.upsert_bars(
+                    symbol, bars, f"{SOURCE}/timeseries/eod"
                 )
             return symbol, None
 
         with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-            futures = {pool.submit(fetch_history, symbol): symbol for symbol in history_targets}
+            futures = {pool.submit(fetch_series, s): s for s in history_targets}
             for future in as_completed(futures):
                 symbol, error = future.result()
                 if error:
-                    fail(f"history: {error}")
+                    fail(f"timeseries: {error}")
 
     # 4 -------------------------------------------------- company snapshots
     company_targets = list(constituent_set)

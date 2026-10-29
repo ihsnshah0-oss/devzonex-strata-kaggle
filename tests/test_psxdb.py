@@ -39,7 +39,7 @@ from strata_research.psxdb.parsers import (
     parse_company_meta,
     parse_company_stats,
     parse_history,
-    parse_history_date,
+    parse_timeseries_eod,
     parse_index_constituents,
     parse_indices,
     parse_latest_trade_date,
@@ -75,9 +75,14 @@ def build_capture(directory: Path) -> Path:
     company_dir.mkdir(exist_ok=True)
     history_dir = directory / "history"
     history_dir.mkdir(exist_ok=True)
+    series_dir = directory / "timeseries" / "eod"
+    series_dir.mkdir(parents=True, exist_ok=True)
     for symbol in ("OGDC", "PPL", "MEBL", "FFC"):
         shutil.copy(FIXTURES / "company" / f"{symbol}.html", company_dir / f"{symbol}.html")
         shutil.copy(FIXTURES / "history" / f"{symbol}.html", history_dir / f"{symbol}.html")
+        shutil.copy(FIXTURES / "timeseries" / "eod" / f"{symbol}.json", series_dir / f"{symbol}.json")
+    for code in ("KSE100", "KMI30"):
+        shutil.copy(FIXTURES / "timeseries" / "eod" / f"{code}.json", series_dir / f"{code}.json")
     return directory
 
 
@@ -135,19 +140,52 @@ def test_parse_screener_rejects_a_page_without_a_table():
         parse_screener("<html><body><p>maintenance</p></body></html>")
 
 
+# --------------------------------------------------------- chart feed (JSON)
+def test_parse_timeseries_eod_reads_close_volume_open():
+    payload = (FIXTURES / "timeseries" / "eod" / "OGDC.json").read_text(encoding="utf-8")
+    bars = parse_timeseries_eod(payload, "OGDC")
+    assert len(bars) == 5
+    assert bars[-1]["trade_date"].isoformat() == "2026-10-29"   # newest last
+    assert bars[-1]["close"] == pytest.approx(218.75)
+    assert bars[-1]["open"] == pytest.approx(218.31)
+    assert bars[-1]["volume"] == pytest.approx(2_584_565)
+    # the chart feed has no intraday range; it must never be invented
+    assert bars[-1]["high"] is None and bars[-1]["low"] is None
+
+
+def test_parse_timeseries_eod_rejects_an_empty_or_failed_feed():
+    with pytest.raises(ParseError):
+        parse_timeseries_eod({"status": 0, "message": "error", "data": []}, "OGDC")
+    with pytest.raises(ParseError):
+        parse_timeseries_eod({"status": 1, "data": []}, "OGDC")
+    with pytest.raises(ParseError):
+        parse_timeseries_eod("<html>not json</html>", "OGDC")
+
+
+def test_ingesting_twice_does_not_refetch_history(capture: Path, tmp_path: Path):
+    database = PsxDatabase(tmp_path / "psx.db").initialise()
+    first = ingest_from_capture(capture, database, log=lambda _m: None)
+    second = ingest_from_capture(capture, database, log=lambda _m: None)
+    assert first.rows["history_bars"] > 0
+    assert second.rows["history_bars"] == 0        # the backfill is per symbol, once
+    assert second.rows["timeseries_bars"] > 0      # the cheap feed refreshes every run
+    database.close()
+
+
 # ------------------------------------------------------------ history table
 def test_parse_history_reads_full_ohlcv_rows():
+    """The fixture is byte-for-byte the portal's own table shape (data-name headers)."""
     bars = parse_history(
         (FIXTURES / "history" / "OGDC.html").read_text(encoding="utf-8"), "OGDC"
     )
     assert len(bars) == 5
-    # oldest first, so upserts and charts both read naturally
+    # the portal lists newest first; the parser returns oldest first for storage
     assert [bar["trade_date"].isoformat() for bar in bars][-1] == "2026-10-29"
-    latest = bars[-1]
-    assert latest["close"] == pytest.approx(218.75)
-    assert latest["open"] == pytest.approx(216.0, abs=2.0)
-    assert latest["high"] >= latest["close"] >= latest["low"]
-    assert latest["volume"] == pytest.approx(2_584_565)
+    assert bars[-1]["close"] == pytest.approx(218.75)
+    assert bars[-1]["high"] >= bars[-1]["close"] >= bars[-1]["low"]
+    assert bars[-1]["volume"] == pytest.approx(2_584_565)
+    # "Oct 29, 2026" is the portal's date spelling and must parse
+    assert bars[0]["trade_date"].isoformat() == "2026-10-23"
 
 
 def test_parse_history_ignores_extra_columns_and_bad_rows():
@@ -450,7 +488,7 @@ def test_ingest_from_capture_builds_a_queryable_database(capture: Path, tmp_path
     # a bar assembled from two pages records both contributors
     assert ogdc_bar["source"] == (
         "dps.psx.com.pk/indices + dps.psx.com.pk/historical "
-        "+ dps.psx.com.pk/company/OGDC"
+        "+ dps.psx.com.pk/timeseries/eod + dps.psx.com.pk/company/OGDC"
     )
 
     # ---- company pages add the intraday range the constituent table lacks

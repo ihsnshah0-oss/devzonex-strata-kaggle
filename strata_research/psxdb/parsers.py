@@ -18,6 +18,7 @@ Nothing here performs I/O.
 from __future__ import annotations
 
 import html as html_module
+import json
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
@@ -483,6 +484,56 @@ def parse_history_date(text: str) -> date | None:
     return None
 
 
+#: The chart feed's row layout: ``[epoch, close, volume, open]``.
+TIMESERIES_FIELDS = ("trade_date", "close", "volume", "open")
+
+
+def parse_timeseries_eod(payload: Any, symbol: str = "?") -> list[dict[str, Any]]:
+    """Parse ``GET /timeseries/eod/{SYM}`` — the portal's compact OHLCV feed.
+
+    The feed answers ``{"status": 1, "message": "", "data": [[epoch, close,
+    volume, open], ...]}`` newest first. It carries no high/low (``POST
+    /historical`` does), so those stay ``None`` here and are never invented.
+    """
+    if isinstance(payload, str):
+        try:
+            payload = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            raise ParseError(
+                f"timeseries/{symbol}: not JSON ({payload[:60]!r})"
+            ) from exc
+    if not isinstance(payload, dict):
+        raise ParseError(f"timeseries/{symbol}: expected a JSON object")
+    if payload.get("status") not in (1, "1", True):
+        message = payload.get("message") or "no status"
+        raise ParseError(f"timeseries/{symbol}: portal said {message!r}")
+    data = payload.get("data")
+    if not isinstance(data, list) or not data:
+        raise ParseError(f"timeseries/{symbol}: the feed carried no rows")
+
+    bars: dict[date, dict[str, Any]] = {}
+    for entry in data:
+        if not isinstance(entry, (list, tuple)) or len(entry) < 4:
+            continue
+        moment = derive_trade_date(entry[0])
+        if moment is None:
+            continue
+        bar = {
+            "trade_date": moment,
+            "open": to_float(entry[3]),
+            "high": None,   # the chart feed carries no intraday range
+            "low": None,
+            "close": to_float(entry[1]),
+            "volume": to_float(entry[2]),
+        }
+        if bar["close"] is None:
+            continue
+        bars[moment] = bar
+    if not bars:
+        raise ParseError(f"timeseries/{symbol}: no parsable rows")
+    return [bars[day] for day in sorted(bars)]
+
+
 def parse_history(html: str, symbol: str = "?") -> list[dict[str, Any]]:
     """Parse the ``POST /historical`` table into daily bars.
 
@@ -866,6 +917,7 @@ __all__ = [
     "parse_company_stats",
     "parse_history",
     "parse_history_date",
+    "parse_timeseries_eod",
     "parse_index_constituents",
     "parse_indices",
     "parse_latest_trade_date",
