@@ -24,7 +24,12 @@ Last live run (2026-10-29, `data/psx.db.gz` in this repo):
 | Index levels | 18 (KSE100, KMI30, ALLSHR, KSE30, …) |
 | Daily bars | 103 (KSE100 ∪ KMI30), each with open/high/low/close/prev_close/volume |
 | Published financial line items | 3 992 rows across 103 companies and 22 periods |
-| Requests / errors / duration | 109 / 0 / 70 s |
+| Requests / errors / duration | 110 / 0 / 70 s |
+| Database size | 271 KB gzipped (`data/psx.db.gz`) |
+
+A second run 6 minutes later stored **exactly the same counts with 0 new rows and 0
+duplicate bars** — re-running the ingest is idempotent, and the portal was still serving the
+2026-10-29 session (the market had closed), so no phantom trade date was invented.
 
 ## What the portal publishes (verified, not assumed)
 
@@ -100,6 +105,10 @@ Design rules:
 * **A richer row is never overwritten by a poorer one.** All updates use
   `COALESCE`, so a bar that has a high/low keeps them when a later page only
   publishes a close.
+* **No hardcoded memberships.** The constituent lists come from `/indices/{CODE}` on every run;
+  `ingest(expected_constituents=...)` exists for callers who want a sanity check, but the mirror
+  never falls back to a list baked into the code — if the portal does not say it, the database does
+  not claim it.
 * **Memberships are as-of snapshots.** A KSE100 rebalance adds a new snapshot
   instead of rewriting history: `constituents KSE100 --as-of 2026-06-30` still
   answers the old question.
