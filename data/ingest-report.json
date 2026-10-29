@@ -1,10 +1,3 @@
-screener: 569 listed symbols
-indices: 18 levels stored
-indices/KSE100: 78 constituents
-indices/KMI30: 23 constituents
-company pages: 81
-capture saved: captures/latest (87 files)
-done: 4587 rows, 87 requests, 0 error(s) in 58.3s
 {
   "run_id": 1,
   "mode": "live",
@@ -14,28 +7,28 @@ done: 4587 rows, 87 requests, 0 error(s) in 58.3s
     "KMI30"
   ],
   "trade_date": "2026-10-29",
-  "requests": 87,
+  "requests": 109,
   "rows": {
-    "symbols": 569,
-    "memberships": 101,
-    "market_bars": 81,
+    "symbols": 754,
+    "memberships": 130,
+    "market_bars": 103,
     "index_bars": 18,
     "index_levels": 18,
-    "snapshots": 650,
-    "financials": 3150
+    "snapshots": 857,
+    "financials": 3992
   },
-  "rows_written": 4587,
+  "rows_written": 5872,
   "errors": [],
   "warnings": [],
   "constituents": {
-    "KSE100": 78,
-    "KMI30": 23
+    "KSE100": 100,
+    "KMI30": 30
   },
   "notes": {
     "trade_date_source": "historical-data-latest",
     "constituents": {
-      "KSE100": 78,
-      "KMI30": 23
+      "KSE100": 100,
+      "KMI30": 30
     },
     "errors": 0,
     "warnings": 0,
@@ -46,11 +39,11 @@ done: 4587 rows, 87 requests, 0 error(s) in 58.3s
     ],
     "capture": {
       "directory": "captures/latest",
-      "files": 87
+      "files": 109
     }
   },
-  "started_at": "2026-10-29T20:50:25+00:00",
-  "finished_at": "2026-10-29T20:51:24+00:00",
-  "duration_s": 58.25
+  "started_at": "2026-10-29T20:53:52+00:00",
+  "finished_at": "2026-10-29T20:55:01+00:00",
+  "duration_s": 69.63
 }
-run 1: 4587 rows, 87 requests, 0 error(s) for trade date 2026-10-29
+run 1: 5872 rows, 109 requests, 0 error(s) for trade date 2026-10-29
