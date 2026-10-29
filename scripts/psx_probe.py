@@ -103,20 +103,32 @@ def main() -> int:
         # The data routes: without the token the portal answers 404, which is what
         # made POST /historical look withdrawn for weeks.
         auth = {"X-Req-Id": token} if token else {}
+        xhr = {
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Referer": f"{BASE}/",
+        }
+        html_accept = {"Accept": "text/html, application/xhtml+xml, */*; q=0.01"}
+
         probes: dict[str, object] = {}
-        for label, method, path, data in (
-            ("history_without_token", "POST", "/historical", {"symbol": SYMBOL}),
-            ("history_with_token", "POST", "/historical", {"symbol": SYMBOL}),
-            ("symbols_with_token", "GET", "/symbols", None),
-            ("symbols_json_with_token", "GET", "/symbols", None),
-        ):
-            headers = dict(HEADERS)
-            if label.endswith("_with_token"):
-                headers.update(auth)
-                if label == "symbols_json_with_token":
-                    headers["Accept"] = "application/json, text/javascript, */*; q=0.01"
-                    headers["X-Requested-With"] = "XMLHttpRequest"
-            response = client.request(method, f"{BASE}{path}", data=data, headers=headers)
+        matrix = (
+            # label, method, path, body, extra headers
+            ("history_plain", "POST", "/historical", {"symbol": SYMBOL}, {}),
+            ("history_token", "POST", "/historical", {"symbol": SYMBOL}, auth),
+            ("history_token_xhr", "POST", "/historical", {"symbol": SYMBOL}, {**auth, **xhr, **html_accept}),
+            ("history_xhr_only", "POST", "/historical", {"symbol": SYMBOL}, {**xhr, **html_accept}),
+            ("symbols_token_xhr", "GET", "/symbols", None, {**auth, **xhr}),
+            ("timeseries_eod", "GET", f"/timeseries/eod/{SYMBOL}", None, {**auth, **xhr}),
+            ("trading_board", "GET", "/trading-board/REG/MAIN", None, {**auth, **xhr, **html_accept}),
+            ("sector_summary", "GET", "/sector-summary/sectorwise", None, {**auth, **xhr, **html_accept}),
+        )
+        for label, method, path, body, extra in matrix:
+            headers = {**HEADERS, **extra}
+            try:
+                response = client.request(method, f"{BASE}{path}", data=body, headers=headers)
+            except Exception as exc:  # a probe must never die on one route
+                probes[label] = {"method": method, "path": path, "error": f"{type(exc).__name__}: {exc}"}
+                continue
             entry: dict[str, object] = {
                 "method": method,
                 "path": path,
@@ -126,9 +138,21 @@ def main() -> int:
             }
             if response.status_code == 200:
                 if "json" in (response.headers.get("content-type") or ""):
-                    entry["json_head"] = response.text[:400]
+                    entry["json_head"] = response.text[:300]
+                    try:
+                        payload = response.json()
+                        entry["json_type"] = type(payload).__name__
+                        entry["json_len"] = len(payload) if hasattr(payload, "__len__") else None
+                        if isinstance(payload, list) and payload:
+                            entry["json_sample"] = payload[0]
+                        elif isinstance(payload, dict):
+                            entry["json_keys"] = list(payload)[:12]
+                    except ValueError:
+                        entry["json_error"] = "not JSON"
                 else:
                     entry["table"] = table_summary(response.text)
+            else:
+                entry["body_head"] = text(response.text)[:300]
             probes[label] = entry
         report["data_routes"] = probes
 
@@ -190,12 +214,19 @@ def main() -> int:
         print(f"   {pair['label']!r:32s} -> {pair['value']!r}")
     print("token:", report["token"])
     for label, entry in report["data_routes"].items():
-        print(f"   {label:24s} {entry['status']} bytes={entry['bytes']}"
-              f" tables={entry.get('table', {}).get('tables')}"
-              f" rows={entry.get('table', {}).get('rows')}")
+        if "error" in entry:
+            print(f"   {label:22s} ERROR {entry['error']}")
+            continue
+        print(f"   {label:22s} {entry['status']} bytes={entry['bytes']} "
+              f"type={entry.get('content_type')} "
+              f"tables={entry.get('table', {}).get('tables')} "
+              f"rows={entry.get('table', {}).get('rows')} "
+              f"json_len={entry.get('json_len')}")
         if entry.get("table", {}).get("headers"):
             print("      headers:", entry["table"]["headers"])
             print("      first:  ", entry["table"]["first_row"])
+        if entry.get("body_head"):
+            print("      says:   ", entry["body_head"][:160])
     print("screener selects:", report["screener"]["select_count"], "options:", len(options))
     for option in options[:10]:
         print("   option", option)
