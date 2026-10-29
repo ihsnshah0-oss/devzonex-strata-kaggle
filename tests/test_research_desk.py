@@ -174,22 +174,31 @@ class PsxQuoteClientTests(unittest.TestCase):
         self.assertEqual(parse_historical_table("<html>maintenance</html>"), [])
         self.assertEqual(parse_historical_table(""), [])
 
-    def test_quote_uses_last_close_and_change(self):
+    def test_quote_reads_the_company_page(self):
+        """Without a mirror, a quote comes from /company/{SYMBOL} (close + LDCP)."""
+        company_page = (
+            '<div class="stats_item"><div class="stats_label">LDCP</div>'
+            '<div class="stats_value">164.25</div></div>'
+            '<div class="stats_item"><div class="stats_label">Close</div>'
+            '<div class="stats_value">165.00</div></div>'
+            '<div class="stats_item"><div class="stats_label">Volume</div>'
+            '<div class="stats_value">987,600</div></div>'
+        )
+
         def handler(request: httpx.Request) -> httpx.Response:
-            self.assertEqual(request.url.path, "/historical")
-            body = request.content.decode()
-            self.assertIn("symbol=OGDC", body)
-            return httpx.Response(200, text=self.HTML)
+            self.assertEqual(request.url.path, "/company/OGDC")
+            return httpx.Response(200, text=company_page)
 
         client = PsxQuoteClient(
             base_url="https://dps.example.pk",
             client=httpx.Client(transport=httpx.MockTransport(handler)),
+            use_mirror=False,
         )
         quote = client.quote("PSX:OGDC")
         self.assertEqual(quote.symbol, "OGDC")
         self.assertEqual(quote.price, 165.0)
         self.assertAlmostEqual(quote.change_pct, 165.0 / 164.25 - 1, places=5)
-        self.assertEqual(quote.as_of, "2026-10-29")
+        self.assertEqual(quote.volume, 987600.0)
 
     def test_quote_failure_is_not_fatal(self):
         def handler(request: httpx.Request) -> httpx.Response:
@@ -198,21 +207,31 @@ class PsxQuoteClientTests(unittest.TestCase):
         client = PsxQuoteClient(
             base_url="https://dps.example.pk",
             client=httpx.Client(transport=httpx.MockTransport(handler)),
+            use_mirror=False,
         )
         quote = client.quote("OGDC")
         self.assertIsNone(quote.price)
         self.assertIn("503", client.last_error or "")
 
-    def test_symbols_directory_parsing(self):
+    def test_symbols_come_from_the_screener_page(self):
+        screener = (
+            '<table><thead><tr><th data-name="symbol">SYMBOL</th><th>SECTOR</th>'
+            '<th>LISTED IN</th><th>PRICE</th></tr></thead><tbody>'
+            '<tr><td>OGDC</td><td>0820</td><td>KSE100</td><td>306.21</td></tr>'
+            '<tr><td>LUCK</td><td>0804</td><td>KSE100</td><td>1,205.10</td></tr>'
+            '</tbody></table>'
+        )
+
         def handler(request: httpx.Request) -> httpx.Response:
-            self.assertEqual(request.url.path, "/symbols")
-            return httpx.Response(200, json=[{"symbol": "ogdc"}, "LUCK", {"Symbol": "MEBL"}])
+            self.assertEqual(request.url.path, "/screener")
+            return httpx.Response(200, text=screener)
 
         client = PsxQuoteClient(
             base_url="https://dps.example.pk",
             client=httpx.Client(transport=httpx.MockTransport(handler)),
+            use_mirror=False,
         )
-        self.assertEqual(client.symbols(), ["OGDC", "LUCK", "MEBL"])
+        self.assertEqual(client.symbols(), ["OGDC", "LUCK"])
 
 
 class PsxStatementsProviderTests(unittest.TestCase):

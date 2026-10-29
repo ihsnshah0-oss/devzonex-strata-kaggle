@@ -19,3 +19,9 @@ packs/
 mtp/
 /kaggle-home/
 reports/
+
+# PSX mirror: the committed artefact is data/psx.db.gz; the expanded DB is derived
+data/psx.db
+data/psx.db-journal
+data/psx.db-wal
+data/psx.db-shm

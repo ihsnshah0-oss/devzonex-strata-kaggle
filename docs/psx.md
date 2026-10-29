@@ -17,7 +17,7 @@ Any of these spellings resolve to the same company:
 | `OGDC-KA` | `OGDC` |
 
 The canonical symbol is the PSX ticker. Yahoo Finance's Karachi listing code is derived as
-`<SYMBOL>.KA`, which the optional live provider uses.
+`<SYMBOL>.KA`, which the optional `yfinance` *fundamentals* provider uses (never the price path).
 
 ## Where the fundamentals come from
 
@@ -33,6 +33,10 @@ statements**, so the desk does not pretend to have one. Instead:
 
 In `auto` mode the desk tries `psx` → `yfinance` → `demo` and records which one answered in
 `profile.data_source`. Every report states its `data_quality`: `reported`, `mixed` or `synthetic`.
+
+> Scope note: `yfinance` and `demo` exist **for the analyst desk only**. The mirror database
+> ([psx-database.md](psx-database.md)) is built from the PSX Data Portal exclusively — nothing from
+> Yahoo or the demo universe ever enters `data/psx.db`.
 
 ### Filling `STRATA_RESEARCH_PSX_DIR`
 
@@ -64,15 +68,26 @@ tested.
 
 ## Live prices
 
-When `STRATA_RESEARCH_PSX_QUOTES=true` (default), the desk asks the public PSX Data Portal
-(`https://dps.psx.com.pk`) for the current month's daily table and uses the latest close. Notes:
+Prices come from the **PSX Data Portal only** (`https://dps.psx.com.pk`), in this order:
 
-- This is an **unofficial, undocumented endpoint**. Markup can change; the parser degrades to "no
-  quote" rather than crashing.
-- A missing quote is never fatal: the `profile.price` from your file is used, and the report notes
-  what happened.
-- `data/psx` prices you typed are overridden by a live close when one is available.
-- Set `STRATA_RESEARCH_PSX_QUOTES=false` for fully offline runs (tests do this).
+1. **The local mirror** — `data/psx.db`, the SQLite database described in
+   [psx-database.md](psx-database.md). When it exists it is authoritative: an exact, offline close
+   plus the trade date the portal itself reported, with no network call at all.
+2. **`/company/{SYMBOL}`** — when there is no mirror, the desk reads the company page: `Close` (or
+   `Current Price` when the market is open) and `LDCP`, and derives the change from the two.
+3. **Nothing.** A missing quote is never fatal: `profile.price` from your statement file is used and
+   the report records what happened (`data_quality: mixed`).
+
+Notes that matter:
+
+- The old `POST /historical` month table this client used **no longer returns rows** — the deployment
+  serves the date picker and nothing else. That route is gone from the code, not merely
+  error-suppressed.
+- This is an **unofficial, undocumented endpoint**. Markup can change; the parser degrades to
+  "no quote" rather than crashing, and `scripts/psx_probe.py` shows the current shape.
+- A live close overrides a `price` you typed in `data/psx`, and the report says so.
+- `STRATA_RESEARCH_PSX_QUOTES=false` forces fully offline runs; `PsxQuoteClient(mirror_path=...)`
+  points at a different database.
 
 ## Sector lens
 

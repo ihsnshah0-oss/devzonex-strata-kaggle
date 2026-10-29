@@ -49,9 +49,11 @@ What "PSX-only" means in the implementation:
   power and tech.
 - **PSX red flags** — policy-rate sensitivity (interest cost as a share of revenue), IPP circular-debt
   exposure, and an explicit refusal to score banks/insurers with an industrial ratio model.
-- **Data** — your own statement files (`STRATA_RESEARCH_PSX_DIR`) plus live PSX Data Portal closes,
-  optional Yahoo `<SYMBOL>.KA` listings, or a fictional offline demo universe
-  (`DMEPL`, `DMFRT`, `DMCMT`, `DMPWR`).
+- **Data** — prices from the **PSX Data Portal only**, read from the committed SQLite mirror
+  (`data/psx.db.gz`) and falling back to the portal's `/company/{SYMBOL}` page; fundamentals from
+  your own statement files (`STRATA_RESEARCH_PSX_DIR`), optional Yahoo `<SYMBOL>.KA` statements, or a
+  fictional offline demo universe (`DMEPL`, `DMFRT`, `DMCMT`, `DMPWR`). The mirror itself is built
+  from the portal exclusively — no other source ever enters it.
 
 The design principle: **Python owns the numbers, the LLM owns the narrative.** Ratios, scores and red
 flags are computed deterministically; the model receives them as an evidence pack with six read-only
@@ -59,7 +61,8 @@ tools, must answer in a strict JSON contract, and every figure it writes is re-c
 computed evidence before the report is returned. If the endpoint is unavailable the desk still
 returns the deterministic note instead of failing.
 
-- Full guide: **[docs/research-desk.md](docs/research-desk.md)** · PSX data guide: **[docs/psx.md](docs/psx.md)**
+- Full guide: **[docs/research-desk.md](docs/research-desk.md)** · PSX data guide: **[docs/psx.md](docs/psx.md)** ·
+  PSX database: **[docs/psx-database.md](docs/psx-database.md)**
 - Example PSX statements file: [examples/psx/DMQSR.json](examples/psx/DMQSR.json)
 - Tests: `python -m pytest -q tests/test_research_desk.py` (offline, no credentials)
 
@@ -134,6 +137,7 @@ Opening the notebook imports its code; it does **not** grant access to anyone el
 - [OpenCode connection guide](docs/opencode-setup.md)
 - [PSX Research Desk guide](docs/research-desk.md)
 - [PSX data, units and limits](docs/psx.md)
+- [PSX KSE100/KMI30 SQLite mirror](docs/psx-database.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Security policy](SECURITY.md)
 - [Strata official setup guide](https://github.com/Niko1221/Strata/blob/main/docs/AI_SETUP.md)

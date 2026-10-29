@@ -11,10 +11,13 @@ Everything market-specific lives here so the analyst code stays generic:
 
 from __future__ import annotations
 
+import gzip
 import html as html_module
 import re
+import shutil
 from dataclasses import dataclass
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any, Iterable
 
 import httpx
@@ -274,13 +277,42 @@ def parse_historical_table(html: str) -> list[dict[str, Any]]:
     return rows
 
 
-class PsxQuoteClient:
-    """Minimal PSX Data Portal client: symbols list and daily closes.
+def _expand_mirror(path: Path) -> Path | None:
+    """Return ``path``, expanding the committed ``<path>.gz`` mirror when needed.
 
-    The portal exposes no documented JSON quote API, so this reads the public
-    historical table for the current month (falling back one month) and keeps the
-    last two closes. Failures are reported as ``None`` values, never exceptions,
-    because a missing quote must not stop a research report.
+    The repository ships ``data/psx.db.gz`` because SQLite files compress well and
+    do not diff; a checkout therefore has the gzip but not the database. Expanding
+    it once on first use keeps the desk offline-capable without a build step.
+    """
+    archive = path.with_name(path.name + ".gz")
+    if not archive.exists():
+        return None
+    temporary = path.with_name(path.name + ".tmp")
+    try:
+        with gzip.open(archive, "rb") as source, temporary.open("wb") as target:
+            shutil.copyfileobj(source, target)
+        temporary.replace(path)
+    except Exception:  # a corrupt or read-only mirror must not break the desk
+        temporary.unlink(missing_ok=True)
+        return None
+    return path
+
+
+class PsxQuoteClient:
+    """PSX Data Portal quote client: the mirror database first, then the portal.
+
+    The portal's old JSON routes (``/symbols``, ``/market-watch``,
+    ``/timeseries/eod/{symbol}``) return 404 from the current deployment, and the
+    form-based ``POST /historical`` no longer serves rows. Quotes therefore come
+    from, in order:
+
+    1. **the local mirror** (``data/psx.db``) built by
+       ``python -m strata_research.psxdb ingest`` — exact, offline, and the same
+       bytes the portal served;
+    2. the **company page** ``/company/{SYMBOL}``, which publishes the close,
+       LDCP and volume for the current session;
+    3. nothing at all — ``None`` values, because a missing quote must never stop
+       a research report.
     """
 
     def __init__(
@@ -288,12 +320,16 @@ class PsxQuoteClient:
         base_url: str = PSX_DEFAULT_BASE_URL,
         timeout: float = 12.0,
         client: httpx.Client | None = None,
+        mirror_path: str | Path | None = None,
+        use_mirror: bool = True,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self._client = client
         self._owns_client = client is None
         self.last_error: str | None = None
+        self.mirror_path = Path(mirror_path).expanduser() if mirror_path else None
+        self.use_mirror = use_mirror
 
     def _http(self) -> httpx.Client:
         if self._client is None:
@@ -306,28 +342,97 @@ class PsxQuoteClient:
             self._client.close()
             self._client = None
 
-    def symbols(self) -> list[str]:
+    def _mirror(self):
+        """The local portal mirror, or ``None`` when it has not been built."""
+        if not self.use_mirror:
+            return None
         try:
-            response = self._http().get(f"{self.base_url}/symbols")
+            from .psxdb.query import database_stats
+            from .psxdb.store import DEFAULT_DB_PATH, PsxDatabase
+
+            path = Path(self.mirror_path or DEFAULT_DB_PATH)
+            if not path.exists():
+                path = _expand_mirror(path)
+                if path is None:
+                    return None
+            database = PsxDatabase(path)
+            if not database_stats(database)["tables"].get("symbols"):
+                database.close()
+                return None
+            return database
+        except Exception:  # a broken mirror must not break the desk
+            return None
+
+    def symbols(self) -> list[str]:
+        """Listed symbols, from the mirror when it exists, else from /screener."""
+        database = self._mirror()
+        if database is not None:
+            try:
+                from .psxdb.query import symbols as db_symbols
+
+                found = [row["symbol"] for row in db_symbols(database)]
+                if found:
+                    return found
+            finally:
+                database.close()
+        try:
+            from .psxdb.parsers import parse_screener
+
+            response = self._http().get(f"{self.base_url}/screener")
             response.raise_for_status()
-            payload = response.json()
+            return [row.symbol for row in parse_screener(response.text)]
         except Exception as exc:  # network/parse failures are non-fatal
             self.last_error = f"symbol list unavailable: {exc}"
             return []
-        found: list[str] = []
-        if isinstance(payload, list):
-            for item in payload:
-                if isinstance(item, str):
-                    found.append(item.strip().upper())
-                elif isinstance(item, dict):
-                    for key in ("symbol", "Symbol", "SYMBOL", "scrip"):
-                        if isinstance(item.get(key), str):
-                            found.append(item[key].strip().upper())
-                            break
-        return [item for item in found if item]
 
     def quote(self, symbol: str) -> PsxQuote:
         base = normalize_symbol(symbol)
+
+        database = self._mirror()
+        if database is not None:
+            try:
+                from .psxdb.query import price_history
+
+                bars = price_history(database, symbol=base, limit=2)
+                if bars:
+                    latest = bars[0]
+                    previous = bars[1] if len(bars) > 1 else None
+                    change_pct = None
+                    prior = (previous or {}).get("close") or latest.get("prev_close")
+                    if prior and latest.get("close"):
+                        change_pct = latest["close"] / prior - 1.0
+                    return PsxQuote(
+                        symbol=base,
+                        price=latest.get("close"),
+                        change_pct=round(change_pct, 6) if change_pct is not None else None,
+                        volume=latest.get("volume"),
+                        as_of=latest.get("trade_date"),
+                    )
+            finally:
+                database.close()
+
+        # no mirror: ask the company page directly (the portal's live quote)
+        try:
+            from .psxdb.parsers import parse_company_stats
+
+            response = self._http().get(f"{self.base_url}/company/{base}")
+            response.raise_for_status()
+            stats = parse_company_stats(response.text)
+            price = stats.get("price")
+            previous = stats.get("prev_close")
+            if price is not None:
+                change_pct = price / previous - 1.0 if previous else None
+                return PsxQuote(
+                    symbol=base,
+                    price=price,
+                    change_pct=round(change_pct, 6) if change_pct is not None else None,
+                    volume=stats.get("volume"),
+                    as_of=None,
+                )
+        except Exception as exc:  # non-fatal, as above
+            self.last_error = f"quote unavailable for {base}: {exc}"
+            return PsxQuote(symbol=base)
+
         rows: list[dict[str, Any]] = []
         today = date.today()
         for months_back in (0, 1):

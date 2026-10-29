@@ -608,6 +608,49 @@ def test_symbols_query_filters_by_sector_code(capture: Path, tmp_path: Path):
     database.close()
 
 
+def test_the_desk_quotes_from_the_mirror_without_the_network(capture: Path, tmp_path: Path):
+    """The research desk reads closes out of the mirror, not from a dead route."""
+    from strata_research.psx import PsxQuoteClient
+
+    database = PsxDatabase(tmp_path / "psx.db").initialise()
+    ingest_from_capture(capture, database, log=lambda _m: None)
+    database.close()
+
+    client = PsxQuoteClient(mirror_path=tmp_path / "psx.db")
+    try:
+        quote = client.quote("PSX:OGDC")
+        assert quote.symbol == "OGDC"
+        assert quote.price == pytest.approx(218.75)
+        assert quote.as_of == "2026-10-29"
+        assert quote.change_pct == pytest.approx(218.75 / 215.40 - 1, abs=1e-5)  # rounded to 6dp
+        assert set(client.symbols()) == {"OGDC", "PPL", "MEBL", "FFC", "NBPGETF"}
+    finally:
+        client.close()
+
+
+def test_the_committed_gzip_mirror_expands_on_first_use(capture: Path, tmp_path: Path):
+    """A checkout has data/psx.db.gz, not the database: the desk expands it once."""
+    import gzip
+    import shutil
+
+    from strata_research.psx import PsxQuoteClient
+
+    database = PsxDatabase(tmp_path / "psx.db").initialise()
+    ingest_from_capture(capture, database, log=lambda _m: None)
+    database.close()
+    with open(tmp_path / "psx.db", "rb") as source, gzip.open(tmp_path / "psx.db.gz", "wb") as target:
+        shutil.copyfileobj(source, target)
+    (tmp_path / "psx.db").unlink()
+
+    client = PsxQuoteClient(mirror_path=tmp_path / "psx.db")
+    try:
+        self_price = client.quote("MEBL").price
+    finally:
+        client.close()
+    assert (tmp_path / "psx.db").exists()
+    assert self_price is not None
+
+
 def test_trade_date_falls_back_to_the_last_weekday(tmp_path: Path):
     """If the portal is mute about its trading date, weekend days are skipped."""
     from strata_research.psxdb.ingest import _fallback_trade_date
