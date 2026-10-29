@@ -1,0 +1,59 @@
+ERROR symbols: symbols: HTTP 404 from https://dps.psx.com.pk/symbols
+ERROR market-watch: market-watch: HTTP 404 from https://dps.psx.com.pk/market-watch
+price series: 2 symbols since 2025-09-24
+capture saved: captures/latest (1 files)
+done: 0 rows, 5 requests, 4 error(s) in 4.7s
+{
+  "run_id": 1,
+  "mode": "live",
+  "source": "dps.psx.com.pk",
+  "indices": [
+    "KSE100",
+    "KMI30"
+  ],
+  "requests": 5,
+  "rows": {
+    "symbols": 0,
+    "memberships": 0,
+    "market_bars": 0,
+    "index_bars": 0,
+    "snapshots": 0,
+    "financial_years": 0
+  },
+  "rows_written": 0,
+  "errors": [
+    "ERROR symbols: symbols: HTTP 404 from https://dps.psx.com.pk/symbols",
+    "ERROR market-watch: market-watch: HTTP 404 from https://dps.psx.com.pk/market-watch",
+    "ERROR eod: KMI30: timeseries/eod/KMI30: HTTP 404 from https://dps.psx.com.pk/timeseries/eod/KMI30",
+    "ERROR eod: KSE100: timeseries/eod/KSE100: HTTP 404 from https://dps.psx.com.pk/timeseries/eod/KSE100"
+  ],
+  "constituents": {
+    "KSE100": 0,
+    "KMI30": 0
+  },
+  "notes": {
+    "index_levels_from": [
+      "KSE100",
+      "KMI30"
+    ],
+    "history_days": 400,
+    "cutoff": "2025-09-24",
+    "constituents": {
+      "KSE100": 0,
+      "KMI30": 0
+    },
+    "errors": 4,
+    "capture": {
+      "directory": "captures/latest",
+      "files": 1
+    }
+  },
+  "started_at": "2026-10-29T20:20:04+00:00",
+  "finished_at": "2026-10-29T20:20:09+00:00",
+  "duration_s": 4.71
+}
+run 1: 0 rows, 5 requests, 4 error(s)
+  ERROR symbols: symbols: HTTP 404 from https://dps.psx.com.pk/symbols
+  ERROR market-watch: market-watch: HTTP 404 from https://dps.psx.com.pk/market-watch
+  ERROR eod: KMI30: timeseries/eod/KMI30: HTTP 404 from https://dps.psx.com.pk/timeseries/eod/KMI30
+  ERROR eod: KSE100: timeseries/eod/KSE100: HTTP 404 from https://dps.psx.com.pk/timeseries/eod/KSE100
