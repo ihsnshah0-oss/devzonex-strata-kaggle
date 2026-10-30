@@ -1,0 +1,23 @@
+# ── local environment ───────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# ── secrets (never commit) ──────────────────────────────────────────
+config/secrets.yaml
+
+# ── data: the committed artefact is ../data/psx.db.gz ───────────────
+# the expanded mirror is derived on first run, and the paper ledger and
+# cache are this machine's state, not source
+data/portal.db
+data/portal.db-*
+data/psx.db
+data/psx.db-*
+data/cache/
+data/broker_account.json
+data/broker_visit.json
+cache/*.json
+captures/
+*.tmp

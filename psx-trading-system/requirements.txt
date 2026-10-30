@@ -1,0 +1,18 @@
+# PSX Trading System — free and open-source stack.
+# Everything below is optional at import time except fastapi/uvicorn/pandas/pyyaml,
+# so an offline machine still boots the dashboard from the portal mirror.
+fastapi>=0.110.0      # web API (dashboard backend)
+uvicorn>=0.29.0       # ASGI server (laptop + phone on the same Wi-Fi)
+pandas>=2.0.0         # data frames
+numpy>=1.26.0         # math
+pyyaml>=6.0.0         # config files
+requests>=2.31.0      # HTTP client
+
+# Optional live-data and reporting extras. Missing ones degrade gracefully:
+psxdata>=1.0.0        # live DPS portal feed (falls back to the mirror)
+feedparser>=6.0.0     # free RSS news (guarded import)
+yfinance>=0.2.40      # last-resort .KA fallback + extra statement fields
+fpdf2>=2.7            # PDF reports
+beautifulsoup4>=4.12  # HTML parsing for the portal pages
+pypdf>=4.0            # broker statement text extraction
+python-multipart>=0.0.9  # file uploads (statement PDF)

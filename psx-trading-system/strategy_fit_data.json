@@ -1,0 +1,1002 @@
+[
+ {
+  "symbol": "MEBL",
+  "company": "Meezan Bank Limited",
+  "buy_hold": 555.67,
+  "top3": [
+   {
+    "id": "pb5_trend_filter_cci",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P5 Trend Filter (21EMA vs 21Wilders+CCI)",
+    "trades": 12,
+    "ret": 348.42,
+    "wr": 50.0,
+    "dd": -18.97,
+    "pf": 8.22,
+    "bh": 555.67,
+    "open": null
+   },
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 7,
+    "ret": 334.81,
+    "wr": 0.0,
+    "dd": -33.89,
+    "pf": 0.0,
+    "bh": 555.67,
+    "open": 529.22
+   },
+   {
+    "id": "pb2_swing_cycle",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P2 Swing Cycle (21EMA+63EMA+RSI-div)",
+    "trades": 16,
+    "ret": 188.27,
+    "wr": 43.8,
+    "dd": -22.21,
+    "pf": 5.63,
+    "bh": 555.67,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "MCB",
+  "company": "MCB Bank Limited",
+  "buy_hold": 106.44,
+  "top3": [
+   {
+    "id": "l19_wyckoff_lps",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L19 Wyckoff LPS / Phase D [0.5% ADV]",
+    "trades": 6,
+    "ret": 139.42,
+    "wr": 0.0,
+    "dd": -25.64,
+    "pf": 0.0,
+    "bh": 106.44,
+    "open": 215.53
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 9,
+    "ret": 122.72,
+    "wr": 0.0,
+    "dd": -34.99,
+    "pf": 0.0,
+    "bh": 106.44,
+    "open": 240.22
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 29,
+    "ret": 61.31,
+    "wr": 41.4,
+    "dd": -17.17,
+    "pf": 2.3,
+    "bh": 106.44,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "UBL",
+  "company": "United Bank Limited",
+  "buy_hold": 226.08,
+  "top3": [
+   {
+    "id": "l10_spring",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L10 Spring / Failed Breakdown [0.5% ADV]",
+    "trades": 5,
+    "ret": 240.98,
+    "wr": 0.0,
+    "dd": -52.58,
+    "pf": 0.0,
+    "bh": 226.08,
+    "open": 337.6
+   },
+   {
+    "id": "l16_turtle_soup",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L16 Turtle Soup Bottom [0.5% ADV]",
+    "trades": 5,
+    "ret": 216.25,
+    "wr": 0.0,
+    "dd": -52.58,
+    "pf": 0.0,
+    "bh": 226.08,
+    "open": 312.71
+   },
+   {
+    "id": "momentum",
+    "name": "Quarterly Momentum",
+    "trades": 38,
+    "ret": 164.93,
+    "wr": 36.8,
+    "dd": -35.68,
+    "pf": 3.47,
+    "bh": 226.08,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "HBL",
+  "company": "Habib Bank Limited",
+  "buy_hold": 125.69,
+  "top3": [
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 7,
+    "ret": 207.01,
+    "wr": 0.0,
+    "dd": -45.86,
+    "pf": 0.0,
+    "bh": 125.69,
+    "open": 383.03
+   },
+   {
+    "id": "l19_wyckoff_lps",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L19 Wyckoff LPS / Phase D [0.5% ADV]",
+    "trades": 6,
+    "ret": 157.11,
+    "wr": 0.0,
+    "dd": -38.87,
+    "pf": 0.0,
+    "bh": 125.69,
+    "open": 279.74
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 23,
+    "ret": 154.94,
+    "wr": 43.5,
+    "dd": -18.64,
+    "pf": 4.02,
+    "bh": 125.69,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "BOP",
+  "company": "The Bank of Punjab",
+  "buy_hold": 217.05,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 21,
+    "ret": 870.74,
+    "wr": 57.1,
+    "dd": -24.73,
+    "pf": 9.81,
+    "bh": 217.05,
+    "open": null
+   },
+   {
+    "id": "breakout",
+    "name": "Donchian Breakout",
+    "trades": 7,
+    "ret": 390.92,
+    "wr": 0.0,
+    "dd": -43.7,
+    "pf": 0.0,
+    "bh": 217.05,
+    "open": 668.41
+   },
+   {
+    "id": "l14_ict_ob_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L14 ICT Bullish OB Bounce [0.5% ADV]",
+    "trades": 6,
+    "ret": 382.38,
+    "wr": 0.0,
+    "dd": -43.7,
+    "pf": 0.0,
+    "bh": 217.05,
+    "open": 649.25
+   }
+  ]
+ },
+ {
+  "symbol": "NBP",
+  "company": "National Bank of Pakistan",
+  "buy_hold": 321.27,
+  "top3": [
+   {
+    "id": "breakout",
+    "name": "Donchian Breakout",
+    "trades": 5,
+    "ret": 540.74,
+    "wr": 0.0,
+    "dd": -45.1,
+    "pf": 0.0,
+    "bh": 321.27,
+    "open": 749.15
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 5,
+    "ret": 524.27,
+    "wr": 0.0,
+    "dd": -45.1,
+    "pf": 0.0,
+    "bh": 321.27,
+    "open": 749.15
+   },
+   {
+    "id": "l16_turtle_soup",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L16 Turtle Soup Bottom [0.5% ADV]",
+    "trades": 6,
+    "ret": 495.25,
+    "wr": 0.0,
+    "dd": -45.1,
+    "pf": 0.0,
+    "bh": 321.27,
+    "open": 790.75
+   }
+  ]
+ },
+ {
+  "symbol": "MARI",
+  "company": "Mari Petroleum Company Limited",
+  "buy_hold": -52.65,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 29,
+    "ret": 34.59,
+    "wr": 41.4,
+    "dd": -27.09,
+    "pf": 1.99,
+    "bh": -52.65,
+    "open": null
+   },
+   {
+    "id": "macd",
+    "name": "MACD Bull",
+    "trades": 101,
+    "ret": 13.9,
+    "wr": 31.7,
+    "dd": -33.49,
+    "pf": 1.33,
+    "bh": -52.65,
+    "open": null
+   },
+   {
+    "id": "l11_rsi_divergence",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L11 RSI Bullish Divergence [0.5% ADV]",
+    "trades": 10,
+    "ret": 10.29,
+    "wr": 70.0,
+    "dd": -12.44,
+    "pf": 2.66,
+    "bh": -52.65,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "OGDC",
+  "company": "Oil & Gas Development Company Limited",
+  "buy_hold": 168.93,
+  "top3": [
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 5,
+    "ret": 243.47,
+    "wr": 0.0,
+    "dd": -30.62,
+    "pf": 0.0,
+    "bh": 168.93,
+    "open": 345.16
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 5,
+    "ret": 213.02,
+    "wr": 0.0,
+    "dd": -33.15,
+    "pf": 0.0,
+    "bh": 168.93,
+    "open": 309.76
+   },
+   {
+    "id": "l10_spring",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L10 Spring / Failed Breakdown [0.5% ADV]",
+    "trades": 7,
+    "ret": 209.84,
+    "wr": 0.0,
+    "dd": -31.28,
+    "pf": 0.0,
+    "bh": 168.93,
+    "open": 345.16
+   }
+  ]
+ },
+ {
+  "symbol": "PPL",
+  "company": "Pakistan Petroleum Limited",
+  "buy_hold": 114.25,
+  "top3": [
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 5,
+    "ret": 172.78,
+    "wr": 0.0,
+    "dd": -37.6,
+    "pf": 0.0,
+    "bh": 114.25,
+    "open": 272.12
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 26,
+    "ret": 147.53,
+    "wr": 42.3,
+    "dd": -26.43,
+    "pf": 2.95,
+    "bh": 114.25,
+    "open": null
+   },
+   {
+    "id": "l10_spring",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L10 Spring / Failed Breakdown [0.5% ADV]",
+    "trades": 8,
+    "ret": 140.68,
+    "wr": 0.0,
+    "dd": -38.52,
+    "pf": 0.0,
+    "bh": 114.25,
+    "open": 282.8
+   }
+  ]
+ },
+ {
+  "symbol": "POL",
+  "company": "Pakistan Oilfields Limited",
+  "buy_hold": 74.6,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 25,
+    "ret": 97.86,
+    "wr": 64.0,
+    "dd": -16.39,
+    "pf": 4.44,
+    "bh": 74.6,
+    "open": null
+   },
+   {
+    "id": "macd",
+    "name": "MACD Bull",
+    "trades": 94,
+    "ret": 31.72,
+    "wr": 33.0,
+    "dd": -31.18,
+    "pf": 1.32,
+    "bh": 74.6,
+    "open": null
+   },
+   {
+    "id": "l01_trend_pullback",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L01 Trend Pullback [1%]",
+    "trades": 8,
+    "ret": 30.21,
+    "wr": 25.0,
+    "dd": -8.93,
+    "pf": 3.02,
+    "bh": 74.6,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "PSO",
+  "company": "Pakistan State Oil Company Limited",
+  "buy_hold": 39.93,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 23,
+    "ret": 246.34,
+    "wr": 52.2,
+    "dd": -14.98,
+    "pf": 6.05,
+    "bh": 39.93,
+    "open": null
+   },
+   {
+    "id": "l14_ict_ob_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L14 ICT Bullish OB Bounce [0.5% ADV]",
+    "trades": 5,
+    "ret": 107.83,
+    "wr": 0.0,
+    "dd": -35.01,
+    "pf": 0.0,
+    "bh": 39.93,
+    "open": 177.92
+   },
+   {
+    "id": "pb4_major_cycle_shift",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P4 Major Cycle (30wSMA+52wEMA+RSI-div)",
+    "trades": 5,
+    "ret": 99.61,
+    "wr": 60.0,
+    "dd": -30.02,
+    "pf": 21.52,
+    "bh": 39.93,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "APL",
+  "company": "Attock Petroleum Limited",
+  "buy_hold": 69.53,
+  "top3": [
+   {
+    "id": "l16_turtle_soup",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L16 Turtle Soup Bottom [0.5% ADV]",
+    "trades": 5,
+    "ret": 58.41,
+    "wr": 0.0,
+    "dd": -31.08,
+    "pf": 0.0,
+    "bh": 69.53,
+    "open": 99.12
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 6,
+    "ret": 51.18,
+    "wr": 0.0,
+    "dd": -31.08,
+    "pf": 0.0,
+    "bh": 69.53,
+    "open": 97.57
+   },
+   {
+    "id": "breakout",
+    "name": "Donchian Breakout",
+    "trades": 7,
+    "ret": 42.96,
+    "wr": 0.0,
+    "dd": -31.08,
+    "pf": 0.0,
+    "bh": 69.53,
+    "open": 99.12
+   }
+  ]
+ },
+ {
+  "symbol": "FFC",
+  "company": "Fauji Fertilizer Company Limited",
+  "buy_hold": 394.63,
+  "top3": [
+   {
+    "id": "pb2_swing_cycle",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P2 Swing Cycle (21EMA+63EMA+RSI-div)",
+    "trades": 12,
+    "ret": 414.9,
+    "wr": 41.7,
+    "dd": -16.64,
+    "pf": 22.5,
+    "bh": 394.63,
+    "open": null
+   },
+   {
+    "id": "breakout",
+    "name": "Donchian Breakout",
+    "trades": 6,
+    "ret": 371.92,
+    "wr": 0.0,
+    "dd": -29.97,
+    "pf": 0.0,
+    "bh": 394.63,
+    "open": 462.46
+   },
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 5,
+    "ret": 368.62,
+    "wr": 0.0,
+    "dd": -29.97,
+    "pf": 0.0,
+    "bh": 394.63,
+    "open": 485.7
+   }
+  ]
+ },
+ {
+  "symbol": "EFERT",
+  "company": "Engro Fertilizers Limited",
+  "buy_hold": 194.96,
+  "top3": [
+   {
+    "id": "pb2_swing_cycle",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P2 Swing Cycle (21EMA+63EMA+RSI-div)",
+    "trades": 14,
+    "ret": 143.53,
+    "wr": 50.0,
+    "dd": -17.07,
+    "pf": 8.77,
+    "bh": 194.96,
+    "open": null
+   },
+   {
+    "id": "sma_cross",
+    "name": "SMA Trend (10/50)",
+    "trades": 46,
+    "ret": 114.42,
+    "wr": 30.4,
+    "dd": -26.92,
+    "pf": 2.68,
+    "bh": 194.96,
+    "open": null
+   },
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 5,
+    "ret": 94.49,
+    "wr": 0.0,
+    "dd": -34.98,
+    "pf": 0.0,
+    "bh": 194.96,
+    "open": 147.5
+   }
+  ]
+ },
+ {
+  "symbol": "ENGROH",
+  "company": "Engro Corporation Limited",
+  "buy_hold": 116.76,
+  "top3": [
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 6,
+    "ret": 118.76,
+    "wr": 0.0,
+    "dd": -46.65,
+    "pf": 0.0,
+    "bh": 116.76,
+    "open": 184.84
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 6,
+    "ret": 117.34,
+    "wr": 0.0,
+    "dd": -46.65,
+    "pf": 0.0,
+    "bh": 116.76,
+    "open": 181.78
+   },
+   {
+    "id": "l19_wyckoff_lps",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L19 Wyckoff LPS / Phase D [0.5% ADV]",
+    "trades": 5,
+    "ret": 84.08,
+    "wr": 0.0,
+    "dd": -46.65,
+    "pf": 0.0,
+    "bh": 116.76,
+    "open": 136.04
+   }
+  ]
+ },
+ {
+  "symbol": "LOTCHEM",
+  "company": "Lotte Chemical Pakistan Limited",
+  "buy_hold": 70.11,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 31,
+    "ret": 35.75,
+    "wr": 38.7,
+    "dd": -34.11,
+    "pf": 1.55,
+    "bh": 70.11,
+    "open": null
+   },
+   {
+    "id": "l01_trend_pullback",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L01 Trend Pullback [1%]",
+    "trades": 7,
+    "ret": 29.69,
+    "wr": 14.3,
+    "dd": -28.22,
+    "pf": 3.23,
+    "bh": 70.11,
+    "open": null
+   },
+   {
+    "id": "pb5_trend_filter_cci",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P5 Trend Filter (21EMA vs 21Wilders+CCI)",
+    "trades": 23,
+    "ret": 20.37,
+    "wr": 30.4,
+    "dd": -33.64,
+    "pf": 1.54,
+    "bh": 70.11,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "AHCL",
+  "company": "Arif Habib Corporation Limited",
+  "buy_hold": -63.54,
+  "top3": [
+   {
+    "id": "momentum",
+    "name": "Quarterly Momentum",
+    "trades": 30,
+    "ret": 106.38,
+    "wr": 46.7,
+    "dd": -40.65,
+    "pf": 3.08,
+    "bh": -63.54,
+    "open": null
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 27,
+    "ret": 75.46,
+    "wr": 51.9,
+    "dd": -36.68,
+    "pf": 2.26,
+    "bh": -63.54,
+    "open": null
+   },
+   {
+    "id": "sma_cross",
+    "name": "SMA Trend (10/50)",
+    "trades": 46,
+    "ret": 34.72,
+    "wr": 32.6,
+    "dd": -33.98,
+    "pf": 1.55,
+    "bh": -63.54,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "SYS",
+  "company": "Systems Limited",
+  "buy_hold": -70.16,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 25,
+    "ret": 57.78,
+    "wr": 40.0,
+    "dd": -28.42,
+    "pf": 1.94,
+    "bh": -70.16,
+    "open": null
+   },
+   {
+    "id": "l11_rsi_divergence",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L11 RSI Bullish Divergence [0.5% ADV]",
+    "trades": 19,
+    "ret": 15.63,
+    "wr": 57.9,
+    "dd": -22.16,
+    "pf": 1.42,
+    "bh": -70.16,
+    "open": null
+   },
+   {
+    "id": "momentum",
+    "name": "Quarterly Momentum",
+    "trades": 46,
+    "ret": 3.02,
+    "wr": 30.4,
+    "dd": -35.39,
+    "pf": 1.17,
+    "bh": -70.16,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "TRG",
+  "company": "TRG Pakistan Limited",
+  "buy_hold": -43.81,
+  "top3": [
+   {
+    "id": "l01_trend_pullback",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L01 Trend Pullback [1%]",
+    "trades": 6,
+    "ret": 22.66,
+    "wr": 33.3,
+    "dd": -31.03,
+    "pf": 2.31,
+    "bh": -43.81,
+    "open": null
+   },
+   {
+    "id": "rsi_meanrev",
+    "name": "RSI Mean-Reversion",
+    "trades": 26,
+    "ret": 9.96,
+    "wr": 46.2,
+    "dd": -39.37,
+    "pf": 1.24,
+    "bh": -43.81,
+    "open": 1.93
+   },
+   {
+    "id": "pb2_swing_cycle",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P2 Swing Cycle (21EMA+63EMA+RSI-div)",
+    "trades": 13,
+    "ret": -7.56,
+    "wr": 23.1,
+    "dd": -45.69,
+    "pf": 0.95,
+    "bh": -43.81,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "AIRLINK",
+  "company": "Air Link Communication Limited",
+  "buy_hold": 57.24,
+  "top3": [
+   {
+    "id": "pb5_trend_filter_cci",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P5 Trend Filter (21EMA vs 21Wilders+CCI)",
+    "trades": 15,
+    "ret": 315.72,
+    "wr": 53.3,
+    "dd": -35.64,
+    "pf": 5.33,
+    "bh": 57.24,
+    "open": null
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 19,
+    "ret": 270.52,
+    "wr": 47.4,
+    "dd": -34.87,
+    "pf": 4.55,
+    "bh": 57.24,
+    "open": null
+   },
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 6,
+    "ret": 260.21,
+    "wr": 0.0,
+    "dd": -54.92,
+    "pf": 0.0,
+    "bh": 57.24,
+    "open": 541.82
+   }
+  ]
+ },
+ {
+  "symbol": "LUCK",
+  "company": "Lucky Cement Limited",
+  "buy_hold": -40.44,
+  "top3": [
+   {
+    "id": "momentum",
+    "name": "Quarterly Momentum",
+    "trades": 33,
+    "ret": 61.19,
+    "wr": 33.3,
+    "dd": -40.94,
+    "pf": 1.98,
+    "bh": -40.44,
+    "open": null
+   },
+   {
+    "id": "sma_cross",
+    "name": "SMA Trend (10/50)",
+    "trades": 42,
+    "ret": 52.2,
+    "wr": 28.6,
+    "dd": -38.63,
+    "pf": 1.64,
+    "bh": -40.44,
+    "open": null
+   },
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 21,
+    "ret": 22.96,
+    "wr": 38.1,
+    "dd": -45.83,
+    "pf": 1.59,
+    "bh": -40.44,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "MLCF",
+  "company": "Maple Leaf Cement Factory Limited",
+  "buy_hold": 112.52,
+  "top3": [
+   {
+    "id": "l12_inv_hs",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L12 Inverse Head & Shoulders [0.5% ADV]",
+    "trades": 5,
+    "ret": 165.49,
+    "wr": 0.0,
+    "dd": -44.11,
+    "pf": 0.0,
+    "bh": 112.52,
+    "open": 299.67
+   },
+   {
+    "id": "l15_ict_ote",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L15 ICT OTE Deep-Discount [0.5% ADV]",
+    "trades": 5,
+    "ret": 151.05,
+    "wr": 0.0,
+    "dd": -44.11,
+    "pf": 0.0,
+    "bh": 112.52,
+    "open": 280.65
+   },
+   {
+    "id": "breakout",
+    "name": "Donchian Breakout",
+    "trades": 6,
+    "ret": 142.16,
+    "wr": 0.0,
+    "dd": -44.11,
+    "pf": 0.0,
+    "bh": 112.52,
+    "open": 299.67
+   }
+  ]
+ },
+ {
+  "symbol": "DGKC",
+  "company": "D.G. Khan Cement Company Limited",
+  "buy_hold": 68.41,
+  "top3": [
+   {
+    "id": "pb1_momentum_ride",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P1 Momentum Ride (5EMA+21EMA+CCI)",
+    "trades": 26,
+    "ret": 167.27,
+    "wr": 57.7,
+    "dd": -26.02,
+    "pf": 3.24,
+    "bh": 68.41,
+    "open": null
+   },
+   {
+    "id": "l10_spring",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L10 Spring / Failed Breakdown [0.5% ADV]",
+    "trades": 7,
+    "ret": 162.1,
+    "wr": 0.0,
+    "dd": -50.4,
+    "pf": 0.0,
+    "bh": 68.41,
+    "open": 356.08
+   },
+   {
+    "id": "l16_turtle_soup",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L16 Turtle Soup Bottom [0.5% ADV]",
+    "trades": 7,
+    "ret": 159.08,
+    "wr": 0.0,
+    "dd": -45.32,
+    "pf": 0.0,
+    "bh": 68.41,
+    "open": 356.08
+   }
+  ]
+ },
+ {
+  "symbol": "HUBC",
+  "company": "The Hub Power Company Limited",
+  "buy_hold": 122.3,
+  "top3": [
+   {
+    "id": "l10_spring",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L10 Spring / Failed Breakdown [0.5% ADV]",
+    "trades": 5,
+    "ret": 147.2,
+    "wr": 0.0,
+    "dd": -41.59,
+    "pf": 0.0,
+    "bh": 122.3,
+    "open": 227.35
+   },
+   {
+    "id": "l21_val_rejection",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L21 VAL Rejection [0.5% ADV]",
+    "trades": 7,
+    "ret": 127.91,
+    "wr": 0.0,
+    "dd": -41.59,
+    "pf": 0.0,
+    "bh": 122.3,
+    "open": 227.35
+   },
+   {
+    "id": "pb3_quarter_context",
+    "name": "\ud83d\uddfa MA Playbook \u2014 P3 Quarter+Stage (63EMA+30wSMA+CCI)",
+    "trades": 5,
+    "ret": 123.45,
+    "wr": 40.0,
+    "dd": -14.07,
+    "pf": 26.41,
+    "bh": 122.3,
+    "open": null
+   }
+  ]
+ },
+ {
+  "symbol": "NESTLE",
+  "company": "Nestle Pakistan Limited",
+  "buy_hold": 9.99,
+  "top3": [
+   {
+    "id": "l01_trend_pullback",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L01 Trend Pullback [1%]",
+    "trades": 6,
+    "ret": -4.79,
+    "wr": 50.0,
+    "dd": -12.95,
+    "pf": 0.7,
+    "bh": 9.99,
+    "open": null
+   },
+   {
+    "id": "rsi_meanrev",
+    "name": "RSI Mean-Reversion",
+    "trades": 8,
+    "ret": -16.46,
+    "wr": 37.5,
+    "dd": -25.81,
+    "pf": 0.3,
+    "bh": 9.99,
+    "open": null
+   },
+   {
+    "id": "l03_range_bounce",
+    "name": "\ud83d\udcd8 PSX Signal Manual \u2014 L03 Range Bounce [1%]",
+    "trades": 5,
+    "ret": -16.47,
+    "wr": 0.0,
+    "dd": -26.24,
+    "pf": 0.0,
+    "bh": 9.99,
+    "open": 11.34
+   }
+  ]
+ }
+]

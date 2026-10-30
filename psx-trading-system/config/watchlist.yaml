@@ -1,0 +1,133 @@
+# PSX Live & Research settings — safe to edit by hand OR via the Settings tab.
+watchlist:
+- symbol: MEBL
+  name: Meezan Bank Limited
+  sector: Banking & Finance
+  reason: Swing list — Islamic banking leader
+- symbol: MCB
+  name: MCB Bank Limited
+  sector: Banking & Finance
+  reason: Swing list — blue-chip bank
+- symbol: UBL
+  name: United Bank Limited
+  sector: Banking & Finance
+  reason: Swing list — large bank
+- symbol: HBL
+  name: Habib Bank Limited
+  sector: Banking & Finance
+  reason: Swing list — largest commercial bank
+- symbol: BOP
+  name: The Bank of Punjab
+  sector: Banking & Finance
+  reason: Swing list — Punjab bank
+- symbol: NBP
+  name: National Bank of Pakistan
+  sector: Banking & Finance
+  reason: Swing list — state bank
+- symbol: MARI
+  name: Mari Petroleum Company Limited
+  sector: Oil & Gas
+  reason: Swing list — gas growth
+- symbol: OGDC
+  name: Oil & Gas Development Company Limited
+  sector: Oil & Gas
+  reason: Swing list — largest E&P
+- symbol: PPL
+  name: Pakistan Petroleum Limited
+  sector: Oil & Gas
+  reason: Swing list — gas producer
+- symbol: POL
+  name: Pakistan Oilfields Limited
+  sector: Oil & Gas
+  reason: Swing list — oil + dividends
+- symbol: PSO
+  name: Pakistan State Oil Company Limited
+  sector: Oil & Gas
+  reason: Swing list — fuel marketing
+- symbol: APL
+  name: Attock Petroleum Limited
+  sector: Oil & Gas
+  reason: Swing list — fuel marketing
+- symbol: FFC
+  name: Fauji Fertilizer Company Limited
+  sector: Fertilizer
+  reason: Swing list — dividend compounder
+- symbol: EFERT
+  name: Engro Fertilizers Limited
+  sector: Fertilizer
+  reason: Swing list — fertilizer
+- symbol: ENGROH
+  name: Engro Corporation Limited
+  sector: Conglomerate
+  reason: Swing list — conglomerate
+- symbol: LOTCHEM
+  name: Lotte Chemical Pakistan Limited
+  sector: Chemicals
+  reason: Swing list — chemicals
+- symbol: AHCL
+  name: Arif Habib Corporation Limited
+  sector: Holding Companies
+  reason: Swing list — holding company
+- symbol: SYS
+  name: Systems Limited
+  sector: Technology
+  reason: Swing list — IT exporter
+- symbol: TRG
+  name: TRG Pakistan Limited
+  sector: Technology
+  reason: Swing list — tech holding
+- symbol: AIRLINK
+  name: Air Link Communication Limited
+  sector: Telecom
+  reason: Swing list — phones/tech
+- symbol: LUCK
+  name: Lucky Cement Limited
+  sector: Cement
+  reason: Swing list — cement leader
+- symbol: MLCF
+  name: Maple Leaf Cement Factory Limited
+  sector: Cement
+  reason: Swing list — cement
+- symbol: DGKC
+  name: D.G. Khan Cement Company Limited
+  sector: Cement
+  reason: Swing list — cement
+- symbol: HUBC
+  name: The Hub Power Company Limited
+  sector: Power
+  reason: Swing list — power producer
+- symbol: NESTLE
+  name: Nestle Pakistan Limited
+  sector: Consumer Goods
+  reason: Swing list — foods
+settings:
+  currency: PKR
+  timezone: Asia/Karachi
+  paper_cash: 1000000
+  default_risk_pct: 1.0
+  circuit_breaker_pct: 7.5
+  commission_pct: 0.15
+  slippage_pct: 0.1
+  proposal_valid_days: 5
+  screener_max_stocks: 80
+ollama:
+  enabled: true
+  base_url: http://localhost:11434
+  model: llama3.1
+  timeout_sec: 60
+ui:
+  auto_refresh_enabled: true
+  auto_refresh_sec: 30
+  default_stock: OGDC
+llm:
+  provider: groq
+  timeout_sec: 60
+  groq:
+    api_key: ""
+    model: qwen/qwen3.8-27b
+  openrouter: {}
+  gemini: {}
+  cerebras: {}
+watchlists: []
+flags: {}
+list_notes: {}

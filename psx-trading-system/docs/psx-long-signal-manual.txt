@@ -1,0 +1,782 @@
+
+===== PAGE 1 =====
+PSX Long Signal Manual — page 1 of 26
+ PSX LONG Entries
+Detailed Signal Manual
+ 21 long/buy setups • Two-stage signals: PRE-SIGNAL (watch) + BUY (exact
+ trigger)
+PSX • Daily charts • PKT timing • Long only
+ Companion: psx-agent-templates.json (IDs L00–L21 + L-PYR)
+
+
+===== PAGE 2 =====
+PSX Long Signal Manual — page 2 of 26
+PSX LONG Entries — Detailed Signal
+Manual (21 Setups)
+Long/buy only. No shorts. Every setup has TWO stages: Stage 1 = PRE-SIGNAL (1 step
+before buy, goes on watchlist) and Stage 2 = BUY (exact trigger + reasoning). PSX ·
+Daily chart · Liquid KSE-100 · PKT timing.
+Educational only, not financial advice. Machine-readable version for AI agents:
+psx-agent-templates.json (same IDs L00–L21).
+
+
+===== PAGE 3 =====
+PSX Long Signal Manual — page 3 of 26
+0. How the Two-Stage System Works
+Stage
+Name
+Question it answers
+When you act
+STAGE 1 —
+PRE-SIGNAL
+WATCH
+"Is this setup forming?
+What would trigger it?"
+Evening scan
+4:00–4:30 PM PKT
+(after close) →
+watchlist +
+pre-computed
+entry/stop/target/size
++ alerts set
+STAGE 2 — BUY
+TRIGGER
+"Did ALL conditions
+fire? Buy now, exactly
+here."
+Execution windows
+(see below) → place
+order, set stop same
+day, log journal
+Golden rule: Stage 1 without Stage 2 is NEVER a trade. The pre-signal only earns the right
+to be watched.
+PSX Clock-Time Routine (PKT, Mon–Fri)
+Window
+Use
+4:00–4:30 PM (after close)
+STAGE 1 SCAN: run all strategies over watchlist
+on closed daily candles, write tomorrow's plans
+9:15–9:30 AM (pre-open)
+Review plans, place/verify limit orders, confirm
+stops on holdings
+9:30–10:00 AM — NO ENTRIES
+Judas/opening chop — let the open settle, never
+chase
+10:00–10:30 AM — Window A
+Execute planned Stage-2 triggers
+(continuation/follow-through buys)
+10:30 AM–2:30 PM — manage only
+No new entries (Fri prayer break ~12:00–2:30 PM)
+2:30–3:30 PM — Window B
+Closing-drive confirmation buys (daily-close
+triggers) + set next-day orders
+Each strategy below names its window: A (morning follow-through), B (closing confirmation), or
+A/B (either).
+Market Regime & DOWNTREND Protocol (applies to every long)
+Check regime FIRST every evening (this is agent template L00):
+
+
+===== PAGE 4 =====
+PSX Long Signal Manual — page 4 of 26
+Regime
+Index state
+Action for LONGS
+[GREEN] FULL
+KSE-100 above RISING 50MA,
+Dow gate +2/+3
+All standard setups at full size;
+advanced at 0.5%
+[YELLOW] CAUTION
+Index chopping around flat
+50MA, mixed Dow score
+A+ setups only, HALF size, NO
+fresh breakouts (2/M2/C1/C3
+need FULL)
+[RED] DEFENSE — market going
+DOWN
+Index BELOW FALLING 50MA, or
+−3%+ week on expanding
+down-volume, or Dow gate
+negative
+NO new standard longs
+(L01–L08 OFF) · bottom setups
+(L09–L12, L16, L18, L20) on
+STANDBY until stabilization ·
+tighten all stops · raise cash
+"Market gonna downtrend" — early warnings (act BEFORE the fall): 1. KSE-100 loses the
+20MA and closes below it 2+ days on rising volume 2. Leaders breaking down (banks/E&P failing
+at resistance, distribution candles) 3. % of KSE-100 above 50MA collapsing week over week
+(breadth dying) 4. KSE-30 leading KSE-100 down (Dow non-confirmation = danger) 5. Index-level
+UTAD/H&S or buying-climax bar on weekly chart 6. Your last 3 long breakouts all failed = the
+market telling you regime changed (listen!)
+Stabilization signal (standby → allowed for bottom setups): index prints a hammer/calm
+small-range day after washout AND holds above the washout low intraday next morning. Even
+then: bottom setups only, 0.5%, one at a time. Standard longs wait for FULL regime.
+
+
+===== PAGE 5 =====
+PSX Long Signal Manual — page 5 of 26
+INDEX
+• L00 Market Regime Scan (run first, every day)
+• L01 Strategy 1 — Trend Pullback [1%]
+• L02 Strategy 2 — Breakout + Retest [1%]
+• L03 Strategy 3 — Range Bounce [1%]
+• L04 M1 — Results-Week Momentum [1%]
+• L05 M2 — 52-Week High [1%]
+• L06 C1 — Bull Flag & Pennant [1%]
+• L07 C2 — Cup & Handle [1%]
+• L08 C3 — Ascending Triangle [1%]
+• L09 R1 — Double / Triple Bottom [0.5% ADV]
+• L10 R2 — Spring / Failed Breakdown [0.5% ADV]
+• L11 R3 — RSI Bullish Divergence [0.5% ADV]
+• L12 H1 — Inverse Head & Shoulders [0.5% ADV]
+• L13 ICT-1 — Sweep + MSS + FVG [0.5% ADV]
+• L14 ICT-2 — Bullish OB Bounce [0.5% ADV]
+• L15 ICT-3 — OTE Deep-Discount [0.5% ADV]
+• L16 ICT-4 — Turtle Soup Bottom [0.5% ADV]
+• L17 M4 — Momentum Burst [0.5% ADV]
+• L18 M5 — Bollinger Snap-Back [0.5% ADV]
+• L19 W1 — LPS / Wyckoff Phase D [0.5% ADV]
+• L20 V1 — Stopping Volume + Test [0.5% ADV]
+• L21 P1 — VAL Rejection [0.5% ADV]
+• L-PYR Livermore Pyramid add-on protocol [ADV]
+• Appendix A — Universal entry checklist · Appendix B — Risk box · Appendix C — Journal line
+ADV = post-graduation only, max 1 advanced position at a time.
+
+
+===== PAGE 6 =====
+PSX Long Signal Manual — page 6 of 26
+L00 — Market Regime Scan (run FIRST, every evening
+4:00 PM)
+• Record: KSE-100 vs 20MA/50MA (above/below, slope) · KSE-30 + ALLSHR agree? · volume on
+rallies vs selloffs · % of KSE-100 above 50MA · week return
+• Output: regime = FULL / CAUTION / DEFENSE + one-line reason + which setup groups are
+ON/OFF/STANDBY
+• Downtrend call: if DEFENSE triggers hit, state "MARKET GOING DOWN — new longs OFF except
+standby bottoms after stabilization"
+
+
+===== PAGE 7 =====
+PSX Long Signal Manual — page 7 of 26
+L01 — Strategy 1: Trend Pullback [1% · standard ·
+Window A/B]
+Edge: uptrends persist; the 20MA is where institutions reload. You buy proven demand, not hope.
+Best when: FULL regime, green M3 sector. Downtrend rule: OFF in DEFENSE — pullbacks in
+downtrends keep falling (that's S1's market, not yours).
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL must be true: (1) close above 50MA, 50MA sloping up; (2) 20MA above 50MA; (3) today's low
+touched or came within 2% of 20MA, OR price within 3% above 20MA and falling toward it; (4)
+RSI(14) 35–60; (5) no results/announcement in 48h; (6) regime FULL or CAUTION. Action:
+WATCHLIST it. Pre-write: trigger = close above prior day's high; stop = 3.5% below 20MA; T1 =
+prior swing high; size via calculator. Set price alert at prior day's high.
+STAGE 2 — BUY TRIGGER · Window A next morning (or B same-day
+close)
+ALL must be true: (1) daily candle CLOSES above previous day's high (Window B) or trades above
+it after 10:00 AM (Window A); (2) candle closes in TOP HALF of its range; (3) volume ≥ 20-day
+average; (4) price still within 4% of 20MA (not extended); (5) regime still FULL/CAUTION. Order:
+limit at trigger +0.3% (chase cap). Stop placed SAME session. Reasoning: close-above-prior-high
+proves sellers failed at the MA and buyers regained control; top-half close + volume proves
+demand, not a dead-cat bounce; 4%-from-MA cap guarantees the planned R:R.
+Trade frame
+Stop 3–4% below 20MA (or pullback low, lower of the two) · T1 prior high = ½ out · trail rest
+below 20MA · hold 5–20 days · stale (>10 days, no progress) → exit half.
+Invalidation — kill it if: close below 50MA · RSI breaks below 35 and
+stays · support/MA zone fails on volume · regime flips DEFENSE (exit,
+don't wait for stop if thesis dead).
+Example
+MCB: 20MA 285, dip to 286, RSI 52 → WATCH. Next day closes 292 above prior high 290 on good
+volume → BUY 292. Stop 274 (risk 18). T1 310. Rs 5,000 risk = 277 sh (~Rs 81k).
+Don'ts
+Never buy mid-plunge before the trigger candle; never widen the stop "to give room".
+
+
+===== PAGE 8 =====
+PSX Long Signal Manual — page 8 of 26
+L02 — Strategy 2: Breakout + Retest [1% · standard ·
+Window A/B]
+Edge: multi-week resistance = stored breakout energy + trapped shorts fueling the retest
+bounce. Retest entry cuts false-breakout losses ~half. Best when: FULL regime only.
+Downtrend rule: OFF in DEFENSE and CAUTION — breakouts are the FIRST thing that fails when
+the market turns down.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) clean horizontal resistance, 2–3+ touches over 3+ weeks; (2) price within 3% BELOW
+resistance and candles shrinking (coiling); (3) volume drying into the squeeze; (4) regime FULL;
+(5) green/neutral M3; (6) no announcements 48h. Action: WATCHLIST. Pre-write: breakout level,
+retest zone (±1%), stop 3% below level, target = range height. Alert at resistance.
+STAGE 2 — BUY TRIGGER · two-step, Window B then A
+Step 1 (confirm): daily CLOSE 2%+ above resistance on ≥1.5x average volume. Step 2 (enter):
+within 1–5 days price dips back to breakout level ±1% AND prints a bullish candle (close top-half)
+→ BUY next morning Window A above that candle's high (or Window B close). Order: limit at
+retest zone top. Stop same session. Reasoning: the volume breakout proves supply absorbed;
+the HOLDING retest proves old resistance became demand — two independent confirmations
+before risking capital. Skipping straight to breakout-chase removes confirmation #2 and most of
+the edge. No-retest path (only if +volume ≥2.5x and close top 10% of range): half-size
+breakout entry next morning, stop same; still prefer retest.
+Trade frame
+Stop 3% below level · ½ at +7–8%, trail rest · 2–6 weeks · retest never comes in 5 days → cancel
+plan (don't chase extended).
+Invalidation: close back BELOW level after entry · breakout volume
+<1.2x (weak) · regime flips · broader sector breaks down.
+Example
+LUCK 950–1000 base → WATCH at 995. Breaks out, closes 1025 (2x vol). Dips to 1005 + bullish
+candle → BUY 1008. Stop 975 (risk 33). T1 1060. Rs 5k = 151 sh.
+Don'ts
+Never buy the first green rocket; never enter breakouts when KSE-100 is below its 50MA.
+
+
+===== PAGE 9 =====
+PSX Long Signal Manual — page 9 of 26
+L03 — Strategy 3: Range Bounce [1% · standard · Window
+A/B]
+Edge: proven two-sided auction — support has 2+ prints of demand. Buying the floor with a hard
+invalidation = best-defined risk in the book. Best when: FULL/CAUTION, stock NOT in strong
+trend (that's L01's job). Downtrend rule: OFF in DEFENSE — range floors are trapdoors in falling
+markets; existing range longs get stops tightened to breakeven minimum.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) range ≥1 month old, width ≥8–10%; (2) price in BOTTOM 25% of range and falling
+toward support; (3) RSI <45 and flattening; (4) support touched 2+ times before with real
+bounces; (5) index not in selloff; (6) no announcements 48h. Action: WATCHLIST. Pre-write:
+support line, stop 2.5% below it, target = range top minus 2%, size. Alert 1.5% above support.
+STAGE 2 — BUY TRIGGER · Window A or B
+ALL: (1) price tagged support (±1%) intraday or prior day; (2) bullish candle CLOSES (top-half)
+at/above support; (3) RSI hooks up from <40 (or bullish engulfing/hammer regardless); (4)
+volume ≥ average on the turn candle; (5) no breakdown close below support. Order: limit at
+trigger-candle high +0.3% next morning (A), or close-of-confirmation (B). Reasoning: tag +
+bullish close = the third (or fourth) demand print at the level; RSI hook confirms momentum
+turned WITH price instead of diverging against it; entering only after the close avoids catching
+the knife mid-plunge.
+Trade frame
+Stop 2–3% below support (break = INSTANT exit, no "one more day") · target range top, sell
+70–100% · 1–4 weeks.
+Invalidation: ANY daily close 2%+ below support · range visibly
+breaking (lower lows forming) · regime DEFENSE.
+Example
+FFC 100–112: touches 101, RSI 35 hooking, bullish close 103 → BUY 103. Stop 97.5 (risk 5.5).
+Target 110. Rs 5k = 909 sh.
+Don'ts
+Never buy mid-range; never "hope" a broken floor.
+
+
+===== PAGE 10 =====
+PSX Long Signal Manual — page 10 of 26
+L04 — M1: Results-Week Momentum [1% · standard ·
+Window A]
+Edge: post-earnings drift — institutions take weeks to build on real beats; you ride their
+accumulation. Best when: FULL/CAUTION + stock was healthy pre-results. Downtrend rule:
+OFF in DEFENSE — even good beats get sold in falling markets ("good news, down price" =
+distribution, stand aside).
+STAGE 1 — PRE-SIGNAL (WATCH) · evening of results day
+ALL: (1) results OUT (never pre-results — that's gambling); (2) genuine beat: EPS above broker
+preview (or strong YoY + QoQ + dividend surprise); revenue/profit both up; (3) stock closed
+announcement day UP on ≥1.5x volume; (4) was above 50MA or top-third RS pre-results; (5)
+regime FULL/CAUTION. Action: WATCHLIST for Day 1–2 continuation. Pre-write: entry = close
+above announcement-day high; stop = below announcement-day low; T1 +8%. If circuit-locked:
+NO chase orders — wait for tradeable day.
+STAGE 2 — BUY TRIGGER · Window A, Day 1–2 after results
+ALL: (1) Day 1 or 2 after announcement; (2) price trades/closes ABOVE announcement-day high
+after 10:00 AM; (3) up-volume still ≥ average; (4) not more than +6% above announcement close
+(avoid chasing); (5) index not dumping that morning. Order: limit at day-high +0.3%. Stop same
+session. Reasoning: Day 1–2 continuation proves the beat is being ACCUMULATED, not sold into;
+the 10 AM rule skips the emotional open; the +6% cap keeps R:R intact — drift works from fair
+prices, not extended ones.
+Trade frame
+Stop below announcement-day low (~3–5% under entry) · ½ at +8%, trail 20MA · 2–6 weeks ·
+dead after 3 weeks → exit.
+Invalidation: closes back below announcement-day low · volume
+vanishes (<0.7x avg for 3 days) · sector turns red.
+Example
+UBL beats + dividend: day 250→262 (2.5x vol). Next day closes 266 above 262 → BUY 266. Stop
+240 (risk 26). T1 287. Rs 5k = 192 sh.
+Don'ts
+Never hold INTO results; never buy one-off-gain "beats"; never chase circuit locks.
+
+
+===== PAGE 11 =====
+PSX Long Signal Manual — page 11 of 26
+L05 — M2: 52-Week High [1% · standard · Window A/B]
+Edge: anchoring bias — investors underreact at old highs, creating sustained drift; academic
+momentum's most robust signal. Best when: FULL regime strictly. Downtrend rule: HARD OFF
+in CAUTION/DEFENSE — new-high breakouts in weak markets are bull traps >60% of the time.
+When market turns down, existing M2 runners get trailed tight (below 10MA).
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) within 5% of 52-week high; (2) basing under it 1–4 weeks (flat, not vertical); (3) KSE-100
+above rising 50MA; (4) not >10% above last base in <2 weeks; (5) large-cap liquid only; (6) no
+announcements 48h. Action: WATCHLIST. Pre-write: breakout line = 52wk high; stop 4.5% below
+it; T1 +8%. Alert AT the high.
+STAGE 2 — BUY TRIGGER · Window A next morning (or retest)
+Path 1: daily CLOSE ≥1–2% above high on ≥1.5x volume → BUY next morning Window A (limit at
+close +0.5%, only if open < +2% above close). Path 2 (preferred): first pullback holding above
+old high + bullish candle → BUY above its high. Order: limit, chase-capped. Stop same session.
+Reasoning: the volume close proves supply at the historic high is absorbed; blue-sky breakouts
+have no overhead sellers, so measured follow-through is the highest-probability drift in the book
+— but ONLY with a healthy index underneath.
+Trade frame
+Stop 4–5% below old high · ½ at +8%, trail 20MA (or weekly Gann 1x1) · 3–8 weeks.
+Invalidation: close back below old high · breakout volume <1.2x · index
+loses 50MA (tighten to breakeven immediately).
+Example
+LUCK bases 970–995 under 1000, closes 1015 (2x) → BUY 1018. Stop 970 (risk 48). T1 1100. Rs 5k
+= 104 sh.
+Don'ts
+Never buy 8–12% above the break; never trade illiquid new-high spikes.
+
+
+===== PAGE 12 =====
+PSX Long Signal Manual — page 12 of 26
+L06 — C1: Bull Flag & Pennant [1% · standard · Window
+A/B]
+Edge: pole = institutional urgency; tight flag = no distribution; second leg mirrors the first. Best
+when: FULL regime, fresh catalyst (results/news). Downtrend rule: OFF in DEFENSE — flags in
+falling markets break DOWN (that's SC1's market).
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) pole +10–20% in 1–5 days on 2x+ volume; (2) now consolidating 3–10 days, drifting
+down/sideways (flag) or triangle (pennant); (3) flag volume visibly dying (<0.8x avg); (4) holding
+ABOVE pole midpoint; (5) flag age <15 sessions; (6) FULL regime. Action: WATCHLIST. Pre-write:
+flag top/bottom lines, stop 2% below flag low, target = pole length added. Alert at flag top.
+STAGE 2 — BUY TRIGGER · Window A or B
+ALL: (1) CLOSE above flag's upper edge; (2) volume expanding (≥1.3x); (3) close in top half of
+range; (4) still within 6% of flag (not vertical already). Order: limit at break +0.3%. Stop same
+session. Reasoning: dying volume in the flag proves profit-taking is exhausted WITHOUT supply
+appearing; the volume break proves the next accumulation wave started. Half of flags never
+break — the close-above-edge rule is what filters them.
+Trade frame
+Stop ~2% below flag low · ½ fast at +6–8%, tight trail (10/20MA) · 1–3 weeks (sprinters).
+Invalidation: close below flag low · flag ages past 15 sessions (reclassify
+as range or drop) · pole midpoint breaks.
+Example
+POL 500→570 pole, flag 560–570 (6 days, dying vol) → closes 574 (2x) → BUY 575. Stop 548 (risk
+27). Target 644. Rs 5k = 185 sh.
+Don'ts
+Never buy inside the flag; never accept flags below pole midpoint.
+
+
+===== PAGE 13 =====
+PSX Long Signal Manual — page 13 of 26
+L07 — C2: Cup & Handle [1% · standard · Window A/B]
+Edge: months of base-building absorbs ALL supply; handle shakes the last weak hands; rim
+break = cleanest institutional entry. Best when: FULL regime, large-caps. Downtrend rule: OFF
+in DEFENSE — cups complete downward in bear markets; handles deepen into failures.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan (weekly + daily)
+ALL: (1) U-shape (rounded, not V) over 1–6 months, depth 10–25%; (2) price back within 5% of
+left rim; (3) handle forming: 1–3 week drift −5–12% on LOW volume, in UPPER HALF of cup; (4)
+uptrend existed BEFORE the cup; (5) FULL regime. Action: WATCHLIST (this one develops slowly
+— check weekly). Pre-write: rim line, handle low, stop 2.5% below handle low, target = cup depth.
+Alert at rim.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) CLOSE above rim/handle-high; (2) volume ≥1.5x; (3) close top-half; (4) handle intact
+(never broke below its low). Order: limit at rim +0.5%. Stop same session. Reasoning: the U
+proves gradual absorption (V = panic, no base); the shallow low-volume handle proves remaining
+sellers are trivial; rim-break volume proves institutions are done accumulating and starting
+markup.
+Trade frame
+Stop 2–3% below handle low · ½ at +8–10%, trail 20MA/weekly 1x1 · 1–3 months (longest swing).
+Invalidation: close back below handle low · rim break on <1.2x volume
+(fake) · weekly trend breaks.
+Example
+MEBL rim 250, base 210, handle to 240 (low vol) → closes 253 (1.8x) → BUY 254. Stop 233 (risk
+21). Target 293. Rs 5k = 238 sh.
+Don'ts
+Never trade V-shapes as cups; never accept lower-half handles; never force on small-caps.
+
+
+===== PAGE 14 =====
+PSX Long Signal Manual — page 14 of 26
+L08 — C3: Ascending Triangle [1% · standard · Window
+A/B]
+Edge: flat top + rising lows = buyers paying up repeatedly into fixed supply; coiled spring with
+visible pressure gauge. Best when: FULL regime. Downtrend rule: OFF in DEFENSE/CAUTION
+— triangles in weak markets break down (support gives way).
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) flat resistance, 2–3+ touches, 3+ weeks; (2) clearly RISING lows (each dip bought
+sooner); (3) within 3% of ceiling; (4) volume fading into squeeze; (5) FULL regime; (6) no
+announcements 48h. Action: WATCHLIST. Pre-write: ceiling, rising trendline, stop below last
+higher low, target = back-height added. Alert at ceiling.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) CLOSE 1–2% above flat top on ≥1.5x volume; (2) preferred: retest-hold (dip to ceiling
+±1% + bullish candle) → BUY above its high; (3) close top-half. Order: limit. Stop same session.
+Reasoning: rising lows prove demand strengthening INTO supply; the volume break proves the
+ceiling's sellers are exhausted. Identical mechanics to L02 with an extra demand-pressure read =
+higher confidence, same discipline.
+Trade frame
+Stop ~2–3% below last higher low/trendline (down-break = INSTANT exit) · ½ at +7–8%, trail ·
+2–6 weeks.
+Invalidation: close below rising trendline · volume-less break · regime
+flip.
+Example
+EFERT ceiling 200 (3 touches), lows 180→186→192 → closes 203 (2x) → BUY 204. Stop 187 (risk
+17). Target 223. Rs 5k = 294 sh.
+Don'ts
+Never enter pre-break (rising wedges look identical until they break DOWN).
+
+
+===== PAGE 15 =====
+PSX Long Signal Manual — page 15 of 26
+L09 — R1: Double / Triple Bottom [0.5% ADV · Window
+A/B]
+Edge: two/three demand prints at one floor + neckline break = most evidence-backed bullish
+reversal (65–88% across studies when confirmed). Best when: CAUTION-to-stabilizing market,
+AFTER washout. Downtrend rule: STANDBY in active DEFENSE (falling knife freezes all bottom
+entries) — allowed ONLY after index stabilization signal (hammer/calm + holds washout low).
+Never bottom-fish crash day 1–3.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) clear 2+ week downtrend INTO bottom #1; (2) two bottoms within 2–3% (triple: three),
+10+ days apart; (3) 2nd bottom on lighter/equal volume with wick rejection (hammer); (4)
+neckline = inter-bottom peak drawn; (5) RSI washed <35 then flattening; (6) index stabilizing or
+better. Action: WATCHLIST. Pre-write: neckline, stop 2.5% below lowest bottom, target =
+measured move. Alert at neckline. DO NOT BUY the bottom — wait for the neck.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) CLOSE 2%+ above neckline on ≥1.5x volume; (2) preferred: retest-hold of neckline +
+bullish candle → BUY above its high; (3) close top-half; (4) index not printing new lows that day.
+Order: limit. Stop same session. Reasoning: bottoms alone are guesses — the neckline BREAK
+proves sellers lost control of the range (structure shift); volume proves institutional participation,
+not short-covering noise; the retest variant adds the L02 double-confirmation.
+Trade frame
+Stop 2–3% below lowest bottom · ½ at +7–8%, trail · 2–6 weeks.
+Invalidation: break-then-collapse back below neckline (bull trap — honor
+stop) · 2nd bottom volume heavier than 1st (skip at Stage 1).
+Example
+PPL: 150 → 170 neck → 152 (lighter vol, hammer) → closes 174 (2x) → BUY 175. Stop 147 (risk 28).
+T1 188. Rs 2.5k = 89 sh.
+Don'ts
+Never buy bottom #2 pre-break ("forming double bottom" = prediction, not signal).
+
+
+===== PAGE 16 =====
+PSX Long Signal Manual — page 16 of 26
+L10 — R2: Spring / Failed Breakdown [0.5% ADV · Window
+A]
+Edge: stop-hunt below support traps sellers; their forced buyback + reclaim buyers = fuel.
+Tightest natural stop in the book. Best when: stabilizing/CAUTION market, quality levels.
+Downtrend rule: STANDBY in active DEFENSE — springs fail in crashes (dip keeps dipping). Wait
+for index stabilization day.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) support held 2+ times with REAL bounces; (2) price now within 2% ABOVE support and
+soft; (3) prior bounces each ≥5%; (4) index stabilizing/flat (not dumping); (5) no bad-news reason
+for breakdown. Action: WATCHLIST for the dip-and-reclaim sequence. Pre-write: support line,
+"dip zone" 1–3% below, reclaim rule (CLOSE back above), stop 1.5% below dip low (set AFTER dip
+prints). Alert 0.5% below support.
+STAGE 2 — BUY TRIGGER · Window A (day after reclaim)
+ALL: (1) dip 1–3% below support printed; (2) CLOSE back ABOVE support within 1–3 days on
+≥1.5x volume; (3) next morning trades above reclaim candle's high after 10:00 AM (or
+pullback-holds above support + bullish candle); (4) index not breaking down that morning.
+Order: buy-stop/limit at reclaim-high +0.3%. Stop same session. Reasoning: the dip flushed
+weak longs and pulled in breakdown shorts; the HIGH-VOLUME reclaim close proves a bigger
+buyer absorbed BOTH groups; entering above the reclaim high (not during the dip) means
+momentum + trapped shorts both push your way.
+Trade frame
+Stop 1–2% below dip low · T1 mid-range = ½, then prior resistance · breakeven stop after T1.
+Invalidation: 4+ days stuck below support (real breakdown — cancel) ·
+reclaim on weak volume · close back below support post-entry.
+Example
+HBL 160 support → dips 156 → closes 163 (2x) → next day above 165 → BUY 165. Stop 154 (risk
+11). T1 174, T2 182. Rs 2.5k = 227 sh.
+Don'ts
+Never buy DURING the dip ("discount"); never widen the tight stop — it IS the edge.
+
+
+===== PAGE 17 =====
+PSX Long Signal Manual — page 17 of 26
+L11 — R3: RSI Bullish Divergence [0.5% ADV · Window A]
+Edge: momentum exhaustion made visible — sellers push price lower on fading energy; the
+confirmation candle proves buyers stepped in. Best when: stabilizing market at known support.
+Downtrend rule: STANDBY in active DEFENSE — divergence persists for weeks in crashes
+(repeat lower lows). Needs stabilization + support confluence.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) downtrend into KNOWN support (prior lows/round/200MA zone); (2) RSI(14) <35 and
+flattening; (3) two swing lows forming where 2nd is lower in price (divergence developing — RSI
+higher low); (4) DAILY chart; (5) index stabilizing. Action: WATCHLIST. Pre-write: support,
+divergence pair levels, stop 2% below confirmation-candle low (set at trigger), target = 20/50MA.
+Alert on bullish candle close. DIVERGENCE ALONE = ALERT, never entry.
+STAGE 2 — BUY TRIGGER · Window A
+ALL: (1) confirmed divergence (lower-low price + higher-low RSI); (2) bullish confirmation candle
+CLOSED at/above support (engulfing or top-half); (3) next-day trades above its high after 10 AM;
+(4) support never closed 3%+ below. Order: limit at candle-high +0.3%. Stop same session.
+Reasoning: divergence shows WHAT (exhaustion) but price shows WHEN — the confirmation
+candle is buyers voting with size at the level; requiring both cuts the "early" losses that kill most
+divergence traders.
+Trade frame
+Stop ~2% below candle low · target 20/50MA (+5–10%), sell 70–100% · days–2 weeks (bounce
+rental).
+Invalidation: support closes 3%+ below (knife, not divergence) · no
+confirmation in 5 days (cancel) · RSI makes NEW lows with price
+(divergence broken).
+Example
+ENGRO 320 support: low1 318/RSI28, low2 312/RSI36 → div [OK] → engulfing closes 324 → above
+327 → BUY 327. Stop 310 (risk 17). Target 345. Rs 2.5k = 147 sh.
+Don'ts
+Never buy the divergence sighting mid-plunge; never expect a new bull market from a bounce.
+
+
+===== PAGE 18 =====
+PSX Long Signal Manual — page 18 of 26
+L12 — H1: Inverse Head & Shoulders [0.5% ADV · Window
+A/B]
+Edge: three-trough basing with rising second shoulder = progressive absorption; neckline break
+= highest-rated reversal trigger (~89% reliability tables, confirmed). Best when: post-washout
+stabilizing market. Downtrend rule: STANDBY in active DEFENSE — H&S bottoms morph into
+continuations in crashes. Needs stabilization + preceding downtrend fully washed.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) preceding downtrend (mandatory); (2) left shoulder + head (lower) printed; (3) right
+shoulder forming ABOVE head low; (4) volume drying on right shoulder; (5) neckline (two bounce
+peaks) drawn, flat/gentle; (6) index stabilizing. Action: WATCHLIST. Pre-write: neckline, stop
+2.5% below right-shoulder low, target = head-to-neck projection. Alert at neckline. Never buy the
+right shoulder itself.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) CLOSE above neckline on ≥1.5x volume; (2) preferred: retest-hold + bullish candle; (3)
+close top-half; (4) right shoulder intact (never dipped below head). Order: limit. Stop same
+session. Reasoning: right shoulder holding above the head proves EACH sell wave is weaker
+(absorption); the volume neckline break proves demand finally overwhelms the entire basing
+range — the single highest-conviction bottom trigger in classical patterns.
+Trade frame
+Stop 2–3% below right shoulder · ½ at +8%, trail · 3–8 weeks.
+Invalidation: right shoulder undercuts head (pattern dead) ·
+thin-volume break · bull-trap collapse (honor stop).
+Example
+DGKC: LS 68, head 62, RS 67, neck 75 → closes 77 (2x) → BUY 77.5. Stop 65 (risk 12.5). Target 88.
+Rs 2.5k = 200 sh.
+Don'ts
+Never buy shoulders; never accept steep-up necklines or missing volume.
+
+
+===== PAGE 19 =====
+PSX Long Signal Manual — page 19 of 26
+L13 — ICT-1: Sweep + MSS + FVG [0.5% ADV · Window
+A/B]
+Edge: the full institutional sequence — stop-hunt funds the move, displacement proves size, FVG
+refill gives precision entry. Best when: discount + stabilizing/weak-but-turning market.
+Downtrend rule: STANDBY in active DEFENSE — sweeps keep sweeping in crashes (no MSS
+follows). Needs sweep + REAL displacement.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) price in DISCOUNT (below 50% EQ of last major swing); (2) obvious SSL below (swing low
+/ equal lows) within 3%; (3) sector peer levels noted for SMT check; (4) index stabilizing or better.
+Action: WATCHLIST for sweep→MSS sequence. Pre-write: SSL line, MSS level (last lower-high),
+FVG zone (after displacement), stop beyond sweep wick. Alert 1% above SSL.
+STAGE 2 — BUY TRIGGER · two-step
+Step 1: sweep wick below SSL + close back above + NEXT 1–2 candles displace up, CLOSE above
+last lower-high (MSS [OK]), leaving bullish FVG. Step 2: price retraces INTO the FVG + bullish
+reaction → BUY (limit at FVG mid = advanced variant). Order: limit at FVG touch/reaction. Stop
+same session. Reasoning: sweep = liquidity captured (fuel); displacement + MSS = institutions
+spending it directionally (proof); FVG refill = buying where the imbalance MUST be rebalanced —
+three independent evidence layers, each meaningless alone.
+Trade frame
+Stop 1–2% beyond sweep low · target nearest BSL · ½ at first pocket, trail.
+Invalidation: no MSS within 2 days of sweep (sweep failed) · FVG sliced
+through with BODIES (inversion = exit) · price never retraces (missed >
+forced).
+Example
+OGDC discount, equal lows 200 → sweeps 196, closes 203 → displaces to 210 (MSS), FVG 202–206
+→ retraces 204 → BUY 204. Stop 193.5 (risk 10.5). Target 220. Rs 2.5k = 238 sh.
+Don'ts
+Never enter on the sweep (pre-MSS = knife with jargon); never FVG-longs in premium.
+
+
+===== PAGE 20 =====
+PSX Long Signal Manual — page 20 of 26
+L14 — ICT-2: Bullish OB Bounce [0.5% ADV · Window A/B]
+Edge: buying where institutions demonstrably bought before (last down-candle pre-BOS), ideally
+stacked with an FVG — the "highest-probability zone." Best when: FULL/CAUTION uptrend
+pullbacks. Downtrend rule: OFF in DEFENSE — OBs in falling markets become breakers
+(resistance) and slice through. Existing OB longs: exit on close below OB.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) BOS up already printed (higher-high confirmed); (2) valid bullish OB marked: last
+down-candle pre-BOS + had sweep-before/displacement-after; (3) price pulling back toward OB,
+still above it; (4) pullback zone in DISCOUNT of BOS leg; (5) FVG overlapping OB (preferred); (6)
+regime FULL/CAUTION. Action: WATCHLIST. Pre-write: OB high/low zone, stop 2% below OB low,
+target next BSL. Alert at OB top.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) price tapped INTO OB zone; (2) bullish reaction INSIDE zone (engulfing/hammer/close
+above OB mid); (3) close top-half; (4) no close below OB low. Order: limit at reaction +0.3%
+(beginners: after candle close). Stop same session. Reasoning: the OB is a PROVEN institutional
+buy footprint (it caused the BOS); price returning to it = second chance at their average price;
+demanding the reaction candle filters zones that have already been consumed (mitigated).
+Trade frame
+Stop ~2% below OB low · ½ at +6–8%, trail 20MA · close below OB = exit (breaker forming).
+Invalidation: closes below OB · OB already tapped 2+ times (consumed)
+· regime DEFENSE.
+Example
+MEBL BOS 250→280, OB 252–258 (+FVG) → dips 255, hammer, closes 260 → BUY 261. Stop 247
+(risk 14). T1 278, T2 290. Rs 2.5k = 178 sh.
+Don'ts
+Never call random candles OBs (needs sweep + displacement + BOS); never OB-long in
+premium.
+
+
+===== PAGE 21 =====
+PSX Long Signal Manual — page 21 of 26
+L15 — ICT-3: OTE Deep-Discount [0.5% ADV · Window A/B]
+Edge: deepest-discount entries = tightest stops + best R:R; OTE band + array confluence =
+precision within the discount. Best when: post-displacement pullbacks, FULL/CAUTION.
+Downtrend rule: OFF in DEFENSE and in downtrends generally — OTE is a WITH-trend pullback
+tool; "cheap" fibs in falling markets are value traps.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) fresh bullish displacement leg AFTER sweep + MSS (mandatory prerequisites); (2) fib
+drawn low→high; (3) OTE band 62–79% computed (70.5% sweet spot); (4) bullish OB and/or FVG
+overlapping the band; (5) price pulling back toward band, not yet there. Action: WATCHLIST.
+Pre-write: band top/bottom, array zone, stop beyond leg origin, target leg high + next BSL. Alert
+at band top.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) price TAPPED the band + array zone; (2) bullish confirmation (reaction candle; limit at
+70.5% = advanced variant); (3) close top-half; (4) leg origin intact. Order: limit at confirmation.
+Stop same session. Reasoning: sweep + MSS prove direction; the OTE band locates where
+pullback sellers exhaust against institutional re-entry (their average zone); array overlap = two
+methodologies pointing at one price — confluence, not coincidence.
+Trade frame
+Stop beyond leg origin (~2–3% under swing low) · ½ at leg high, then next BSL.
+Invalidation: leg origin breaks · band tapped but no reaction in 3 days
+(weak — cancel) · regime DEFENSE.
+Example
+FFC 100→120 leg, OTE 104–107.6, OB 104–106 → taps 106 + engulfing → BUY 106.5. Stop 97.5
+(risk 9). T1 120, T2 126. Rs 2.5k = 277 sh.
+Don'ts
+Never OTE without sweep + MSS (random fib); never in downtrends.
+
+
+===== PAGE 22 =====
+PSX Long Signal Manual — page 22 of 26
+L16 — ICT-4: Turtle Soup Bottom [0.5% ADV · Window A]
+Edge: the most-watched level fails = maximum trapped sellers = maximum fuel. Same
+phenomenon as L10 with ICT confirmation mechanics. Best when: stabilizing market at obvious
+levels. Downtrend rule: STANDBY in active DEFENSE — obvious levels break FOR REAL in
+crashes (soup becomes waterfall). Needs reclaim + MSS, same as L10/L13.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) obvious level identified (prior-day low / equal lows / "must-hold" everyone cites); (2) price
+within 2% above it; (3) daily structure allows MSS read (last lower-high marked); (4) index
+stabilizing+. Action: WATCHLIST for sweep→reclaim→MSS. Pre-write: level, reclaim rule, MSS
+level, FVG plan, stop beyond sweep wick. Alert AT the level.
+STAGE 2 — BUY TRIGGER · Window A
+ALL: (1) sweep wick through level + CLOSE back above within 1–2 candles; (2) displacement +
+MSS (close above last swing) + FVG; (3) daily close top-half; (4) entry on retest-hold from above
+OR FVG touch + confirmation (first trigger). Order: limit. Stop same session. Reasoning:
+obvious level = crowded stops = biggest liquidity pool; sweep captures it, reclaim traps the
+crowd, MSS proves the trap is being PAID (institutions distributing into their covers). Three
+crowd-mechanics layers.
+Trade frame
+Stop beyond sweep wick · mid-range then opposing BSL · 70% at first pocket (mean-reversion:
+don't marry).
+Invalidation: level breaks and HOLDS below 2+ days (real breakdown) ·
+no MSS in 2 days · 2nd attempt at same level (one attempt per level per
+week).
+Don'ts
+Never buy INTO the sweep; never double-size when L10 also triggers (same idea, ONE position).
+Note
+Worked math mirrors L10 (same levels logic, later ICT entry).
+
+
+===== PAGE 23 =====
+PSX Long Signal Manual — page 23 of 26
+L17 — M4: Momentum Burst [0.5% ADV · Window A]
+Edge: real catalysts + volume explosions mark institutional urgency; day-2 continuation =
+urgency confirmed, not one-day wonder. Best when: FULL/CAUTION + green/neutral M3.
+Downtrend rule: OFF in DEFENSE — bursts get sold into ("sell the news") in falling markets;
+gap-ups fail and reverse to lows.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening of burst day
+ALL: (1) identifiable catalyst (results/bonus/policy/discovery — NO mystery spikes); (2) burst
+candle +5% on 2x+ vol, close near HIGH; (3) liquid large/mid-cap; (4) green/neutral M3; (5) NOT
+circuit-locked untradeable (if locked: no chase orders, wait). Action: WATCHLIST for day-2
+continuation. Pre-write: burst high/low/midpoint, stop below mid (aggr) or low (std), target
++5–10%, 3-day guillotine date. Alert above burst high.
+STAGE 2 — BUY TRIGGER · Window A next morning
+ALL: (1) trades above burst-day high AFTER 10:00 AM (if gap >3%: wait 30-min dip-HOLD first);
+(2) morning volume healthy; (3) not more than +4% above burst close; (4) index not dumping.
+Order: limit at burst-high +0.3%. Stop same session. Reasoning: day-1 = emotion; day-2
+continuation = POSITIONING (institutions couldn't finish day-1 and keep buying); the 10 AM + gap
+rules filter emotional opens from real follow-through.
+Trade frame
+Stop below burst mid/low · +5–10% in 2–5 days, 70% into strength · HARD 3-day exit without
+follow-through.
+Invalidation: opens above then closes BELOW burst midpoint day-2
+(failed burst — exit next morning) · catalyst debunked · 3-day clock
+expires.
+Example
+POL discovery: 500→540 (+8%, 3x) → next day dips 538, holds, pushes 544+ → BUY 546. Stop 518
+(risk 28). Target 575–590. Rs 2.5k = 89 sh.
+Don'ts
+Never buy the burst close; never hold past day 3 hoping; never chase circuit locks.
+
+
+===== PAGE 24 =====
+PSX Long Signal Manual — page 24 of 26
+L18 — M5: Bollinger Snap-Back [0.5% ADV · Window A]
+Edge: panic selloffs in quality large-caps exhaust mechanically; band-tag + RSI + reclaim =
+three independent washout reads. Best when: stabilizing market ONLY (index hammer/calm
+day), large-caps above major floors. Downtrend rule: STRICTEST — M5 is OFF until stabilization
+prints. Crash days 1–3: knives everywhere, zero entries. Even stabilized: one M5 at a time.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) LARGE-CAP liquid only; (2) 3–7 day −8–15% washout on fear/mild news (verify NO
+fraud/default/downgrade-disaster); (3) tagged/pierced lower BB(20,2); (4) RSI(14) <30; (5) above
+200MA/multi-month floor; (6) index stabilization day printed (hammer/calm). Action: WATCHLIST.
+Pre-write: spike low, stop 2.5% below it, target = 20MA, size. Alert on close back inside bands.
+STILL FALLING = still watching.
+STAGE 2 — BUY TRIGGER · Window A
+ALL: (1) bullish candle CLOSED back INSIDE the bands (engulfing/hammer preferred); (2)
+next-day trades above its high after 10 AM; (3) RSI hooked up from <30; (4) index not
+re-breaking down. Order: limit at candle-high +0.3%. Stop same session. Reasoning: band-tag
+= statistical extreme; RSI<30 = momentum extreme; close-back-inside = buyers PROVED
+absorption at the extreme. All three together = washout complete; any one alone = falling-knife
+bait.
+Trade frame
+Stop 2–3% below spike low · 20MA/mid-band = sell 100% · max 10 days.
+Invalidation: new low below spike (knife continues — never entered?
+good. Entered? honored stop) · no reclaim in 3 days (cancel watch) ·
+index re-breaks.
+Example
+HBL 175→155 (−11%, RSI 26, lower BB, floor 150, index hammer) → engulfing closes 160 inside
+bands → above 161 → BUY 161. Stop 150 (risk 11). Target 170. Rs 2.5k = 227 sh.
+Don'ts
+Never buy slicing-down-through-band candles; never M5 small-caps; never pre-stabilization.
+
+
+===== PAGE 25 =====
+PSX Long Signal Manual — page 25 of 26
+L19 — W1: LPS / Wyckoff Phase D [0.5% ADV · Window
+A/B]
+Edge: Spring proved supply flushed, SOS proved demand dominant — LPS is buying confirmed
+strength at a quiet discount. Best when: CAUTION→FULL transition (Phase D = accumulation
+ending). Downtrend rule: OFF in DEFENSE — what looks like "accumulation" in bear markets is
+usually re-distribution (springs fail, SOS fades). Needs range + SOS + index stable-up.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) valid accumulation: SC + AR + ST identifiable, range ≥8–10%; (2) SOS printed (wide,
+high close, vol, above mid-range); (3) now pulling back (LPS forming) on LIGHT volume; (4)
+pullback holding ABOVE mid + broken resistance; (5) index stable-up. Action: WATCHLIST.
+Pre-write: LPS zone, stop 2% below broken resistance, target = range top then height projection.
+Alert in LPS zone.
+STAGE 2 — BUY TRIGGER · Window A/B
+ALL: (1) bullish confirmation candle AT LPS (close back up); (2) LPS low held above mid-range
+AND above broken resistance; (3) volume on pullback clearly lighter than SOS; (4) close top-half.
+Order: limit at confirmation +0.3%. Stop same session. Reasoning: SOS = demand's résumé;
+LIGHT-volume pullback = no supply answering it (the dog that didn't bark); holding above mid =
+control retained. Buying confirmed strength on silence = best R:R in Wyckoff.
+Trade frame
+Stop ~2% below broken resistance · ½ at range top, then height projection, trail · 3–8 weeks.
+Invalidation: LPS sinks below mid-range (weakness, not LPS) · close
+back inside range depth · SOS never confirmed (range still Phase B —
+cancel).
+Example
+FFC 100–112: SOS to 110 (2x) → LPS 106 (thin vol, above mid) + bullish close 108 → BUY 108.5.
+Stop 104 (risk 4.5). T1 116, T2 124. Rs 2.5k = 555 sh.
+Don'ts
+Never enter the SOS candle (worst R:R); never force Phase-B ranges into Phase-D labels.
+
+
+===== PAGE 26 =====
+PSX Long Signal Manual — page 26 of 26
+L20 — V1: Stopping Volume + Test [0.5% ADV · Window
+A]
+Edge: stopping bar = footprint of absorption; low-volume Test = proof no sellers remain.
+Two-print institutional confirmation. Best when: stabilizing market at major support.
+Downtrend rule: STANDBY in active DEFENSE — stopping volume appears REPEATEDLY down a
+crash (each one fails). Needs support + Test + stabilization.
+STAGE 1 — PRE-SIGNAL (WATCH) · evening scan
+ALL: (1) decline into MAJOR support (multi-week floor/round/200MA zone); (2) stopping bar
+printed: 2x+ volume, wide range, close TOP HALF; (3) index stabilizing (hammer/calm, not crash
+day); (4) no stock-specific disaster news. Action: WATCHLIST for the Test. Pre-write: stopping
+low, stop 2% below it, target mid-range then top. Alert on low-volume dip. Stopping bar alone =
+ALERT, never entry.
+STAGE 2 — BUY TRIGGER · Window A
+ALL: (1) Test printed within 1–5 days: re-dip toward low on LOW volume (<0.7x) + narrow spread
++ close back UP; (2) next-day trades above Test high after 10 AM; (3) Test low held at/above
+stopping low (marginal pierce + reclaim acceptable); (4) index not re-breaking. Order: limit at
+Test-high +0.3%. Stop same session. Reasoning: stopping bar shows SIZE absorbed (someone
+big bought panic); the low-volume Test shows NOTHING LEFT to sell (sellers exhausted, not just
+pa ...[truncated 7352 chars]
+

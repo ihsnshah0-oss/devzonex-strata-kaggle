@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PSX Live &amp; Research — Free Pakistan Stock Research</title>
+<!-- APP v1.2.0 — bump ?v= below whenever JS/CSS changes so browsers fetch fresh files -->
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/static/styles.css?v=3.19.0">
+</head>
+<body>
+<div id="bootWarn" style="display:none;background:#7f1d1d;color:#fff;padding:14px 18px;font-size:14px;line-height:1.5"></div>
+<script>
+(function(){
+  try {
+    if (location.protocol === "file:") {
+      var d = document.getElementById("bootWarn");
+      d.style.display = "block";
+      d.innerHTML = "<b>⚠️ You opened this file directly — that cannot work.</b><br>Start the server first: open a terminal in <b>psx-trading-system</b> and run <b>uvicorn src.app.server:app --host 0.0.0.0 --port 8111</b>, then open <b>http://localhost:8111</b> (see docs/01-installation-guide.md).";
+    }
+  } catch(e){}
+})();
+</script>
+<nav class="nav">
+  <div class="brand"><div class="logo">◈</div><div>PSX Live &amp; Research<small>free · open-source · for PSX</small></div></div>
+  <div class="searchbox">
+    <input id="search" placeholder="Search any PSX stock — e.g. OGDC ⌘K" autocomplete="off">
+    <div class="suggest" id="suggest"></div>
+  </div>
+  <div class="navstatus">
+    <span class="mkt closed" id="mktBadge" title="">···</span>
+    <div class="clock" id="clock" title="Pakistan Standard Time">--:--:--</div>
+    <div class="sigtime" id="sigTime" title="When watchlist signals were last computed">Signals: —</div>
+    <div class="sigtime" id="autoIn" title="Countdown to next automatic refresh"></div>
+    <span class="badge-ai" id="aiBadge" title="AI engine status — turn it on in Settings → AI"><span class="dot"></span><span id="aiBadgeTxt">AI ENGINE</span></span>
+    <div class="bell-wrap">
+      <button class="snd-btn" id="sndBtn" title="Notification sound — click to mute / unmute">🔊</button>
+      <button class="bell-btn" id="bellBtn" title="Notifications — market news, PSX announcements & company reports">🔔<span class="bell-badge" id="bellCount" style="display:none">0</span></button>
+      <div class="bell-drop" id="bellDrop" style="display:none">
+        <div class="bh"><b>🔔 Notifications</b><button class="btn ghost" id="bellAllRead" style="font-size:11px">✓ Mark all read</button></div>
+        <div id="bellList"></div>
+      </div>
+    </div>
+    <button class="btn icon" id="settingsIconBtn" title="Settings" aria-label="Settings">⚙</button>
+    <button class="btn icon" id="refreshBtn" title="Fetch latest data and recompute all signals" aria-label="Refresh">⟳</button>
+    <div class="avatar" title="PSX Live &amp; Research · local profile">PA</div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-view="home" class="active">Dashboard</button>
+    <button data-view="sectors">📊 Sectors</button>
+    <button data-view="watchlist">⭐ Watchlist</button>
+    <button data-view="stock">Stock</button>
+    <button data-view="report">Report &amp; Compare</button>
+    <button data-view="screener">Screener</button>
+    <button data-view="backtest">Backtest</button>
+    <button data-view="paper">Paper Trade</button>
+    <button data-view="money">💰 Money</button>
+    <button data-view="heatmap">🔥 Heatmap</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <!-- HOME / DASHBOARD — Stalwart landing -->
+  <section class="view active" id="v-home">
+
+    <!-- FOLD 1: welcome & portfolio state -->
+    <div class="fold1" id="fold1">
+      <div class="pulse-label" id="ldMktStatus">CONNECTING TO PSX…</div>
+      <p class="nl-headline" id="ldHeadline">Loading today's market read…</p>
+      <div class="quote-node" id="quoteNode" title="Click for another lesson">
+        <p id="ldQuote">“…”</p>
+        <span id="ldQuoteBy"></span>
+        <div id="ldQuoteLesson" class="quote-lesson">💡 …</div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn primary" id="mbBtn">🤖 Morning brief — what to watch today</button>
+        <div class="card" id="mbCard" style="display:none;margin:12px auto 0;max-width:760px;text-align:left">
+          <h2 style="font-size:15px">🤖 Morning brief <span class="sub" id="mbWhen"></span></h2>
+          <div id="mbBody" class="sub" style="margin-top:6px;white-space:pre-wrap;line-height:1.55"></div>
+        </div>
+      </div>
+      <div class="scroll-cue">Scroll for the data ↓</div>
+    </div>
+
+    <!-- REAL ACCOUNT BRIEF — three square bento-style cards, hover for drivers -->
+    <div class="reveal in" id="foldBrief">
+      <div class="acct-brief">
+        <div class="fold-head"><h2>Your real account</h2><span>hover any card for the drivers behind the number</span></div>
+        <div class="bento" id="briefGrid"></div>
+        <div class="ab-chips" id="abChips"></div>
+        <div class="ab-progress" id="abProgress"></div>
+        <button class="btn ghost ab-open" id="abOpenTrading">Open Trading tab →</button>
+      </div>
+    </div>
+
+    <!-- FOLD 1.5: data bento grid -->
+    <div class="reveal" id="foldBento">
+      <div class="fold-head"><h2>Today at a glance</h2><span>hover any card for the drivers behind the number</span></div>
+      <div class="bento" id="bentoGrid"></div>
+      <div class="grid g2" style="margin-top:16px;grid-template-columns:1.6fr 1fr">
+        <div class="card trend-card">
+          <h3>AI Price Trend</h3>
+          <p class="sub" id="trendLabel" style="margin-bottom:6px">Watchlist composite</p>
+          <canvas class="chart" id="trendChart"></canvas>
+        </div>
+        <div class="card alerts-card">
+          <h3>Recent AI Alerts</h3>
+          <p class="sub" style="margin-bottom:6px">Official PSX filings &amp; company actions, newest first</p>
+          <div class="alist" id="alertsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOLD 3: deep dives (classic panels, kept intact) -->
+    <div class="reveal" id="foldDeep">
+      <div class="fold-head"><h2>Deep dives</h2><span>indices, watchlist signals, movers &amp; one-click screens</span></div>
+      <div class="card" style="margin-bottom:16px">
+        <h3>Market indices</h3>
+        <div class="idx-grid" id="idxGrid"><div class="idx"><div class="n">LOADING…</div></div></div>
+        <p id="breadth" style="margin-top:10px;font-size:13px;color:var(--muted)"></p>
+        <p id="officialPulse" class="sub" style="font-size:12px;margin-top:2px"></p>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <h2>Today's market <span class="sub" style="font-weight:400">· my watchlist only</span></h2>
+        <div class="minitabs" id="mktTabs">
+          <button data-k="gainers" class="active">Top Gainers</button>
+          <button data-k="losers">Top Losers</button>
+          <button data-k="most_active">Most Active</button>
+        </div>
+        <div style="overflow-x:auto"><table id="mktTbl"><thead><tr>
+          <th>Symbol</th><th>Price</th><th>Change</th><th>P/E</th><th>Yield</th><th>Avg Vol</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- NEWS & FILINGS (moved to the bottom of the Dashboard) -->
+    <div class="reveal" id="foldNews">
+      <div class="fold-head"><h2>📰 News &amp; Announcements</h2><span>market mood, finance-ranked headlines, official PSX filings &amp; company reports</span></div>
+      <details class="help"><summary>ℹ️ How to use this section — News</summary>
+        <ol>
+          <li>Read the <b>market mood</b> line first (Positive → Negative with a score).</li>
+          <li>Headlines are <b>finance-ranked</b> — market stories float to the top. Each shows source + its own mood score.</li>
+          <li><b>Click any headline</b> to read the full story on the source site.</li>
+          <li><b>📢 PSX Announcements tab:</b> official company filings (board meetings, results, payouts, AGMs…) — tick <i>My watchlist only</i> to see just your 25 stocks. Each item links to the original PSX PDF.</li>
+        </ol>
+        <p><b>How it works:</b> free RSS feeds (Dawn, Tribune, ARY, The News, Dunya) + Investify.pk aggregator refresh every 15–30 min; mood comes from an offline finance word-list (no AI API). For one company's news <b>and filings</b>, open its Stock page → News sub-tab.</p>
+      </details>
+  
+      <div class="card">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <button class="btn ghost" id="newsTabNews" style="font-weight:700">📰 Market News</button>
+          <button class="btn ghost" id="newsTabAnn">📢 PSX Announcements</button>
+          <button class="btn ghost" id="newsTabRep">📄 Company Reports</button>
+        </div>
+        <div id="newsPaneNews">
+          <h2>📰 Market News &amp; Sentiment</h2>
+          <p class="sub" id="newsSent"></p>
+          <div id="newsList"></div>
+        </div>
+        <div id="newsPaneAnn" style="display:none">
+          <h2>📢 PSX Company Announcements</h2>
+          <p class="sub">Official filings — board meetings, results, payouts, AGMs, insider buys — summarized by Investify with links to the original PSX documents.</p>
+          <div style="display:flex;gap:10px;align-items:center;margin:8px 0">
+            <label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" id="annWlOnly"> My watchlist only</label>
+            <span class="sub" id="annCount"></span>
+          </div>
+          <div id="annList"></div>
+        </div>
+        <div id="newsPaneRep" style="display:none">
+          <h2>📄 Latest Official Company Reports</h2>
+          <p class="sub">Newest annual / quarterly financial reports filed with PSX (financials.psx.com.pk). Click a symbol for full history &amp; PDFs on its Filings tab.</p>
+          <p class="sub" id="repCount"></p>
+          <div id="repList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTORS — PSX sector performance (all 36 sectors) -->
+  <section class="view" id="v-sectors">
+    <div class="fold-head"><h2>📊 Sectors</h2><span id="secMeta" class="sub">loading…</span>
+      <button class="btn small ghost" id="secViewAll" style="margin-left:auto" title="Open the full sector tables">View All →</button></div>
+    <div id="secLanding">
+      <div class="minitabs" id="secPeriodTabs">
+        <button data-p="d" class="active" title="Today's change">Day</button>
+        <button data-p="w" title="1-week change">Week</button>
+        <button data-p="m" title="1-month change">Month</button>
+        <button data-p="ytd" title="Year to date">YTD</button>
+        <button data-p="y" title="52-week change">52 Week</button>
+      </div>
+      <div id="secUpDn" class="sec-updn"></div>
+      <div id="secBars"></div>
+    </div>
+    <div id="secFull" style="display:none">
+      <div class="minitabs" id="secSubTabs">
+        <button data-st="overview" class="active">Overview</button>
+        <button data-st="financials">Financials</button>
+        <button data-st="valuations">Valuations</button>
+        <button data-st="performance">Performance</button>
+        <button data-st="dividends">Dividends</button>
+        <button class="btn small ghost" id="secExport" style="margin-left:auto">⬇ Export Excel</button>
+      </div>
+      <button class="btn small ghost" id="secBack" style="margin:2px 0 8px">← Back to overview</button>
+      <div class="tbl-scroll"><table class="tbl sec-tbl" id="secTbl"></table></div>
+      <p class="sub" id="secNote"></p>
+    </div>
+  </section>
+
+  <!-- WATCHLIST (own tab) -->
+  <section class="view" id="v-watchlist">
+    <details class="help"><summary>ℹ️ How to use this tab — Watchlist</summary>
+      <ol>
+        <li><b>Read each row:</b> price, day change, RSI, trend vs the <b>10/20/50/100/200-day averages</b> (▲ above / ▼ below — hover a chip for the exact value), P/E, dividend yield, and the quick signal pill.</li>
+        <li><b>Hover a symbol</b> to see the company's full name.</li>
+        <li><b>Click the flag dot</b> in a row and pick a color from the popup — 6 colors, or ✕ to clear the flag.</li>
+        <li><b>Multiple lists:</b> the ⭐ Master list is your full list (edit it in ⚙ Settings). Use <b>+ New list</b> to make sub-lists that can only contain stocks already in the Master list.</li>
+        <li><b>Click any row</b> to open full research, trade proposal &amp; backtest for that stock.</li>
+      </ol>
+      <p><b>How it works:</b> signals recompute on every ⟳ Refresh (and automatically on schedule). Trend chips show price vs five averages — all five ▲ = strong trend.</p>
+    </details>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div>
+          <h2>⭐ Blue-Chip Watchlist</h2>
+          <p class="sub">Your swing-trading list — click any row for full research, proposal &amp; backtest. <span id="wlUpdated"></span></p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <a class="btn ghost" id="wlPdfBtn" href="/api/watchlist/report.pdf"
+             title="Download a one-page printable sheet of the Master list">⬇ One-page PDF</a>
+          <div id="wlListsBar" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"></div>
+        </div>
+      </div>
+      <div style="overflow-x:auto"><table id="watchTbl"><thead><tr>
+        <th>Flag</th><th>Symbol</th><th>Price</th><th>Day</th><th>RSI</th><th>Trend vs 10/20/50/100/200-day</th><th>P/E</th><th>Yield</th><th>Signal</th>
+      </tr></thead><tbody><tr><td colspan="9">Loading…</td></tr></tbody></table></div>
+      <div class="grid wl-reveal" title="Hover to reveal" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+        <div>
+          <h2 style="font-size:15px">⚡ Today's swing setups in my list</h2>
+          <p class="sub">Auto-scans your master stocks for live swing signals — best first.</p>
+          <div id="wlSetups" style="margin-top:8px"><p class="sub">Scanning…</p></div>
+        </div>
+        <div>
+          <h2 style="font-size:15px">🚨 Condition alerts</h2>
+          <p class="sub">Checked every 90 s with the bell — matches ring the bell, chime and pop up.</p>
+          <div id="caRules" style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px"></div>
+          <p class="sub" id="caLast" style="margin-top:8px"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STOCK -->
+  <section class="view" id="v-stock">
+    <details class="help"><summary>ℹ️ How to use this tab — Stock</summary>
+      <ol>
+        <li><b>Find a stock</b> via the top search box (or click any row anywhere). Switch chart range 3M/6M/1Y/5Y; hover candles for numbers.</li>
+        <li><b>Research Desk:</b> read the verdict + confidence first, then the 🐂 bull case, 🐻 bear case, and ⚖ risk/reward grade.</li>
+        <li><b>Trade Proposal:</b> trader action, entry range, stop-loss, targets, suggested shares, buy/sell evidence, and the 🧠 Deep Thinking reasoning.</li>
+        <li><b>Fundamentals:</b> P/E, yield, market cap, performance. <b>News:</b> company mentions + mood score.</li>
+      </ol>
+      <p><b>How it works:</b> every visit runs Data → Indicators → Researchers → Trader → Proposal (see ABOUT.md §14). Each report shows <b>Generated at …</b> — press <b>⟳ Refresh</b> to recompute with the latest data.</p>
+    </details>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="position:relative;flex:1;min-width:240px">
+          <input id="anySym" placeholder="Fetch ANY PSX symbol — even outside ALLSHR (new listings, GEM board…)" autocomplete="off" style="width:100%">
+          <div id="anySuggest" class="suggest" style="display:none;top:auto"></div>
+        </div>
+        <button class="btn primary" id="anyGo">Fetch &amp; analyze</button>
+      </div>
+      <p class="sub" style="margin:8px 0 0">Pulls quotes + full history live from the PSX DPS portal — works for every listed instrument, not only the 545 ALLSHR names. Type a symbol and press Enter.</p>
+    </div>
+
+    <div class="stock-head">
+      <h1 id="stName">—</h1>
+      <span class="pill p-hold" id="stVerdict">—</span>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;gap:18px;align-items:baseline;flex-wrap:wrap">
+        <span class="price-big" id="stPrice">—</span>
+        <span id="stChg"></span>
+        <span class="sub" id="stMeta" style="margin:0"></span>
+        <a id="stPortal" class="portal" href="#" target="_blank" rel="noopener"
+           title="Open the official PSX Data Portal page for this stock — opens in a new tab">
+          🌐 PSX Data Portal ↗</a>
+        <a id="stFin" class="portal" href="https://financials.psx.com.pk/" target="_blank" rel="noopener"
+           title="Open this company's official annual/quarterly statements on financials.psx.com.pk">
+          📑 Official Financials ↗</a>
+        <a id="stPdf" class="portal" href="#" download
+           title="Download this stock's full A-to-Z executive report as a PDF">
+          ⬇ Download PDF</a>
+      </div>
+      <div class="minitabs" id="rangeTabs">
+        <button data-m="3">3M</button><button data-m="6">6M</button>
+        <button data-m="12" class="active">1Y</button><button data-m="60">5Y</button>
+      </div>
+      <canvas class="chart" id="mainChart"></canvas>
+      <div id="stOhlc" style="display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;margin:10px 0 4px;font-size:13.5px"></div>
+      <div class="stat-grid" id="stStats"></div>
+    </div>
+    <div class="minitabs" id="stTabs" style="margin-bottom:12px">
+      <button data-k="research" class="active">Research Desk</button>
+      <button data-k="proposal">Trade Proposal</button>
+      <button data-k="fund">Fundamentals</button>
+      <button data-k="filings">📄 Filings</button>
+      <button data-k="deep">🧠 Deep Analysis</button>
+      <button data-k="news">News</button>
+    </div>
+    <div class="card" id="stBody"><p class="sub">Loading research…</p></div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="view" id="v-report">
+    <details class="card" id="deskCard" style="margin-bottom:14px">
+      <summary style="cursor:pointer;font-weight:800">🏛 PSX Official Desk <span class="sub" id="deskMeta"></span></summary>
+      <div id="deskBody" class="sub" style="margin-top:10px">loading…</div>
+    </details>
+    <div class="card" style="margin-bottom:14px">
+      <div class="minitabs" id="repModeTabs">
+        <button data-k="single" class="active">📄 Single report</button>
+        <button data-k="compare">🔀 Compare A-to-Z</button>
+      </div>
+    </div>
+
+    <!-- PANE 1: single stock report -->
+    <div id="reportPane">
+      <details class="help"><summary>How to use this tab - Report</summary>
+        <ol>
+          <li><b>Pick a stock</b> from your watchlist, then press <b>Generate report</b>.</li>
+          <li>Read the full A-to-Z analysis: executive summary, trend, signals, quant votes, bull vs bear, trade plan, fundamentals, news, 3-year backtest check, and deep thinking.</li>
+          <li>Press <b>Download PDF</b> to save or print the executive report. Same content, clean paper format.</li>
+          <li>Switch to <b>🔀 Compare A-to-Z</b> above to put up to 5 stocks side by side instead.</li>
+        </ol>
+        <p><b>How it works:</b> one engine combines Research + Proposal + Backtest into a single document. Takes about 30 seconds first time (AI note + backtest).</p>
+      </details>
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label for="repSym"><b>Stock:</b></label>
+          <select id="repSym" style="padding:8px;min-width:220px"></select>
+          <button class="btn primary" id="repGen">Generate report</button>
+          <a class="btn" id="repPdf" href="#" download>Download PDF</a>
+        </div>
+        <p class="sub" id="repMeta" style="margin-bottom:0">Pick a stock and press Generate.</p>
+      </div>
+      <div id="repOut"></div>
+    </div>
+
+    <!-- PANE 2: compare up to 5 stocks -->
+    <div id="comparePane" style="display:none">
+      <details class="help"><summary>How to use this tab - Compare</summary>
+        <ol>
+          <li><b>Add up to 5 stocks</b> — type a symbol (search covers the full ALLSHR universe) and press Add, or click a suggestion.</li>
+          <li>Press <b>Compare A-to-Z</b> to see everything side by side: price, performance, valuation, profitability, growth, debt, technicals, index membership, latest official filing.</li>
+          <li>The chart shows <b>12-month performance indexed to 100</b> — the highest line at the right edge won over the year.</li>
+        </ol>
+        <p><b>Tip:</b> compare rivals in the same sector (e.g. MCB vs UBL vs HBL) to spot the better value.</p>
+      </details>
+      <div class="card">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="position:relative">
+            <input id="cmpSym" placeholder="Type a symbol, e.g. OGDC" autocomplete="off" style="padding:8px;min-width:240px">
+            <div id="cmpSuggest" class="suggest" style="display:none;top:auto"></div>
+          </div>
+          <button class="btn" id="cmpAdd">＋ Add</button>
+          <button class="btn primary" id="cmpGo">Compare A-to-Z</button>
+          <a class="btn ghost" id="cmpPdf" href="#" download style="display:none">⬇ Download PDF</a>
+          <button class="btn ghost" id="cmpClear">Clear all</button>
+        </div>
+        <div id="cmpChips" style="margin-top:10px"></div>
+        <p class="sub" id="cmpMeta">Pick up to 5 stocks, then press Compare A-to-Z.</p>
+      </div>
+      <div class="card" id="cmpChartCard" style="display:none">
+        <h3>12-month performance (all indexed to 100 at start)</h3>
+        <canvas class="chart" id="cmpChart"></canvas>
+      </div>
+      <div id="cmpOut"></div>
+    </div>
+  </section>
+
+  <!-- SCREENER -->
+  <section class="view" id="v-screener">
+    <details class="help"><summary>ℹ️ How to use this tab — Screener</summary>
+      <ol>
+        <li><b>Fast path:</b> click a preset card (e.g. Oversold Bounce, Dividend Kings) — it fills the filters and runs by itself.</li>
+        <li><b>Custom path:</b> fill any filter boxes (empty = "don't care"), pick <b>Sort by</b>, then <b>Run screen</b>.</li>
+        <li><b>Read results:</b> click any row to open full research on that stock. <b>Clear</b> resets the form.</li>
+      </ol>
+      <p><b>How it works:</b> Stage 1 filters all ~745 stocks by price/P/E/yield/volume (instant). Stage 2 downloads history for the most liquid matches and checks RSI, trends, breakouts (first run takes a minute, then it's cached). Tip: run cache warming once from the README so presets answer in seconds.</p>
+    </details>
+
+    <div class="card" style="margin-bottom:14px">
+      <h2>🔎 Full-Scale Stock Screener</h2>
+      <p class="sub">Filter 700+ PSX instruments by valuation, yield, liquidity, momentum &amp; technicals.</p>
+      <div class="preset-grid" id="presetGrid2" style="margin-bottom:14px"></div>
+      <div class="form-grid" id="screenForm"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="runScreen">Run screen</button>
+        <button class="btn ghost" id="clrScreen">Clear</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3 id="screenCount">Results</h3>
+      <div style="overflow-x:auto"><table id="screenTbl"><thead><tr>
+        <th>Symbol</th><th>Price</th><th>Day %</th><th>1Y %</th><th>P/E</th><th>Yield</th>
+        <th>Mkt Cap (bn)</th><th>RSI</th><th>&gt;50DMA</th><th>Vol ×</th>
+      </tr></thead><tbody><tr><td colspan="10" class="sub">Run a screen to see results.</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- BACKTEST -->
+  <section class="view" id="v-backtest">
+    <details class="help"><summary>ℹ️ How to use this tab — Backtest</summary>
+      <ol>
+        <li><b>Pick a symbol</b> (start with OGDC/HBL/LUCK/FFC/MEBL), a <b>strategy</b>, and <b>dates</b> (use 2–3+ years).</li>
+        <li>Set <b>capital</b> and <b>ATR stop</b> (2.0 = normal; lower = tighter stop), then <b>Run backtest</b>.</li>
+        <li><b>Read honestly:</b> Total return vs Buy &amp; hold · Sharpe (want &gt;1) · Max drawdown (can you survive it?) · Profit factor (must be &gt;1.0) · equity curve + trade list.</li>
+      </ol>
+      <p><b>How it works:</b> the engine replays history day-by-day, filling orders at the next open with commission + slippage, guarded by an ATR stop. Past profit never guarantees future profit — backtests exist to <b>kill bad ideas</b>.</p>
+    </details>
+    <div class="card" style="margin-bottom:14px">
+      <h2>📈 Backtesting Lab</h2>
+      <p class="sub">Test strategies on real PSX history with commission &amp; slippage.</p>
+      <div class="form-grid">
+        <div><label>Symbol</label><input id="btSym" value="OGDC" list="symList"><datalist id="symList"></datalist></div>
+        <div><label>Strategy</label><select id="btStrat"></select></div>
+        <div><label>Start</label><input id="btStart" type="date" value="2022-01-01"></div>
+        <div><label>End</label><input id="btEnd" type="date"></div>
+        <div><label>Capital (Rs)</label><input id="btCap" type="number" value="1000000"></div>
+        <div><label>ATR stop ×</label><input id="btAtr" type="number" step="0.5" value="2.0"></div>
+      </div>
+      <div style="margin-top:12px"><button class="btn" id="runBt">Run backtest</button></div>
+      <p class="sub" id="btDesc" style="margin-top:8px"></p>
+      <p class="sub" id="btCosts" style="margin-top:4px"></p>
+    </div>
+    <div class="card" id="btOut" style="display:none">
+      <h3>Results</h3>
+      <div class="stat-grid" id="btStats"></div>
+      <canvas class="chart sm" id="eqChart"></canvas>
+      <h3 style="margin-top:14px">Trades</h3>
+      <div style="overflow-x:auto;max-height:360px;overflow-y:auto"><table id="btTrades"><thead><tr>
+        <th>Entry</th><th>Exit</th><th>Buy</th><th>Sell</th><th>Qty</th><th>Ret %</th><th>Reason</th>
+      </tr></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- TRADING -->
+  <section class="view" id="v-paper">
+    <details class="help"><summary>ℹ️ How to use this tab — Trading</summary>
+      <ol>
+        <li>The <b>🏦 Real Broker Account</b> panel tracks your actual trades (account W615), with <b>live market prices</b> powering every P&amp;L figure.</li>
+        <li><b>Add a trade:</b> symbol + BUY/SELL + qty. Leave <b>rate blank</b> to fill at the live price. Statement trades came with commission included; manual trades are booked at qty × rate.</li>
+        <li><b>Close a position:</b> press the red <b>✕ Close</b> button on any open row (asks how many shares; blank = all) and it sells at the live price.</li>
+        <li><b>🤖 Ask AI:</b> sends your live portfolio + recent trades to your configured AI engine for an honest assessment and management suggestions (no key → rule-based notes).</li>
+        <li><b>📤 Update from a broker statement:</b> expand the section at the bottom, upload your statement PDF, check the detected positions in the preview (editable), then Apply — the book is replaced with those positions.</li>
+        <li>The book is saved in <b>data/broker_account.json</b>. <i>Reset to statement</i> restores the original W615 trades.</li>
+      </ol>
+      <p><b>Paper trading</b> (fake money, practice) is still available further down, collapsed by default.</p>
+    </details>
+
+    <!-- REAL BROKER ACCOUNT (live book) -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h3>🏦 Real Broker Account — Live Book</h3>
+        <button class="btn ghost" id="bkReset" title="Restore the original W615 statement trades">↺ Reset to statement</button>
+      </div>
+      <p class="sub" id="bkMeta"></p>
+      <div class="grid g4" id="bkTop"></div>
+
+      <div class="grid g2" style="margin-top:14px">
+        <div>
+          <h4>Add a trade</h4>
+          <div class="form-grid">
+            <div><label>Symbol</label><input id="bkSym" value="OGDC" list="symList"></div>
+            <div><label>Side</label><select id="bkSide"><option value="buy">BUY</option><option value="sell">SELL</option></select></div>
+            <div><label>Qty</label><input id="bkQty" type="number" value="100"></div>
+            <div><label>Rate (blank = live)</label><input id="bkRate" type="number" step="0.01"></div>
+          </div>
+          <div style="margin-top:10px"><button class="btn primary" id="bkAdd">＋ Add trade</button></div>
+          <p class="sub" id="bkMsg" style="margin-top:8px"></p>
+        </div>
+        <div>
+          <h4>🤖 AI portfolio advisor</h4>
+          <p class="sub" style="margin:6px 0 10px">Sends your live positions + recent trades to the configured AI engine for an assessment and management suggestions.</p>
+          <button class="btn" id="bkAdvice">Ask AI about my trades</button>
+          <div id="bkAdviceOut" class="sub" style="margin-top:10px;white-space:pre-wrap;display:none"></div>
+        </div>
+      </div>
+
+      <h4 style="margin-top:16px">Open positions (live P&amp;L)</h4>
+      <div style="overflow-x:auto"><table id="bkPos"><thead><tr>
+        <th>Symbol</th><th>Qty</th><th>Avg cost</th><th>Last</th><th>Invested</th><th>Market value</th><th>Unrealized P&amp;L</th><th></th>
+      </tr></thead><tbody><tr><td colspan="8" class="sub">Loading…</td></tr></tbody></table></div>
+      <h4 style="margin-top:14px">Closed trades (realized P&amp;L, FIFO)</h4>
+      <div style="overflow-x:auto"><table id="bkReal"><thead><tr>
+        <th>Date</th><th>Symbol</th><th>Qty</th><th>Rate</th><th>Proceeds</th><th>Cost</th><th>P&amp;L</th>
+      </tr></thead><tbody></tbody></table></div>
+      <details style="margin-top:14px"><summary style="font-weight:700" id="bkHistSum">Full transaction history</summary>
+        <div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table id="bkTrades"><thead><tr>
+          <th>Date</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Source</th>
+        </tr></thead><tbody></tbody></table></div>
+      </details>
+
+      <details style="margin-top:14px" id="bkStmtBox">
+        <summary style="font-weight:700">📤 Update my stocks from a broker statement (PDF)</summary>
+        <p class="sub" style="margin:8px 0">Upload your latest account statement — the dashboard reads your positions from it,
+        shows a preview you can edit, and only after your confirmation replaces the book with those positions
+        (each one becomes an opening BUY at its average cost).</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <input type="file" id="bkStmtFile" accept=".pdf,application/pdf">
+          <button class="btn" id="bkStmtParse">Read statement</button>
+          <span class="sub" id="bkStmtMsg"></span>
+        </div>
+        <div id="bkStmtPrev" style="margin-top:12px"></div>
+      </details>
+    </div>
+
+    <!-- PRACTICE (paper) — kept for practice, collapsed -->
+    <details style="margin-top:14px">
+      <summary style="font-weight:700;cursor:pointer">🧪 Practice (paper) account — fake money, optional</summary>
+      <div class="grid g4" id="paperTop" style="margin:14px 0"></div>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Place paper order</h3>
+          <div class="form-grid">
+            <div><label>Symbol</label><input id="poSym" value="OGDC"></div>
+            <div><label>Side</label><select id="poSide"><option value="buy">BUY</option><option value="sell">SELL</option></select></div>
+            <div><label>Qty</label><input id="poQty" type="number" value="100"></div>
+            <div><label>Price (blank = live)</label><input id="poPrice" type="number" step="0.01"></div>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn" id="placeOrder">Execute (paper)</button>
+            <button class="btn ghost" id="resetPaper">Reset</button>
+          </div>
+          <p class="sub" id="poMsg" style="margin-top:8px"></p>
+        </div>
+        <div class="card">
+          <h3>Open positions</h3>
+          <div style="overflow-x:auto"><table id="posTbl"><thead><tr>
+            <th>Symbol</th><th>Qty</th><th>Avg</th><th>Last</th><th>P&amp;L</th>
+          </tr></thead><tbody></tbody></table></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>Order history</h3>
+        <div style="overflow-x:auto;max-height:300px;overflow-y:auto"><table id="ordTbl"><thead><tr>
+          <th>Time</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Price</th><th>Note</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- MONEY MANAGEMENT — PSX SWING TRADING -->
+  <section class="view" id="v-money">
+    <details class="help"><summary>ℹ️ How to use this tab — Swing Money Management</summary>
+      <ol>
+        <li><b>Set your swing plan once:</b> capital (Rs), risk % per trade, target % per trade, stop %, max open positions, max hold days, weekly loss limit.</li>
+        <li><b>Before every swing</b> use the Position Size calculator — pick your stock, entry, stop &amp; target, and it gives the exact shares to buy (rounded to PSX 100-share lots).</li>
+        <li><b>After every exit</b> log it in the Swing Journal — it tracks hold time, % gain, R-multiples, win rate, and weekly losses.</li>
+        <li><b>📄 Trade Plan PDF:</b> pick any stock and download one PDF with ALL its research, the best-fit strategy (all 33 backtested on it), and a trade plan sized by YOUR rules.</li>
+        <li><b>Never add to a loser.</b> The martingale ladder at the bottom is an education demo of why averaging down blows swing accounts — it is NOT a strategy.</li>
+      </ol>
+    </details>
+
+    <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px" id="mnCards">
+      <div class="card"><h4>Balance (bankroll)</h4><div class="price-big" id="mnBalance">—</div><p class="sub" id="mnBalanceSub"></p></div>
+      <div class="card"><h4>This week P&amp;L</h4><div class="price-big" id="mnWeekPnl">—</div><p class="sub" id="mnWeekSub"></p></div>
+      <div class="card"><h4>Swing performance</h4><div class="price-big" id="mnWinRate">—</div><p class="sub" id="mnWinSub"></p></div>
+      <div class="card"><h4>Weekly loss limit</h4><div class="price-big" id="mnWeekLimit">—</div><p class="sub" id="mnWeekLimitSub"></p></div>
+    </div>
+
+    <div id="mnAlerts" style="margin-bottom:14px"></div>
+
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div>
+        <div class="card">
+          <h2>📋 Swing trading plan</h2>
+          <p class="sub">Your rules for multi-day swings (hold ~2 days to 3 weeks). Sizes recompute from these.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <label class="sub">Capital Rs <input id="mnCapital" type="number" step="1000" style="width:100%"></label>
+            <label class="sub">Risk per trade % <input id="mnRiskPct" type="number" step="0.25" style="width:100%" title="How much of your capital one swing may lose if the stop is hit. 1 = careful, 2 = bold."></label>
+            <label class="sub">Target per trade % <input id="mnTargetPct" type="number" step="0.5" style="width:100%" title="Typical swing aim: 6–12% over days to weeks."></label>
+            <label class="sub">Stop-loss per trade % <input id="mnStopPct" type="number" step="0.5" style="width:100%" title="Typical swing stop: 3–5% below entry. Keep target at least 2× the stop."></label>
+            <label class="sub">Max open swings <input id="mnMaxPos" type="number" step="1" style="width:100%"></label>
+            <label class="sub">Max hold (days) <input id="mnHoldDays" type="number" step="1" style="width:100%" title="If a swing has not reached its target in this many days, re-evaluate or exit."></label>
+            <label class="sub">Weekly loss limit % <input id="mnWeekLimitPct" type="number" step="0.5" style="width:100%" title="If closed losses this week reach this %, stop opening new swings until next week."></label>
+          </div>
+          <p class="sub" id="mnRules" style="margin-top:10px"></p>
+          <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+            <button class="btn primary" id="mnPlanSave">Save plan</button>
+            <span class="sub" id="mnPlanMsg"></span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>🧮 Swing position size calculator</h2>
+          <p class="sub">Pick your stock, set entry / stop / target — it sizes the swing to your risk rule and rounds to PSX 100-share lots.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <label class="sub">Stock (your watchlist) <select id="mnSym" style="width:100%"></select></label>
+            <label class="sub">Entry Rs <input id="mnEntry" type="number" step="0.01" style="width:100%"></label>
+            <label class="sub">Stop-loss Rs <input id="mnStop" type="number" step="0.01" style="width:100%"></label>
+            <label class="sub">Target Rs <input id="mnTarg" type="number" step="0.01" style="width:100%"></label>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="mnSizeBtn">Calculate size</button>
+            <button class="btn ghost" id="mnFillPlan" title="Fill stop &amp; target from your plan % (stop −X%, target +Y%)">↺ Fill stop &amp; target from plan %</button>
+          </div>
+          <div id="mnSizeOut" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>📄 Trade Plan PDF</h2>
+          <p class="sub">One PDF for any stock: ALL research data + the best-fit strategy
+          (all 33 backtested on it) + a trade plan sized by YOUR money rules.</p>
+          <div class="grid" style="grid-template-columns:1fr auto;gap:10px;align-items:end">
+            <label class="sub">Stock (type ANY PSX symbol)
+              <input id="mnTPSym" list="mnTPList" placeholder="e.g. OGDC, HBL, PSO…" autocomplete="off" style="width:100%;text-transform:uppercase">
+            </label>
+            <button class="btn primary" id="mnTPBtn">Build &amp; download PDF</button>
+          </div>
+          <datalist id="mnTPList"></datalist>
+          <p class="sub" id="mnTPMsg" style="margin-top:8px">Takes about 15–30 seconds — it backtests every strategy on that stock.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>📂 Open swings</h2>
+          <p class="sub">Your live positions. You get a warning when one hits its stop/target or passes
+          your max-hold days. <b>Close</b> logs it straight into the journal below.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <label class="sub">Stock <input id="mnOSym" list="mnTPList" placeholder="e.g. OGDC" autocomplete="off" style="width:100%;text-transform:uppercase"></label>
+            <label class="sub">Entry date <input id="mnODate" type="date" style="width:100%"></label>
+            <label class="sub">Qty (shares) <input id="mnOQty" type="number" step="1" style="width:100%"></label>
+            <label class="sub">Entry Rs <input id="mnOEntry" type="number" step="0.01" style="width:100%"></label>
+            <label class="sub">Stop Rs <input id="mnOStop" type="number" step="0.01" style="width:100%"></label>
+            <label class="sub">Target Rs <input id="mnOTarg" type="number" step="0.01" style="width:100%"></label>
+            <button class="btn" id="mnOAdd">+ Add open swing</button>
+          </div>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table><thead><tr><th>Sym</th><th>Days</th><th>Qty</th><th>Entry</th><th>Last</th><th>P&amp;L Rs</th><th>Stop → Target</th><th>Status</th><th></th></tr></thead>
+            <tbody id="mnORows"></tbody></table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>📒 Swing journal</h2>
+          <p class="sub">Log each CLOSED swing. P&amp;L is net of commission; R = % move ÷ your plan stop %.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <label class="sub">Stock (type any symbol) <input id="mnJSym" list="mnTPList" placeholder="e.g. OGDC" autocomplete="off" style="width:100%;text-transform:uppercase"></label>
+            <label class="sub">Setup / reason (optional) <input id="mnJSetup" placeholder="e.g. SMA-20 bounce, breakout…" maxlength="80" style="width:100%"></label>
+            <label class="sub">Entry date <input id="mnJEntryDate" type="date" style="width:100%"></label>
+            <label class="sub">Exit date <input id="mnJExitDate" type="date" style="width:100%"></label>
+            <label class="sub">Qty (shares) <input id="mnJQty" type="number" step="1" style="width:100%"></label>
+            <label class="sub">Entry Rs <input id="mnJEntry" type="number" step="0.01" style="width:100%"></label>
+            <label class="sub">Exit Rs <input id="mnJExit" type="number" step="0.01" style="width:100%"></label>
+            <button class="btn" id="mnJAdd">+ Add swing</button>
+          </div>
+          <div style="overflow-x:auto;margin-top:14px">
+            <table><thead><tr><th>Exit</th><th>Sym</th><th>Days</th><th>Entry</th><th>Exit Rs</th><th>%</th><th>R</th><th>P&amp;L Rs</th><th></th></tr></thead>
+            <tbody id="mnJRows"></tbody></table>
+          </div>
+          <p class="sub" id="mnJSum" style="margin-top:8px"></p>
+        </div>
+
+        <div class="card" style="margin-top:16px;border:1px solid #5a1e1e">
+          <h2>🎲 Martingale / averaging-down ladder — education only</h2>
+          <p class="sub" style="color:#ff7b6b">⚠️ The “double down after a loss / keep averaging down a losing swing” idea.
+          It is shown so you can SEE why it blows accounts — a swing trader cuts losers at the stop and never adds to them.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <label class="sub">First stake Rs <input id="mnLadBase" type="number" step="100" style="width:100%"></label>
+            <label class="sub">Payout % <input id="mnLadPay" type="number" step="1" style="width:100%"></label>
+          </div>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table><thead><tr><th>#</th><th>Stake Rs</th><th>Lost so far</th><th>% of capital gone</th></tr></thead>
+            <tbody id="mnLadRows"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- HEATMAP -->
+  <section class="view" id="v-heatmap">
+    <details class="help"><summary>ℹ️ How to use this tab — Heatmap</summary>
+      <ol>
+        <li>Shows <b>only your ⭐ Master watchlist stocks</b>, grouped by sector — like the PSX/TradingView map.</li>
+        <li>Tile <b>size = market cap</b>; tile <b>colour = today's % change</b> (green up, grey flat, red down).</li>
+        <li><b>Hover any tile</b> for full details: price, change, RSI, 10–200-day trend, P/E, yield, market cap, 52-week range, volume &amp; signal.</li>
+        <li><b>Click a tile</b> to open that stock's full research page.</li>
+        <li>The map refreshes automatically with the app while the market is open, and rebuilds itself whenever you edit the Master list in Settings.</li>
+      </ol>
+    </details>
+    <div class="fold-head"><h2>🔥 Master Watchlist Heatmap</h2><span id="hmMeta">loading…</span></div>
+    <div class="minitabs" id="hmModeTabs">
+      <button data-hm="d" class="active" title="Colour by today's change">Today</button>
+      <button data-hm="w" title="Colour by 5-day change">1 Week</button>
+      <button data-hm="m" title="Colour by 21-day change">1 Month</button>
+    </div>
+    <div id="heatmapGrid"></div>
+    <div class="hm-legend">
+      <span>−5%+</span><i style="background:#a11a22"></i><i style="background:#7f1f26"></i><i style="background:#63232a"></i><i style="background:#4a262a"></i><i style="background:#252c33"></i><i style="background:#17493a"></i><i style="background:#11563f"></i><i style="background:#0c6f4c"></i><i style="background:#0a8a5c"></i><span>+5%+</span>
+      <span class="sub" style="margin-left:auto">tile size = market cap · hover = full details · click = research</span>
+    </div>
+    <div class="fold-head" style="margin-top:26px"><h2>🎡 Index Wheels</h2><span id="wheelsMeta" class="sub">loading…</span></div>
+    <div class="wheels">
+      <div class="wheelBox">
+        <canvas id="wheelKse" height="520" width="520"></canvas>
+        <div class="sub wheel-cap">KSE-100 INDEX · official constituents (Apr-2026) · live from TradingView</div>
+      </div>
+      <div class="wheelBox">
+        <canvas id="wheelWl" height="520" width="520"></canvas>
+        <div class="sub wheel-cap">MASTER WATCHLIST · your ⭐ 25 stocks</div>
+      </div>
+    </div>
+    <div class="hm-legend">
+      <span>−5%+</span><i style="background:#a11a22"></i><i style="background:#7f1f26"></i><i style="background:#63232a"></i><i style="background:#4a262a"></i><i style="background:#252c33"></i><i style="background:#17493a"></i><i style="background:#11563f"></i><i style="background:#0c6f4c"></i><i style="background:#0a8a5c"></i><span>+5%+</span>
+      <span class="sub" style="margin-left:auto">inner ring = sector · outer ring = stock · slice size = market cap · hover = details · click a master stock = research</span>
+    </div>
+    <div class="hm-tip" id="hmTip" style="display:none"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-settings">
+    <details class="help"><summary>ℹ️ How to use this tab — Settings</summary>
+      <ol>
+        <li><b>Everything changeable lives here</b> — no coding needed. Change, press Save, done. Changes work <b>immediately</b> (no restart).</li>
+        <li><b>Watchlist (this is your ⭐ Master list):</b> edit any cell, delete rows, or add a new stock below — then <b>Save watchlist</b>. All other lists on the Watchlist tab can only contain stocks from this Master list.</li>
+        <li><b>Trading defaults:</b> cash, risk %, costs — used by proposals, backtests, and paper reset.</li>
+        <li><b>Local AI:</b> turn on only after installing Ollama (see guide 09), then <b>Test connection</b>.</li>
+        <li><b>Maintenance:</b> see saved-data size, clear it for a fresh start, or reset paper money.</li>
+      </ol>
+      <p><b>How it works:</b> saving writes <b>config/watchlist.yaml</b>. Every number is checked — mistakes are explained in plain words, nothing breaks.</p>
+    </details>
+    <div class="card" style="margin-bottom:14px">
+      <h2>⭐ Watchlist — Master list (your main stocks)</h2>
+      <p class="sub">These stocks show on Home. Edit any box, or add a new stock below.</p>
+      <div style="overflow-x:auto"><table id="setWlTbl"><thead><tr>
+        <th>Symbol</th><th>Company name</th><th>Sector</th><th>Why follow it</th><th></th>
+      </tr></thead><tbody><tr><td colspan="5" class="sub">Loading…</td></tr></tbody></table></div>
+      <div class="form-grid" style="margin-top:10px">
+        <div style="position:relative"><label>Symbol — start typing to search all PSX stocks</label><input id="wlSym" placeholder="e.g. SYS" autocomplete="off"><div id="wlSuggest" class="suggest" style="display:none;top:auto"></div></div>
+        <div><label>Company name</label><input id="wlName" placeholder="Systems Limited"></div>
+        <div><label>Sector</label><input id="wlSector" placeholder="Technology"></div>
+        <div><label>Why follow it</label><input id="wlReason" placeholder="IT exporter"></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn small ghost" id="wlAdd">+ Add stock</button>
+        <button class="btn" id="wlSave">Save watchlist</button>
+      </div>
+      <p class="sub" id="wlMsg" style="margin-top:8px"></p>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>💰 Trading defaults</h3>
+        <p class="sub">Used by proposals, backtests &amp; paper reset.</p>
+        <div id="setTrade"></div>
+        <button class="btn" id="tradeSave" style="margin-top:10px">Save trading defaults</button>
+        <p class="sub" id="tradeMsg" style="margin-top:8px"></p>
+      </div>
+      <div class="card">
+        <h3>🤖 AI notes (optional — all options free)</h3>
+        <p class="sub">The built-in reasoning always works. AI adds a second-opinion note to reports. Pick <b>Ollama</b> (runs on your PC — supports <b>Qwen</b>, Llama, Mistral…) or paste a key for any <b>free cloud API</b>. Keys you type are saved only in your own <code>config/watchlist.yaml</code>.</p>
+        <label>Use AI notes</label>
+        <select id="olEnabled"><option value="false">Off</option><option value="true">On</option></select>
+        <label>AI provider</label>
+        <select id="aiProvider">
+          <option value="ollama">Ollama — local on your PC (fully free, no key)</option>
+          <option value="groq">Groq — free cloud API, open models, very fast</option>
+          <option value="openrouter">OpenRouter — free open models (names ending :free)</option>
+          <option value="gemini">Google Gemini — free API tier</option>
+          <option value="cerebras">Cerebras — free cloud, very fast (open Llama models)</option>
+        </select>
+        <div id="aiOllamaFields">
+          <label>Ollama address</label><input id="olUrl">
+          <p class="sub" style="margin:4px 0">Runs 100% locally, no key. Install from <b>ollama.com</b>, then in a terminal: <code>ollama pull qwen2.5</code> (Qwen) or <code>ollama pull llama3.1</code> — then type that model name below.</p>
+        </div>
+        <div id="aiCloudFields" style="display:none">
+          <label>API key (free — link below)</label><input id="aiKey" type="password" placeholder="paste your free API key" autocomplete="off">
+          <p class="sub" id="aiKeyHelp" style="margin:4px 0"></p>
+        </div>
+        <label>Free models — fetched live when you pick a provider</label>
+        <select id="aiModelSel"><option value="">(pick a provider above to load its free models)</option></select>
+        <label>Model name (picked above or typed)</label><input id="olModel">
+        <label>Timeout (seconds, 5–300)</label><input id="olTimeout" type="number">
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="olSave">Save AI settings</button>
+          <button class="btn ghost" id="olTest">Test what I typed</button>
+        </div>
+        <p class="sub" style="margin-top:6px">Test runs against the fields above <b>before saving</b> — paste a key, test it, then Save if it passes.</p>
+        <p class="sub" id="olMsg" style="margin-top:8px"></p>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="card">
+        <h3>🔄 Auto-refresh &amp; display</h3>
+        <label>Auto-refresh data + signals</label>
+        <select id="uiAuto"><option value="true">On</option><option value="false">Off</option></select>
+        <label>Seconds between refreshes (30–600)</label><input id="uiSec" type="number">
+        <label>Default stock (opens first)</label><input id="uiStock">
+        <button class="btn" id="uiSave" style="margin-top:10px">Save display</button>
+        <p class="sub" id="uiMsg" style="margin-top:8px"></p>
+      </div>
+      <div class="card">
+        <h3>🧹 Maintenance</h3>
+        <p class="sub" id="cacheInfo">Checking saved data…</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn ghost" id="cacheClear">Clear saved data</button>
+          <button class="btn ghost" id="cacheReload">Check again</button>
+        </div>
+        <p class="sub">Clearing forces fresh downloads (slower once). Speed tip: <b>python3 scripts/warm_cache.py 150</b></p>
+        <label>Reset paper money to (Rs)</label><input id="paperCash" type="number">
+        <button class="btn ghost" id="paperReset2" style="margin-top:8px">Reset paper account</button>
+        <p class="sub" id="maintMsg" style="margin-top:8px"></p>
+      </div>
+    </div>
+      <div class="card" style="margin-top:14px">
+        <h3>📊 Strategy Fit Guide</h3>
+        <p class="sub">"Which strategy is preferred for which stock" — re-runs every backtest on
+          every watchlist stock (about 1 minute) and rebuilds the PDF guide.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="fitRun">Regenerate (≈1 min)</button>
+          <a class="btn ghost" id="fitDl" href="/api/fit-guide/download" download>Download PDF</a>
+        </div>
+        <p class="sub" id="fitMsg" style="margin-top:8px"></p>
+      </div>
+    <div class="card" style="margin-top:14px">
+      <h3>ℹ️ About this system</h3>
+      <p class="sub" id="aboutBox">Loading…</p>
+      <h3 style="margin-top:12px">🩺 Health check</h3>
+      <p class="sub">If anything looks broken, press this and read the result (or send it for help).</p>
+      <button class="btn ghost small" id="diagRun">Run health check</button>
+      <div id="diagBox" class="sub" style="margin-top:8px;line-height:1.7">Not run yet.</div>
+    </div>
+  </section>
+
+</div>
+
+<footer>PSX Live &amp; Research · free &amp; open-source · data: DPS PSX (psxdata), Yahoo Finance, public RSS · for education only — not financial advice.</footer>
+<div id="toast"></div>
+<script src="/static/charts.js?v=3.1.0"></script>
+<script src="/static/app.js?v=3.19.0"></script>
+</body>
+</html>

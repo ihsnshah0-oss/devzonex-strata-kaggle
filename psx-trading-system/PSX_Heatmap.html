@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>🔥 PSX Master Heatmap — Live</title>
+<style>
+:root{--bg:#0a0d10;--bg2:#0b0e11;--line2:#1d232b;--muted:#8b98a5;--txt:#e8eef4;
+  --pos:#26a69a;--neg:#ef5350;--gold:#f0b90b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:14px 16px 26px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:19px;margin:0;font-weight:800;letter-spacing:.01em}
+h1 .fire{color:var(--gold)}
+#hmStatus{font-size:12px;color:var(--muted);margin-left:auto;text-align:right;line-height:1.45}
+.src-badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;
+  padding:2px 9px;border-radius:99px;border:1px solid;margin-left:6px;vertical-align:1px}
+.src-local{color:#4ade80;border-color:#14532d;background:rgba(34,197,94,.08)}
+.src-tv{color:#fbbf24;border-color:#713f12;background:rgba(245,158,11,.08)}
+.src-off{color:#f87171;border-color:#7f1d1d;background:rgba(239,68,68,.08)}
+.minitabs{display:flex;gap:6px;margin:10px 0 10px;flex-wrap:wrap}
+.minitabs button{background:#12161b;color:var(--muted);border:1px solid var(--line2);
+  border-radius:8px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer}
+.minitabs button.active{background:var(--gold);border-color:var(--gold);color:#14100a}
+#heatmapGrid{position:relative;height:66vh;min-height:480px;background:var(--bg2);
+  border:1px solid var(--line2);border-radius:14px;overflow:hidden}
+.hm-tile{position:absolute;border-radius:4px;overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  color:#eef4ee;text-align:center;transition:filter .12s;box-shadow:inset 0 0 0 1px rgba(0,0,0,.35);
+  touch-action:manipulation}
+.hm-tile:hover,.hm-tile.sel{filter:brightness(1.4);z-index:5;box-shadow:inset 0 0 0 2px #fff}
+.hm-tile .hm-sym{font-weight:800;letter-spacing:.02em;line-height:1.15}
+.hm-tile .hm-chg{font-weight:700;opacity:.92;line-height:1.15}
+.hm-tile .hm-px{font-weight:600;opacity:.8;line-height:1.1}
+.hm-tile .hm-logo{width:36px;height:36px;border-radius:50%;background:#fff;color:#14232c;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-bottom:5px}
+.hm-sec{position:absolute;color:#e7edf3;font-size:11.5px;font-weight:700;letter-spacing:.03em;
+  padding:5px 8px;z-index:3;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,.9);
+  white-space:nowrap;overflow:hidden}
+.hm-legend{display:flex;align-items:center;gap:5px;margin-top:10px;flex-wrap:wrap}
+.hm-legend i{width:34px;height:10px;border-radius:4px;display:inline-block}
+.hm-legend span{font-size:11px;color:var(--muted)}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.sub{color:var(--muted)}
+#hmTip{position:fixed;z-index:600;width:300px;background:#12161b;border:1px solid var(--line2);
+  border-radius:12px;box-shadow:0 16px 44px rgba(0,0,0,.6);padding:12px 14px;pointer-events:none;display:none}
+#hmTip .tt-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+#hmTip .tt-h b{font-size:15px}
+#hmTip table{width:100%;border-collapse:collapse}
+#hmTip td{font-size:11.5px;padding:2.5px 0;vertical-align:top}
+#hmTip td:first-child{color:var(--muted);width:46%}
+#hmTip td:last-child{font-weight:600;text-align:right}
+.pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.05em;padding:2px 8px;border-radius:99px}
+.pill.b{background:rgba(38,166,154,.15);color:#4dd0c4;border:1px solid rgba(38,166,154,.4)}
+.pill.s{background:rgba(239,83,80,.15);color:#ff8a80;border:1px solid rgba(239,83,80,.4)}
+.pill.h{background:rgba(240,185,11,.12);color:#f0b90b;border:1px solid rgba(240,185,11,.4)}
+/* detail sheet on click */
+#sheet{position:fixed;inset:auto 0 0 0;z-index:700;background:#12161b;border-top:1px solid var(--line2);
+  border-radius:16px 16px 0 0;padding:16px 18px 22px;transform:translateY(105%);transition:transform .22s;
+  max-height:70vh;overflow:auto}
+#sheet.open{transform:none}
+#sheet .grab{width:44px;height:4px;border-radius:2px;background:#2a323b;margin:0 auto 12px}
+#sheet h2{margin:0 0 2px;font-size:18px}
+#sheet .row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #161c22;font-size:13px}
+#sheet .row .k{color:var(--muted)}
+#sheet .row .v{font-weight:700;text-align:right}
+#sheet .links{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+#sheet .links a{flex:1;min-width:120px;text-align:center;text-decoration:none;font-size:12.5px;font-weight:700;
+  color:var(--gold);border:1px solid rgba(240,185,11,.45);border-radius:9px;padding:9px 8px}
+#backdrop{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.45);display:none}
+#backdrop.open{display:block}
+@media (max-width:760px){
+  .wrap{padding:10px 10px 20px}
+  h1{font-size:16px}
+  #hmStatus{font-size:10.5px;width:100%;text-align:left;margin-left:0}
+  #heatmapGrid{height:74vh;min-height:430px}
+  .hm-sec{font-size:10px;padding:4px 6px}
+  .hm-tile .hm-logo{width:26px;height:26px;font-size:12px;margin-bottom:3px}
+  #hmTip{width:262px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="fire">🔥</span> Master Watchlist Heatmap</h1>
+    <div id="hmStatus">starting…</div>
+  </header>
+  <div class="minitabs" id="hmModeTabs">
+    <button data-hm="d" title="Colour by today's change">Today</button>
+    <button data-hm="w" title="Colour by 5-day change">1 Week</button>
+    <button data-hm="m" title="Colour by 21-day change">1 Month</button>
+  </div>
+  <div id="heatmapGrid"></div>
+  <div class="hm-legend">
+    <span>−5%+</span><i style="background:#a11a22"></i><i style="background:#7f1f26"></i><i style="background:#63232a"></i><i style="background:#4a262a"></i><i style="background:#252c33"></i><i style="background:#17493a"></i><i style="background:#11563f"></i><i style="background:#0c6f4c"></i><i style="background:#0a8a5c"></i><span>+5%+</span>
+    <span class="sub" style="margin-left:auto">tile size = market cap · tap/hover = details · tap again = research links</span>
+  </div>
+</div>
+<div id="hmTip"></div>
+<div id="backdrop"></div>
+<div id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+
+<script>
+"use strict";
+/* ═══ PSX Master Heatmap — standalone live file ═══
+   Data order: (1) your local PSX Live & Research app on :8111 if it is running
+   (fully cross-checked prices), else (2) TradingView live tape directly. */
+
+/* ── your 25-stock Master list (kept in sync with config/watchlist.yaml) ── */
+const MASTER = [
+["MEBL","Meezan Bank Limited","Banking & Finance"],["MCB","MCB Bank Limited","Banking & Finance"],
+["UBL","United Bank Limited","Banking & Finance"],["HBL","Habib Bank Limited","Banking & Finance"],
+["BOP","The Bank of Punjab","Banking & Finance"],["NBP","National Bank of Pakistan","Banking & Finance"],
+["MARI","Mari Petroleum Company Limited","Oil & Gas"],["OGDC","Oil & Gas Development Company Limited","Oil & Gas"],
+["PPL","Pakistan Petroleum Limited","Oil & Gas"],["POL","Pakistan Oilfields Limited","Oil & Gas"],
+["PSO","Pakistan State Oil Company Limited","Oil & Gas"],["APL","Attock Petroleum Limited","Oil & Gas"],
+["FFC","Fauji Fertilizer Company Limited","Fertilizer"],["EFERT","Engro Fertilizers Limited","Fertilizer"],
+["ENGROH","Engro Corporation Limited","Conglomerate"],["LOTCHEM","Lotte Chemical Pakistan Limited","Chemicals"],
+["AHCL","Arif Habib Corporation Limited","Holding Companies"],["SYS","Systems Limited","Technology"],
+["TRG","TRG Pakistan Limited","Technology"],["AIRLINK","Air Link Communication Limited","Telecom"],
+["LUCK","Lucky Cement Limited","Cement"],["MLCF","Maple Leaf Cement Factory Limited","Cement"],
+["DGKC","D.G. Khan Cement Company Limited","Cement"],["HUBC","The Hub Power Company Limited","Power"],
+["NESTLE","Nestle Pakistan Limited","Consumer Goods"]];
+
+const LOCAL = ["http://localhost:8111","http://127.0.0.1:8111"];
+const TV_URL = "https://scanner.tradingview.com/pakistan/scan";
+const TV_COLS = ["close","change","Perf.W","Perf.M","volume","market_cap_basic","RSI",
+  "EMA5","EMA10","EMA20","EMA50","EMA100","EMA200","price_52_week_high","price_52_week_low",
+  "price_earnings_ttm","relative_volume_10d_calc","ATR","Recommend.All"];
+const HOLIDAYS_2026 = ["2026-02-05","2026-03-20","2026-03-23","2026-03-24","2026-05-01",
+  "2026-05-27","2026-05-28","2026-06-26","2026-08-14","2026-08-26","2026-12-25"];
+
+let HM = { rows: [], at: null, src: null, note: "", mode: localStorage.psxHmMode || "d" };
+const $ = s => document.querySelector(s);
+const fmtRs = v => (v == null || isNaN(v)) ? "—" : "Rs " + Number(v).toLocaleString("en-PK",{maximumFractionDigits:2});
+const fmtPct = v => (v == null || isNaN(v)) ? "—" : (v >= 0 ? "+" : "") + Number(v).toFixed(2) + "%";
+const fmtN = v => (v == null || isNaN(v)) ? "—" : Number(v).toFixed(2);
+const cls = v => v == null ? "sub" : v > 0 ? "pos" : v < 0 ? "neg" : "sub";
+function hmMcap(v){ if(v==null)return "—"; if(v>=1e12)return "Rs "+(v/1e12).toFixed(2)+" T";
+  if(v>=1e9)return "Rs "+(v/1e9).toFixed(1)+" B"; if(v>=1e6)return "Rs "+(v/1e6).toFixed(1)+" M"; return fmtRs(v); }
+
+/* ── market clock (PKT) ── */
+function pktParts(){ const p = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Karachi",
+  year:"numeric",month:"2-digit",day:"2-digit",weekday:"short",hour:"2-digit",minute:"2-digit",
+  hour12:false}).formatToParts(new Date()).reduce((a,x)=>(a[x.type]=x.value,a),{}); return p; }
+function marketStatus(){ const p = pktParts(); const wd = p.weekday, t = p.hour + ":" + p.minute;
+  const hol = HOLIDAYS_2026.includes(`${p.year}-${p.month}-${p.day}`);
+  if (wd === "Sat" || wd === "Sun" || hol) return { open:false, note: hol ? "PSX holiday" : "weekend" };
+  const close = wd === "Fri" ? "12:30" : "15:30";
+  return { open: t >= "09:30" && t <= close, note: wd === "Fri" ? "Fri hours 09:30–12:30" : "hours 09:30–15:30" }; }
+
+/* ── data source 1: your local app (best — cross-checked) ── */
+async function fetchLocal(){
+  for (const base of LOCAL){
+    try {
+      const ctl = new AbortController(); const to = setTimeout(()=>ctl.abort(), 3000);
+      const r = await fetch(base + "/api/watchlist", { signal: ctl.signal });
+      clearTimeout(to);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const rows = (d.rows || []).filter(x => !x.error && x.snapshot);
+      if (!rows.length) continue;
+      const v = d.verify || {};
+      return { rows, src:"local",
+        note: v.as_of ? `prices cross-checked as of ${v.as_of}${v.live ? " · live session" : ""} · Yahoo → TradingView → PSX Portal`
+                      : "served by your PSX Live & Research app" };
+    } catch(e){ /* try next */ }
+  }
+  return null;
+}
+/* ── data source 2: TradingView live tape (works from file://) ── */
+async function fetchTV(){
+  const body = JSON.stringify({ symbols:{ tickers: MASTER.map(m=>"PSX:"+m[0]), query:{types:[]}}, columns: TV_COLS });
+  const r = await fetch(TV_URL, { method:"POST", body });   // text/plain → no preflight, CORS open
+  if (!r.ok) throw new Error("TradingView HTTP " + r.status);
+  const d = await r.json();
+  const idx = {}; (d.data||[]).forEach(x => idx[x.s.replace("PSX:","")] = x.d);
+  const rows = [];
+  for (const [sym, name, sector] of MASTER){
+    const a = idx[sym]; if (!a || a[0] == null) continue;
+    const [close, chg, w, m, vol, mcap, rsi, e5, e10, e20, e50, e100, e200, h52, l52, pe, relvol, atr, rec] = a;
+    rows.push({ symbol: sym, name, sector, day_chg: chg,
+      chg5: w, chg21: m, mcap, pe, yield: null,
+      snapshot: { close, rsi14: rsi,
+        above_ema5: e5!=null && close>e5, above_ema10: e10!=null && close>e10,
+        above_ema20: e20!=null && close>e20, above_ema50: e50!=null && close>e50,
+        above_ema100: e100!=null && close>e100, above_ema200: e200!=null && close>e200,
+        macd_bull: rec!=null && rec>0,
+        low_52w: l52, high_52w: h52,
+        off_52w_high_pct: h52 ? (close/h52-1)*100 : null,
+        vol_ratio: relvol, atr_pct: atr!=null && close ? atr/close*100 : null,
+        volume: vol }});
+  }
+  if (!rows.length) throw new Error("TradingView returned no rows");
+  return { rows, src:"tv", note:"TradingView live tape (your app on port 8111 is not running — start it for cross-checked prices)" };
+}
+
+async function loadData(){
+  let got = null;
+  try { got = await fetchLocal(); } catch(e){}
+  if (!got){ try { got = await fetchTV(); } catch(e){ got = null; HM.note = "Both sources unreachable — " + e.message; } }
+  if (got){ HM.rows = got.rows; HM.src = got.src; HM.note = got.note; HM.at = new Date(); }
+  renderHeatmap(); paintStatus();
+}
+
+/* ── colour + layout: EXACT copy of the app's Heatmap tab ── */
+const HM_UP = ["#252c33","#17493a","#11563f","#0c6f4c","#0a8a5c"];
+const HM_DN = ["#252c33","#4a262a","#63232a","#7f1f26","#a11a22"];
+const hmChg = r => HM.mode==="w" ? (r.chg5!=null?r.chg5:r.day_chg)
+             : HM.mode==="m" ? (r.chg21!=null?r.chg21:r.day_chg) : r.day_chg;
+const hmVal = r => r.mcap || HM.floor || 1;
+function hmColor(chg){ const c = chg==null?0:chg, a = Math.abs(c);
+  const i = a<0.15?0:a<1?1:a<2?2:a<3.5?3:4; return (c>=0?HM_UP:HM_DN)[i]; }
+function layoutTM(items,x,y,w,h){ const sum = items.reduce((a,b)=>a+b.v,0);
+  if(!sum||w<=0||h<=0)return;
+  const rec=(arr,x,y,w,h,sum)=>{ if(!arr.length)return;
+    if(arr.length===1){arr[0].o.r={x,y,w,h};return;}
+    let acc=0,split=1; for(let i=0;i<arr.length;i++){acc+=arr[i].v;split=i+1;if(acc>=sum/2)break;}
+    split=Math.max(1,Math.min(split,arr.length-1));
+    const A=arr.slice(0,split),B=arr.slice(split);
+    const sa=A.reduce((p,q)=>p+q.v,0),sb=sum-sa;
+    if(w>=h){const wa=w*sa/sum;rec(A,x,y,wa,h,sa);rec(B,x+wa,y,w-wa,h,sb);}
+    else{const ha=h*sa/sum;rec(A,x,y,w,ha,sa);rec(B,x,y+ha,w,h-ha,sb);}};
+  rec(items.slice().sort((a,b)=>b.v-a.v),x,y,w,h,sum); }
+
+function renderHeatmap(){
+  const grid = $("#heatmapGrid"); const rows = HM.rows;
+  if (!rows.length){ grid.innerHTML = `<div class="hm-sec" style="inset:0;display:flex;align-items:center;justify-content:center">${HM.note || "Loading live prices…"}</div>`; return; }
+  const W = grid.clientWidth, H = grid.clientHeight, secs = {};
+  rows.forEach(r => { const k=(r.sector||"Other").trim()||"Other"; (secs[k]=secs[k]||[]).push(r); });
+  const caps = rows.map(r=>r.mcap).filter(v=>v>0).sort((a,b)=>a-b);
+  HM.floor = caps.length ? caps[Math.floor(caps.length/2)]*0.25 : 1;
+  const secList = Object.keys(secs).map(k=>{ const rs=secs[k].sort((a,b)=>hmVal(b)-hmVal(a));
+    const v=rs.reduce((a,r)=>a+hmVal(r),0);
+    const chg=rs.reduce((a,r)=>a+(hmChg(r)||0)*hmVal(r),0)/v;
+    return {name:k,rows:rs,v,chg}; }).sort((a,b)=>b.v-a.v);
+  layoutTM(secList.map(s=>({v:s.v,o:s})),0,0,W,H);
+  let html="";
+  secList.forEach(s=>{ const R=s.r; if(!R||R.w<4||R.h<4)return;
+    const headH = R.h>84?24:0;
+    if(headH) html+=`<div class="hm-sec" style="left:${R.x+2}px;top:${R.y+2}px;width:${R.w-4}px">${s.name} › <b class="${cls(s.chg)}">${fmtPct(s.chg)}</b></div>`;
+    layoutTM(s.rows.map(r=>({v:hmVal(r),o:r})), R.x+2, R.y+headH+1, Math.max(R.w-4,1), Math.max(R.h-headH-3,1));
+    s.rows.forEach(r=>{ const t=r.r; if(!t||t.w<4||t.h<4)return;
+      const big=t.w>96&&t.h>84, med=t.w>52&&t.h>42, tinyPx=t.w>80&&t.h>56&&!big;
+      const fs=Math.max(10,Math.min(26,Math.round(Math.min(t.w,t.h)/4.4)));
+      html+=`<div class="hm-tile" data-s="${r.symbol}" style="left:${(t.x+1).toFixed(1)}px;top:${(t.y+1).toFixed(1)}px;width:${Math.max(t.w-2,2).toFixed(1)}px;height:${Math.max(t.h-2,2).toFixed(1)}px;background:${hmColor(hmChg(r))}">
+        ${big?`<div class="hm-logo">${(r.name||r.symbol).replace(/[^A-Za-z]/g,"").slice(0,1)||"•"}</div>`:""}
+        ${med?`<div class="hm-sym" style="font-size:${fs}px">${r.symbol}</div>`:""}
+        ${med?`<div class="hm-chg" style="font-size:${Math.max(9,fs-4)}px">${fmtPct(hmChg(r))}</div>`:""}
+        ${(big||tinyPx)?`<div class="hm-px" style="font-size:${Math.max(9,fs-5)}px">${fmtRs(r.snapshot.close).replace("Rs ","")}</div>`:""}
+      </div>`; }); });
+  grid.innerHTML = html;
+  grid.querySelectorAll(".hm-tile").forEach(el=>{
+    const r = HM.rows.find(x=>x.symbol===el.dataset.s);
+    el.addEventListener("pointerenter", e=>{ if(e.pointerType!=="touch") hmShowTip(r,e); });
+    el.addEventListener("mousemove", e=>hmMoveTip(e));
+    el.addEventListener("pointerleave", ()=>hmHideTip());
+    el.addEventListener("click", ()=>{ hmHideTip(); openSheet(r); });
+  });
+  paintStatus();
+}
+
+function pill(sig){ const c = sig.includes("BUY") ? "b" : sig.includes("SELL") ? "s" : "h";
+  return `<span class="pill ${c}">${sig}</span>`; }
+function quickSignal(s){ if(!s)return "—"; let p=0;
+  if(s.above_ema50)p++;else p--; if(s.above_ema200)p++;else p--;
+  if(s.macd_bull)p++;else p--;
+  const rsi=s.rsi14; if(rsi!=null){ if(rsi>70)p--; else if(rsi<30)p++; else if(rsi>=50)p++; else p--; }
+  if(s.breakout_20d)p++; if(s.breakdown_20d)p--;
+  return p>=3?"STRONG BUY":p>=1?"BUY":p<=-3?"STRONG SELL":p<=-1?"SELL":"HOLD"; }
+
+function hmShowTip(r,e){ const t=$("#hmTip"); if(!r)return; const s=r.snapshot||{};
+  const tr=[5,10,20,50,100,200].map(L=>s["above_ema"+L]==null?`<span class="sub">·${L}</span>`
+    :(s["above_ema"+L]?`<span class="pos">▲${L}</span>`:`<span class="neg">▼${L}</span>`)).join(" ");
+  const row=(k,v)=>`<tr><td>${k}</td><td>${v}</td></tr>`;
+  t.innerHTML = `
+    <div class="tt-h"><b>${r.symbol}</b><span class="${cls(r.day_chg)}" style="font-weight:800">${fmtPct(r.day_chg)}</span></div>
+    <div class="sub" style="margin:-2px 0 8px">${r.name||""} · ${r.sector||""}</div>
+    <table>
+      ${row("Price",fmtRs(s.close))}
+      ${row("Today / 1W / 1M",`${fmtPct(r.day_chg)} · ${fmtPct(r.chg5)} · ${fmtPct(r.chg21)}`)}
+      ${row("RSI (14)",s.rsi14==null?"—":Number(s.rsi14).toFixed(0))}
+      ${row("Trend 5–200 (EMA)",`<span style="font-size:11px">${tr}</span>`)}
+      ${row("P/E",fmtN(r.pe))}
+      ${row("Div yield",r.yield==null?"—":Number(r.yield).toFixed(1)+"%")}
+      ${row("Market cap",hmMcap(r.mcap))}
+      ${row("52-wk range",s.low_52w!=null&&s.high_52w!=null?fmtRs(s.low_52w)+" – "+fmtRs(s.high_52w):"—")}
+      ${row("Off 52-wk high",s.off_52w_high_pct==null?"—":Number(s.off_52w_high_pct).toFixed(1)+"%")}
+      ${row("Volume vs avg",s.vol_ratio==null?"—":Number(s.vol_ratio).toFixed(1)+"×")}
+      ${row("ATR (14)",s.atr_pct==null?"—":Number(s.atr_pct).toFixed(1)+"%")}
+      ${row("Signal",pill(quickSignal(s)))}
+    </table>
+    <div class="sub" style="margin-top:7px">Tap the tile → research links</div>`;
+  t.style.display="block"; hmMoveTip(e); }
+function hmMoveTip(e){ const t=$("#hmTip"); if(t.style.display==="none")return;
+  const pad=14,w=Math.min(310,innerWidth-20),h=t.offsetHeight||280;
+  let x=e.clientX+pad,y=e.clientY+pad;
+  if(x+w>innerWidth-8)x=Math.max(8,e.clientX-w-pad);
+  if(y+h>innerHeight-8)y=Math.max(8,innerHeight-h-8);
+  t.style.left=x+"px";t.style.top=y+"px"; }
+function hmHideTip(){ $("#hmTip").style.display="none"; }
+
+/* ── click → research sheet ── */
+function openSheet(r){ const s=r.snapshot||{}; const b=$("#sheetBody");
+  const tr=[5,10,20,50,100,200].map(L=>s["above_ema"+L]==null?`<span class="sub">·${L}</span>`
+    :(s["above_ema"+L]?`<span class="pos">▲${L}</span>`:`<span class="neg">▼${L}</span>`)).join(" ");
+  const row=(k,v)=>`<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+  b.innerHTML = `
+    <h2>${r.symbol} <span class="${cls(r.day_chg)}" style="font-size:15px">${fmtPct(r.day_chg)}</span>
+      <span style="color:var(--gold);font-size:15px;margin-left:6px">${fmtRs(s.close)}</span></h2>
+    <div class="sub" style="margin-bottom:10px">${r.name||""} · ${r.sector||""} · signal ${pill(quickSignal(s))}</div>
+    ${row("Today / 1 Week / 1 Month",`${fmtPct(r.day_chg)} · ${fmtPct(r.chg5)} · ${fmtPct(r.chg21)}`)}
+    ${row("RSI (14)",s.rsi14==null?"—":Number(s.rsi14).toFixed(0))}
+    ${row("Trend vs SMA 10–200",`<span style="font-size:12px">${tr}</span>`)}
+    ${row("P/E",fmtN(r.pe))}
+    ${row("Dividend yield",r.yield==null?"—":Number(r.yield).toFixed(1)+"%")}
+    ${row("Market cap",hmMcap(r.mcap))}
+    ${row("52-week range",s.low_52w!=null&&s.high_52w!=null?fmtRs(s.low_52w)+" – "+fmtRs(s.high_52w):"—")}
+    ${row("Off 52-week high",s.off_52w_high_pct==null?"—":Number(s.off_52w_high_pct).toFixed(1)+"%")}
+    ${row("Volume vs 10-day avg",s.vol_ratio==null?"—":Number(s.vol_ratio).toFixed(1)+"×")}
+    ${row("ATR (14)",s.atr_pct==null?"—":Number(s.atr_pct).toFixed(1)+"%")}
+    <div class="links">
+      <a href="https://dps.psx.com.pk/company/${r.symbol}" target="_blank" rel="noopener">PSX Data Portal ↗</a>
+      <a href="https://www.google.com/finance/quote/${r.symbol}:PSX" target="_blank" rel="noopener">Google Finance ↗</a>
+    </div>`;
+  $("#backdrop").classList.add("open"); $("#sheet").classList.add("open"); }
+function closeSheet(){ $("#backdrop").classList.remove("open"); $("#sheet").classList.remove("open"); }
+$("#backdrop").addEventListener("click", closeSheet);
+
+/* ── status line + mode tabs ── */
+function paintStatus(){ const st=$("#hmStatus"); if(!st)return;
+  const modeTxt = HM.mode==="w"?"1 week":HM.mode==="m"?"1 month":"today";
+  const badge = HM.src==="local" ? `<span class="src-badge src-local">✓ LOCAL APP</span>`
+    : HM.src==="tv" ? `<span class="src-badge src-tv">TRADINGVIEW LIVE</span>`
+    : `<span class="src-badge src-off">OFFLINE</span>`;
+  const m = marketStatus();
+  const upd = HM.at ? HM.at.toLocaleTimeString("en-GB",{timeZone:"Asia/Karachi",hour:"2-digit",minute:"2-digit",second:"2-digit"}) : "—";
+  const secs = HM.rows.length ? new Set(HM.rows.map(r=>r.sector)).size : 0;
+  st.innerHTML = `${HM.rows.length} master stocks · ${secs} sectors · coloured by <b>${modeTxt}</b> ·
+    market <b class="${m.open?"pos":"neg"}">${m.open?"OPEN":"CLOSED"}</b> (${m.note})${badge}<br>
+    <span class="sub">${HM.note || "live prices"}</span> · updated ${upd} PKT · next in ${Math.max(0,Math.round((nextAt-Date.now())/1000))}s`; }
+document.querySelectorAll("#hmModeTabs button").forEach(b=>{
+  b.classList.toggle("active", b.dataset.hm===HM.mode);
+  b.addEventListener("click", ()=>{ HM.mode=b.dataset.hm; localStorage.psxHmMode=HM.mode;
+    document.querySelectorAll("#hmModeTabs button").forEach(x=>x.classList.toggle("active",x===b));
+    renderHeatmap(); }); });
+
+/* ── live update loop: 60 s while market open, 5 min otherwise ── */
+let nextAt = Date.now();
+async function tick(){ nextAt = Date.now() + (marketStatus().open ? 60_000 : 300_000);
+  await loadData(); }
+setInterval(()=>{ if (Date.now() >= nextAt && !document.hidden) tick(); }, 1000);
+setInterval(()=>{ if (HM.at) paintStatus(); }, 1000);
+let rz=null; addEventListener("resize", ()=>{ clearTimeout(rz); rz=setTimeout(renderHeatmap,220); });
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.now()>=nextAt) tick(); });
+tick();
+</script>
+</body>
+</html>

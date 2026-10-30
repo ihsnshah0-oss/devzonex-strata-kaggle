@@ -1,0 +1,10 @@
+plan:
+  capital: 200000.0
+  risk_per_trade_pct: 1.0
+  max_positions: 5
+  target_per_trade_pct: 8.0
+  stop_per_trade_pct: 4.0
+  max_hold_days: 21
+  weekly_loss_limit_pct: 2.0
+journal: []
+opens: []
