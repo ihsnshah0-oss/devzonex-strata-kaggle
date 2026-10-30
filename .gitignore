@@ -25,3 +25,6 @@ data/psx.db
 data/psx.db-journal
 data/psx.db-wal
 data/psx.db-shm
+
+# local rebuild of the PSX Live & Research app (source lives on Google Drive)
+psx-trading-system/
